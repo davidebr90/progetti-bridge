@@ -391,39 +391,62 @@ function currentSectionIndex(secs) {
 }
 let fpLock = false;
 let fpWatchdog = 0;
+let fpRAF = 0;
+// Easing morbide (le stesse "curve" degli esempi di scroll-animation vanilla):
+// easeInOutCubic = partenza/arrivo dolci; easeOutQuint = arrivo super morbido.
+const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const easeOutQuint = (t) => 1 - Math.pow(1 - t, 5);
+
+// Animatore di scroll generico via requestAnimationFrame: interpola con easing
+// tra la posizione corrente e `target`. Funziona sia per la finestra (verticale)
+// sia per il deck (orizzontale). Ritorna una funzione per annullarlo.
+function animateScroll({ get, set, target, dur = 800, ease = easeInOutCubic, onEnd }) {
+  const start = get();
+  const dist = target - start;
+  if (Math.abs(dist) < 1) { set(target); onEnd && onEnd(); return () => {}; }
+  const t0 = performance.now();
+  let raf = 0;
+  function frame(now) {
+    const t = Math.min(1, (now - t0) / dur);
+    set(start + dist * ease(t));
+    if (t < 1) raf = requestAnimationFrame(frame);
+    else { onEnd && onEnd(); }
+  }
+  raf = requestAnimationFrame(frame);
+  return () => cancelAnimationFrame(raf);
+}
+
 // Sblocca SEMPRE lo stato full-page (watchdog): se per qualunque motivo
-// l'animazione non completa (tab in background, eccezione, rAF sospeso…), il
-// sito non deve mai restare "congelato"/non scrollabile.
+// l'animazione non completa (tab in background, eccezione…), il sito non deve
+// mai restare "congelato"/non scrollabile.
 function fpUnlock() {
   fpLock = false;
   document.documentElement.classList.remove("fp-animating");
   clearTimeout(fpWatchdog);
 }
-// Anima lo scroll della finestra fino a targetY con easing (transizione visibile),
-// bloccando l'input finché non completa (+ cooldown anti-momentum del trackpad).
-function fpAnimateTo(targetY, dur = 760) {
-  const startY = window.scrollY;
-  const dist = Math.round(targetY) - startY;
-  if (Math.abs(dist) < 2) return;
+// Scroll VERTICALE morbido alla sezione (transizione animata, magnetica).
+function fpAnimateTo(targetY, dur = 820) {
+  const target = Math.round(targetY);
+  if (Math.abs(target - window.scrollY) < 2) return;
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduce) { window.scrollTo(0, startY + dist); return; }
+  if (reduce) { window.scrollTo(0, target); return; }
   fpLock = true;
-  document.documentElement.classList.add("fp-animating"); // disattiva lo snap CSS durante l'animazione
+  document.documentElement.classList.add("fp-animating"); // niente snap-fight durante l'animazione
   clearTimeout(fpWatchdog);
-  fpWatchdog = setTimeout(fpUnlock, dur + 900); // rete di sicurezza: mai bloccati
-  const t0 = performance.now();
-  const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2); // easeInOutCubic
-  function frame(now) {
-    const t = Math.min(1, (now - t0) / dur);
-    window.scrollTo(0, startY + dist * ease(t));
-    if (t < 1) requestAnimationFrame(frame);
-    else {
+  fpWatchdog = setTimeout(fpUnlock, dur + 900);
+  if (fpRAF) fpRAF();
+  fpRAF = animateScroll({
+    get: () => window.scrollY,
+    set: (v) => window.scrollTo(0, v),
+    target,
+    dur,
+    ease: easeInOutCubic,
+    onEnd: () => {
       document.documentElement.classList.remove("fp-animating");
       clearTimeout(fpWatchdog);
-      setTimeout(() => { fpLock = false; }, 140);
-    }
-  }
-  requestAnimationFrame(frame);
+      setTimeout(() => { fpLock = false; }, 130);
+    },
+  });
 }
 function fpGo(dir) {
   const secs = fpSections();
@@ -433,20 +456,37 @@ function fpGo(dir) {
   if (next === cur) return;
   fpAnimateTo(window.scrollY + secs[next].getBoundingClientRect().top);
 }
-// Avanza il deck di UNA card (scrollBy animato: compatibile con lo scroll-snap x
-// del deck, che invece "rimbalzerebbe" gli incrementi piccoli del trackpad).
-// Ritorna false se è già al bordo nella direzione richiesta (→ prosegue in verticale).
+// Scroll ORIZZONTALE morbido di UNA card: interpola scrollLeft con easing (niente
+// più `scrollBy` nativo brusco) e disattiva lo scroll-snap x DURANTE l'animazione
+// (che altrimenti la interromperebbe). Al termine ripristina lo snap.
 function deckGo(deck, dir) {
   const atEnd = deck.scrollLeft + deck.clientWidth >= deck.scrollWidth - 4;
   const atStart = deck.scrollLeft <= 4;
   if ((dir > 0 && atEnd) || (dir < 0 && atStart)) return false;
   const card = deck.querySelector(".deck-card");
   const step = card ? card.getBoundingClientRect().width + 28 : deck.clientWidth * 0.85;
+  const max = deck.scrollWidth - deck.clientWidth;
+  const target = Math.max(0, Math.min(max, deck.scrollLeft + dir * step));
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) { deck.scrollLeft = target; return true; }
   fpLock = true;
   clearTimeout(fpWatchdog);
-  fpWatchdog = setTimeout(fpUnlock, 1100);
-  deck.scrollBy({ left: dir * step, behavior: "smooth" });
-  setTimeout(() => { fpLock = false; clearTimeout(fpWatchdog); }, 560);
+  fpWatchdog = setTimeout(() => { deck.style.scrollSnapType = ""; fpUnlock(); }, 1600);
+  const prevSnap = deck.style.scrollSnapType;
+  deck.style.scrollSnapType = "none";
+  if (fpRAF) fpRAF();
+  fpRAF = animateScroll({
+    get: () => deck.scrollLeft,
+    set: (v) => { deck.scrollLeft = v; },
+    target,
+    dur: 780,
+    ease: easeOutQuint, // arrivo particolarmente morbido sulla card
+    onEnd: () => {
+      deck.style.scrollSnapType = prevSnap || "x mandatory";
+      clearTimeout(fpWatchdog);
+      setTimeout(() => { fpLock = false; }, 110);
+    },
+  });
   return true;
 }
 // Rotella: nel carosello, quando la sezione corrente è il deck → avanza le card
