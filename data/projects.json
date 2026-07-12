@@ -5,7 +5,8 @@
     "author": "Davide Pica",
     "githubUser": "davidebr90",
     "en": {
-      "tagline": "A look at some of the projects I'm working on and have worked on: live demos, code and details."
+      "tagline": "A look at some of the projects I'm working on and have worked on: live demos, code and details.",
+      "title": "Davide's projects"
     },
     "bio": {
       "eyebrow": "La persona",
@@ -43,7 +44,14 @@
       "status": "beta",
       "accent": "#0f8a5f",
       "logo": "",
-      "tags": ["TypeScript", "Baileys", "React", "Fastify", "MCP", "Postgres"],
+      "tags": [
+        "TypeScript",
+        "Baileys",
+        "React",
+        "Fastify",
+        "MCP",
+        "Postgres"
+      ],
       "demoKey": "warmageddon",
       "repo": "",
       "screenshots": [],
@@ -70,7 +78,12 @@
       "status": "live",
       "accent": "#e08a1e",
       "logo": "",
-      "tags": ["React", "Konva", "Canvas", "Self-hosted"],
+      "tags": [
+        "React",
+        "Konva",
+        "Canvas",
+        "Self-hosted"
+      ],
       "demoKey": "lavagna",
       "repo": "",
       "screenshots": [],
@@ -97,7 +110,13 @@
       "status": "live",
       "accent": "#c9962e",
       "logo": "",
-      "tags": ["WordPress", "PHP", "Stripe", "PayPal", "Google Calendar"],
+      "tags": [
+        "WordPress",
+        "PHP",
+        "Stripe",
+        "PayPal",
+        "Google Calendar"
+      ],
       "demoKey": "",
       "demoUrl": "https://apuliancatering.it/booking/",
       "repo": "",
@@ -127,7 +146,12 @@
       "status": "wip",
       "accent": "#8a63d2",
       "logo": "",
-      "tags": ["Rust", "gtk4", "BLE", "Cross-platform"],
+      "tags": [
+        "Rust",
+        "gtk4",
+        "BLE",
+        "Cross-platform"
+      ],
       "demoKey": "",
       "repo": "https://github.com/davidebr90/symbinux",
       "screenshots": [],
@@ -154,7 +178,12 @@
       "status": "wip",
       "accent": "#2f9bd2",
       "logo": "",
-      "tags": ["BLE", "Windows", "Privacy", "Rust"],
+      "tags": [
+        "BLE",
+        "Windows",
+        "Privacy",
+        "Rust"
+      ],
       "demoKey": "",
       "repo": "https://github.com/davidebr90/stavau",
       "screenshots": [],
@@ -181,7 +210,11 @@
       "status": "wip",
       "accent": "#d24a3a",
       "logo": "",
-      "tags": ["Quiz", "Web app", "Dataset"],
+      "tags": [
+        "Quiz",
+        "Web app",
+        "Dataset"
+      ],
       "demoKey": "",
       "repo": "",
       "screenshots": [],

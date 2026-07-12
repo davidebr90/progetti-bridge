@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+
+Sitemap: https://davidebr90.github.io/progetti-bridge/sitemap.xml

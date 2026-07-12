@@ -39,6 +39,9 @@ const T = {
     chooseStyle: "Scegli stile",
     blogNav: "Blog & Filosofia", minRead: "min di lettura", backBlog: "← Torna al blog",
     portfolio: "Progetti / Portfolio",
+    heroEyebrow: "Portfolio",
+    seoTitle: "Davide Pica — Progetti, Blog & Filosofia",
+    seoDesc: "Portfolio di Davide Pica: progetti software (self-hosted, WhatsApp, Rust, WordPress) con demo live e codice, e articoli su tecnologia, energia, demografia, AI e capitale umano.",
   },
   en: {
     sections: "Sections", language: "Language", theme: "Theme",
@@ -49,6 +52,9 @@ const T = {
     chooseStyle: "Choose style",
     blogNav: "Blog & Philosophy", minRead: "min read", backBlog: "← Back to the blog",
     portfolio: "Projects / Portfolio",
+    heroEyebrow: "Portfolio",
+    seoTitle: "Davide Pica — Projects, Blog & Philosophy",
+    seoDesc: "Davide Pica's portfolio: self-hosted, custom software (WhatsApp, Rust, WordPress) with live demos and code, plus a series of essays on technology, energy, demographics, AI and human capital.",
   },
 };
 
@@ -631,7 +637,7 @@ function renderMenu() {
   if (ARTICLES.length) {
     nodes.push({
       label: t("blogNav"),
-      children: ARTICLES.map((a) => ({ label: a.title, meta: fmtArticleDate(a.date), article: a.id })),
+      children: ARTICLES.map((a) => ({ label: loc(a, "title"), meta: fmtArticleDate(a.date), article: a.id })),
     });
   }
   const list = document.getElementById("menu-list");
@@ -759,9 +765,9 @@ function mdToHtml(md) {
 }
 function articleCardHTML(a) {
   return `<button class="art-card reveal" type="button" data-id="${esc(a.id)}" style="--accent:${esc(a.accent || "var(--brand)")}">
-    <span class="art-meta"><span class="art-cat">${esc(a.category || "")}</span><span class="art-date">${esc(fmtArticleDate(a.date))}</span></span>
-    <span class="art-title">${esc(a.title)}</span>
-    <span class="art-excerpt">${esc(a.excerpt || "")}</span>
+    <span class="art-meta"><span class="art-cat">${esc(loc(a, "category") || "")}</span><span class="art-date">${esc(fmtArticleDate(a.date))}</span></span>
+    <span class="art-title">${esc(loc(a, "title"))}</span>
+    <span class="art-excerpt">${esc(loc(a, "excerpt") || "")}</span>
     <span class="art-read">${a.minutes ? `${a.minutes} ${t("minRead")}` : ""} <span class="art-arrow">→</span></span>
   </button>`;
 }
@@ -786,9 +792,9 @@ function openArticle(id) {
   const art = document.getElementById("reader-article");
   art.style.setProperty("--accent", a.accent || "var(--brand)");
   art.innerHTML = `
-    <p class="ra-meta"><span class="ra-cat">${esc(a.category || "")}</span> · <span>${esc(fmtArticleDate(a.date))}</span>${a.minutes ? ` · <span>${a.minutes} ${esc(t("minRead"))}</span>` : ""}</p>
-    <h1 class="ra-title">${esc(a.title)}</h1>
-    <div class="ra-body">${mdToHtml(a.body)}</div>
+    <p class="ra-meta"><span class="ra-cat">${esc(loc(a, "category") || "")}</span> · <span>${esc(fmtArticleDate(a.date))}</span>${a.minutes ? ` · <span>${a.minutes} ${esc(t("minRead"))}</span>` : ""}</p>
+    <h1 class="ra-title">${esc(loc(a, "title"))}</h1>
+    <div class="ra-body">${mdToHtml(loc(a, "body"))}</div>
     <div class="ra-foot"><button type="button" class="ra-back" id="ra-back">${esc(t("backBlog"))}</button></div>`;
   reader.hidden = false;
   document.body.classList.add("reader-open");
@@ -816,12 +822,109 @@ function updateReaderProgress() {
 /* ---------- Stringhe statiche (hero, etichetta dock) ---------- */
 function applyLangToStatic() {
   document.getElementById("hero-tagline").textContent = loc(SITE, "tagline") || "";
+  const eyebrow = document.getElementById("hero-eyebrow");
+  if (eyebrow) eyebrow.textContent = t("heroEyebrow");
+  const heroTitle = document.getElementById("hero-title");
+  if (heroTitle) heroTitle.textContent = loc(SITE, "title") || "";
   const brand = document.getElementById("dock-brand");
   if (brand) brand.textContent = t("chooseStyle"); // etichetta: è un selettore di stile
   const trig = document.getElementById("dock-trigger");
   if (trig) trig.title = t("chooseStyle");
+  applySeoMeta();
   renderBio();
   renderBlog();
+}
+
+/* ---------- SEO: <title>, meta e dati strutturati per lingua ---------- */
+function setMeta(attr, key, content) {
+  let el = document.head.querySelector(`meta[${attr}="${key}"]`);
+  if (!el) {
+    el = document.createElement("meta");
+    el.setAttribute(attr, key);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("content", content);
+}
+function applySeoMeta() {
+  const title = t("seoTitle");
+  const desc = t("seoDesc");
+  document.title = title;
+  setMeta("name", "description", desc);
+  setMeta("property", "og:title", title);
+  setMeta("property", "og:description", desc);
+  setMeta("property", "og:locale", LANG === "en" ? "en_US" : "it_IT");
+  setMeta("name", "twitter:title", title);
+  setMeta("name", "twitter:description", desc);
+  injectJsonLd();
+}
+// Dati strutturati (schema.org) — Person + WebSite + Blog(BlogPosting) + progetti.
+function injectJsonLd() {
+  const base = "https://davidebr90.github.io/progetti-bridge/";
+  const author = (SITE.author || (SITE.bio && SITE.bio.name) || "Davide Pica");
+  const social = (SITE.bio && SITE.bio.social) || {};
+  const sameAs = ["github", "linkedin", "instagram", "facebook"].map((k) => social[k]).filter(Boolean);
+  const person = {
+    "@type": "Person",
+    "@id": base + "#person",
+    name: author,
+    url: base,
+    jobTitle: (SITE.bio && loc(SITE.bio, "role")) || undefined,
+    description: (SITE.bio && loc(SITE.bio, "description")) || undefined,
+    sameAs: sameAs.length ? sameAs : undefined,
+  };
+  const website = {
+    "@type": "WebSite",
+    "@id": base + "#website",
+    url: base,
+    name: t("seoTitle"),
+    description: t("seoDesc"),
+    inLanguage: LANG === "en" ? "en" : "it",
+    author: { "@id": base + "#person" },
+  };
+  const blog = {
+    "@type": "Blog",
+    "@id": base + "#blog",
+    name: loc(BLOGMETA, "title") || "Blog & Filosofia",
+    inLanguage: LANG === "en" ? "en" : "it",
+    author: { "@id": base + "#person" },
+    blogPost: ARTICLES.map((a) => ({
+      "@type": "BlogPosting",
+      headline: loc(a, "title"),
+      datePublished: a.date,
+      articleSection: loc(a, "category") || undefined,
+      description: loc(a, "excerpt") || undefined,
+      inLanguage: LANG === "en" ? "en" : "it",
+      author: { "@id": base + "#person" },
+      mainEntityOfPage: base,
+    })),
+  };
+  const projectList = {
+    "@type": "ItemList",
+    "@id": base + "#projects",
+    name: t("heroEyebrow"),
+    itemListElement: PROJECTS.map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "SoftwareApplication",
+        name: p.title,
+        applicationCategory: "DeveloperApplication",
+        description: loc(p, "description") || loc(p, "tagline") || undefined,
+        url: demoUrl(p) || p.repo || undefined,
+        author: { "@id": base + "#person" },
+      },
+    })),
+  };
+  const graph = { "@context": "https://schema.org", "@graph": [person, website, blog, projectList] };
+  const json = JSON.stringify(graph, (k, v) => (v === undefined ? undefined : v));
+  let el = document.getElementById("ld-json");
+  if (!el) {
+    el = document.createElement("script");
+    el.type = "application/ld+json";
+    el.id = "ld-json";
+    document.head.appendChild(el);
+  }
+  el.textContent = json;
 }
 
 /* ---------- Avvio ---------- */
@@ -897,7 +1000,6 @@ async function main() {
   ARTICLES = (blog && blog.articles) || [];
   BLOGMETA = (blog && blog.meta) || {};
 
-  if (SITE.title) document.title = SITE.title;
   document.getElementById("hero-title").textContent = SITE.title || "";
 
   applyLangToStatic();
