@@ -1151,15 +1151,20 @@ function setupChestRotation(stage) {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const onDown = (e) => {
+    // Non catturiamo subito il pointer: un semplice tap deve restare un tap (così
+    // il click raggiunge il <summary> e apre il cassetto). Cattura solo al drag.
     dragging = true; moved = false; lastX = e.clientX; lastY = e.clientY; pid = e.pointerId;
     vrx = vry = 0; cancelAnimationFrame(raf);
-    stage.classList.add("grabbing");
-    try { stage.setPointerCapture(pid); } catch {}
   };
   const onMove = (e) => {
     if (!dragging) return;
     const dx = e.clientX - lastX, dy = e.clientY - lastY;
-    if (!moved && Math.abs(dx) + Math.abs(dy) > 4) moved = true;
+    if (!moved) {
+      if (Math.abs(dx) + Math.abs(dy) <= 4) return; // sotto soglia: ancora un tap
+      moved = true;                                  // da qui è un trascinamento
+      stage.classList.add("grabbing");
+      try { stage.setPointerCapture(pid); } catch {}
+    }
     lastX = e.clientX; lastY = e.clientY;
     ry += dx * 0.55; rx = clampRx(rx - dy * 0.55);
     vry = dx * 0.55; vrx = -dy * 0.55;
