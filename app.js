@@ -462,13 +462,26 @@ function fpAnimateTo(targetY, dur = 820) {
     },
   });
 }
+// Posizione Y a cui portare una sezione perché il suo CONTENUTO risulti centrato
+// nel viewport. Se la sezione sta in una pagina (altezza ≤ viewport) allineiamo il
+// bordo superiore — il contenuto è già centrato nel box. Se la sezione è più alta
+// del viewport (es. il blog con molte schede) la centriamo, così il taglio è
+// simmetrico sopra/sotto anziché tutto in basso.
+function sectionTargetY(sec) {
+  const rect = sec.getBoundingClientRect();
+  const absTop = window.scrollY + rect.top;
+  const extra = rect.height - window.innerHeight;
+  const target = absTop + (extra > 0 ? extra / 2 : 0);
+  const maxY = document.documentElement.scrollHeight - window.innerHeight;
+  return Math.max(0, Math.min(maxY, target));
+}
 function fpGo(dir) {
   const secs = fpSections();
   if (!secs.length) return;
   const cur = currentSectionIndex(secs);
   const next = Math.min(secs.length - 1, Math.max(0, cur + dir));
   if (next === cur) return;
-  fpAnimateTo(window.scrollY + secs[next].getBoundingClientRect().top);
+  fpAnimateTo(sectionTargetY(secs[next]));
 }
 // Scroll ORIZZONTALE morbido di UNA card: interpola scrollLeft con easing (niente
 // più `scrollBy` nativo brusco) e disattiva lo scroll-snap x DURANTE l'animazione
@@ -529,7 +542,7 @@ function onKeyFp(e) {
   else if (e.key === "Home") { e.preventDefault(); fpAnimateTo(0); }
   else if (e.key === "End") {
     const s = fpSections();
-    if (s.length) fpAnimateTo(window.scrollY + s[s.length - 1].getBoundingClientRect().top);
+    if (s.length) fpAnimateTo(sectionTargetY(s[s.length - 1]));
   }
 }
 // Frecce laterali: nel carosello, se siamo sul deck scorrono le card (fino al
@@ -614,8 +627,9 @@ function scrollToTarget(sel) {
   const el = document.querySelector(sel);
   if (!el) return;
   if (fpActive()) {
-    // Con il controller full-page: transizione animata e magnetica alla sezione.
-    fpAnimateTo(window.scrollY + el.getBoundingClientRect().top);
+    // Con il controller full-page: transizione animata e magnetica alla sezione,
+    // centrando il contenuto (anche quando la sezione è più alta del viewport).
+    fpAnimateTo(sectionTargetY(el));
   } else {
     el.scrollIntoView({ behavior: "smooth", block: sel === "#hero" ? "start" : "center", inline: "center" });
   }

@@ -166,7 +166,7 @@ html.fp-animating { scroll-snap-type: none !important; }
    fluida. Ogni progetto e hero/bio = pagina piena. */
 html[data-ui="cinema"] { scroll-snap-type: y proximity; }
 [data-ui="cinema"] .hero, [data-ui="cinema"] .snap, [data-ui="cinema"] .bio {
-  scroll-snap-align: start; scroll-snap-stop: always;
+  scroll-snap-align: center; scroll-snap-stop: always;
 }
 [data-ui="cinema"] .bio { min-height: 100svh; display: grid; align-items: center; }
 [data-ui="cinema"] .project { min-height: 100svh; display: grid; align-items: center; padding: clamp(3rem,8vw,6rem) clamp(1.1rem,5vw,3rem); border-top: 1px solid var(--border); }
@@ -194,7 +194,7 @@ html[data-ui="cinema"] { scroll-snap-type: y proximity; }
    non si raggiunge l'ultima card, poi prosegue in verticale verso la bio. */
 html[data-ui="carosello"] { scroll-snap-type: y proximity; }
 [data-ui="carosello"] .hero, [data-ui="carosello"] .stage, [data-ui="carosello"] .bio {
-  scroll-snap-align: start; scroll-snap-stop: always;
+  scroll-snap-align: center; scroll-snap-stop: always;
 }
 [data-ui="carosello"] .stage { min-height: 100svh; display: grid; align-items: center; padding: 0; }
 [data-ui="carosello"] .bio { min-height: 100svh; display: grid; align-items: center; }
@@ -297,7 +297,7 @@ html[data-ui="carosello"] { scroll-snap-type: y proximity; }
 
 /* ---- BLOG & FILOSOFIA (sezione madre) ---- */
 .blog { padding: clamp(4rem,10vw,7rem) clamp(1.1rem,5vw,3rem); border-top: 1px solid var(--border); min-height: 100svh; display: grid; align-items: center; }
-[data-ui="cinema"] .blog, [data-ui="carosello"] .blog { scroll-snap-align: start; scroll-snap-stop: always; }
+[data-ui="cinema"] .blog, [data-ui="carosello"] .blog { scroll-snap-align: center; scroll-snap-stop: always; }
 .blog-inner { max-width: var(--maxw); margin: 0 auto; width: 100%; }
 .blog-eyebrow { font-size: .8rem; letter-spacing: .18em; text-transform: uppercase; color: var(--accent-ink); font-weight: 600; margin: 0 0 .7rem; }
 .blog-title { font-family: var(--font-display); font-weight: 500; font-size: clamp(2rem,5vw,3.2rem); letter-spacing: -.02em; margin: 0 0 1rem; text-wrap: balance; }
