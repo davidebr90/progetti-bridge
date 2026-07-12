@@ -406,6 +406,21 @@ function currentSectionIndex(secs) {
 let fpLock = false;
 let fpWatchdog = 0;
 let fpRAF = 0;
+// Gate "un gesto = una slide" per rotella/trackpad. Il trackpad emette una raffica
+// di eventi con lunga coda di momentum: senza gate un solo tocco attraverserebbe
+// tutte le sezioni. Blocchiamo al primo evento e rilasciamo solo dopo un breve
+// SILENZIO (nessun evento wheel), così la coda di momentum viene inghiottita.
+let wheelStepLock = false;
+let lastWheelTs = 0;
+const FP_DUR_WHEEL = 1050; // durata transizione verticale da rotella: lenta e morbida
+function releaseWheelLock(minEndTs) {
+  const check = () => {
+    // sblocca solo se il trackpad è "fermo" da un attimo, altrimenti riprova
+    if (performance.now() - lastWheelTs < 140) setTimeout(check, 140);
+    else wheelStepLock = false;
+  };
+  setTimeout(check, Math.max(0, minEndTs - performance.now()) + 140);
+}
 // Easing morbide (le stesse "curve" degli esempi di scroll-animation vanilla):
 // easeInOutCubic = partenza/arrivo dolci; easeOutQuint = arrivo super morbido.
 const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -481,7 +496,7 @@ function fpGo(dir) {
   const cur = currentSectionIndex(secs);
   const next = Math.min(secs.length - 1, Math.max(0, cur + dir));
   if (next === cur) return;
-  fpAnimateTo(sectionTargetY(secs[next]));
+  fpAnimateTo(sectionTargetY(secs[next]), FP_DUR_WHEEL);
 }
 // Scroll ORIZZONTALE morbido di UNA card: interpola scrollLeft con easing (niente
 // più `scrollBy` nativo brusco) e disattiva lo scroll-snap x DURANTE l'animazione
@@ -491,7 +506,7 @@ function deckGo(deck, dir) {
   const atStart = deck.scrollLeft <= 4;
   if ((dir > 0 && atEnd) || (dir < 0 && atStart)) return false;
   const card = deck.querySelector(".deck-card");
-  const step = card ? card.getBoundingClientRect().width + 28 : deck.clientWidth * 0.85;
+  const step = card ? card.getBoundingClientRect().width + 40 : deck.clientWidth * 0.85;
   const max = deck.scrollWidth - deck.clientWidth;
   const target = Math.max(0, Math.min(max, deck.scrollLeft + dir * step));
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -506,7 +521,7 @@ function deckGo(deck, dir) {
     get: () => deck.scrollLeft,
     set: (v) => { deck.scrollLeft = v; },
     target,
-    dur: 780,
+    dur: 900,
     ease: easeOutQuint, // arrivo particolarmente morbido sulla card
     onEnd: () => {
       deck.style.scrollSnapType = prevSnap || "x mandatory";
@@ -519,40 +534,46 @@ function deckGo(deck, dir) {
 // Rotella: nel carosello, quando la sezione corrente è il deck → avanza le card
 // in ORIZZONTALE (una per gesto); al bordo prosegue in verticale. Altrove (e in
 // cinema) → avanzamento full-page di UNA sezione con transizione animata.
-// MODELLO IBRIDO: sul desktop la rotella resta NATIVA (scroll libero + snap CSS di
-// prossimità). L'unica eccezione è il deck orizzontale del carosello: lì il browser
-// non tradurrebbe lo scroll verticale in avanzamento tra le card, quindi lo facciamo
-// noi (una card per gesto, animata). Al bordo del deck lasciamo proseguire la pagina.
-// Frecce a schermo e tasti mantengono invece la transizione animata (fpGo).
+// Rotella/trackpad: UNA slide per gesto, con transizione lenta e morbida. Il gate
+// wheelStepLock scatta al primo evento del gesto e si rilascia solo dopo un breve
+// silenzio (releaseWheelLock), così la lunga coda di momentum del trackpad non fa
+// scorrere più sezioni. Nelle interfacce non full-page (griglia/rivista/cinetica)
+// lo scroll resta nativo. Frecce a schermo e tasti usano la stessa logica (navigate).
 function onWheelFp(e) {
   if (document.body.classList.contains("menu-open")) return;
   const reader = document.getElementById("reader");
   if (reader && !reader.hidden) return;
-
   const ui = document.documentElement.getAttribute("data-ui");
-  const deck = ui === "carosello" ? document.getElementById("deck") : null;
-  let overDeck = false;
-  if (deck) {
-    const r = deck.getBoundingClientRect();
-    overDeck = r.height > 0 && e.clientY >= r.top && e.clientY <= r.bottom;
-  }
+  if (ui !== "cinema" && ui !== "carosello") return; // altre interfacce: scroll nativo
 
-  if (!overDeck) {
-    // Percorso nativo: se è in corso un'animazione (freccia/tasto) l'utente ha la
-    // precedenza — la annulliamo e restituiamo il controllo allo scroll nativo.
-    if (fpLock) { if (fpRAF) fpRAF(); fpUnlock(); }
-    return;
-  }
-
-  // Sopra al deck del carosello.
-  if (fpLock) { e.preventDefault(); return; } // una card per gesto (throttle)
+  e.preventDefault(); // controllo del passo (un gesto = una slide)
+  const now = performance.now();
+  lastWheelTs = now;
+  if (wheelStepLock) return;               // gesto/animazione in corso: inghiotti la coda
   if (Math.abs(e.deltaY) < 4) return;
   const dir = e.deltaY > 0 ? 1 : -1;
-  const atEnd = deck.scrollLeft + deck.clientWidth >= deck.scrollWidth - 4;
-  const atStart = deck.scrollLeft <= 4;
-  if ((dir > 0 && atEnd) || (dir < 0 && atStart)) return; // al bordo: pagina libera
-  e.preventDefault();
-  deckGo(deck, dir);
+
+  // Carosello: sopra al deck e non al bordo → avanza UNA card in orizzontale.
+  if (ui === "carosello") {
+    const deck = document.getElementById("deck");
+    if (deck) {
+      const r = deck.getBoundingClientRect();
+      const overDeck = r.height > 0 && e.clientY >= r.top && e.clientY <= r.bottom;
+      const atEnd = deck.scrollLeft + deck.clientWidth >= deck.scrollWidth - 4;
+      const atStart = deck.scrollLeft <= 4;
+      if (overDeck && !((dir > 0 && atEnd) || (dir < 0 && atStart))) {
+        wheelStepLock = true;
+        deckGo(deck, dir);
+        releaseWheelLock(now + 980); // durata anim. deck (vedi deckGo)
+        return;
+      }
+    }
+  }
+
+  // Sezione verticale: transizione lenta con atterraggio morbido.
+  wheelStepLock = true;
+  fpGo(dir);
+  releaseWheelLock(now + FP_DUR_WHEEL);
 }
 function onKeyFp(e) {
   if (!fpActive()) return;
