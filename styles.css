@@ -192,6 +192,7 @@ main { position: relative; }
 .hero-eyebrow { font-size: .82rem; letter-spacing: .22em; text-transform: uppercase; color: var(--accent-ink); font-weight: 600; margin: 0 0 1.2rem; animation: rise .8s .05s cubic-bezier(.2,.7,.3,1) both; }
 .hero h1 { font-family: var(--font-display); font-weight: 500; font-size: clamp(2.8rem,9vw,6rem); line-height: .98; letter-spacing: -.025em; margin: 0 0 1.3rem; text-wrap: balance; animation: rise .9s .12s cubic-bezier(.2,.7,.3,1) both; }
 .hero-tagline { font-size: clamp(1.05rem,2.6vw,1.35rem); color: var(--ink-soft); margin: 0; max-width: 42ch; line-height: 1.5; animation: rise .9s .2s cubic-bezier(.2,.7,.3,1) both; }
+.hero-note { font-size: .82rem; color: var(--ink-faint); margin: .5rem 0 0; font-style: italic; animation: rise .9s .26s cubic-bezier(.2,.7,.3,1) both; }
 .hero-scroll { margin-top: clamp(2.2rem,6vw,3.6rem); color: var(--ink-faint); display: inline-grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--border); background: transparent; cursor: pointer; animation: rise 1s .3s cubic-bezier(.2,.7,.3,1) both, floaty 2.6s 1.2s ease-in-out infinite; transition: color .2s, border-color .2s, background .2s; }
 .hero-scroll:hover { color: var(--ink); border-color: var(--border-strong); background: var(--surface-2); }
 

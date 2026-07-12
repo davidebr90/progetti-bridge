@@ -957,6 +957,8 @@ function updateReaderProgress() {
 /* ---------- Stringhe statiche (hero, etichetta dock) ---------- */
 function applyLangToStatic() {
   document.getElementById("hero-tagline").textContent = loc(SITE, "tagline") || "";
+  const note = document.getElementById("hero-note");
+  if (note) note.textContent = loc(SITE, "taglineSmall") || "";
   const eyebrow = document.getElementById("hero-eyebrow");
   if (eyebrow) eyebrow.textContent = t("heroEyebrow");
   const heroTitle = document.getElementById("hero-title");
