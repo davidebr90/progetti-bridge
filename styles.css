@@ -396,19 +396,30 @@ body.menu-open { overflow: hidden; }
 .menu.open { clip-path: circle(150% at calc(100% - 44px) 44px); visibility: visible; transition: clip-path .6s cubic-bezier(.76,0,.24,1); }
 .menu-inner { width: min(680px, 100%); display: flex; flex-direction: column; gap: clamp(1.6rem,4vw,2.6rem); }
 .menu-label { font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); font-weight: 600; margin: 0; }
-.menu-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: clamp(.5rem, 1.6vw, 1rem); }
-.menu-list li { opacity: 0; transform: translateY(16px); }
-.menu.open .menu-list li { opacity: 1; transform: none; transition: opacity .5s cubic-bezier(.2,.7,.3,1) var(--d), transform .5s cubic-bezier(.2,.7,.3,1) var(--d); }
-.menu-list button { display: flex; align-items: center; width: 100%; text-align: left; background: none; border: none; cursor: pointer; color: var(--ink); font-family: var(--font-display); font-weight: 500; font-size: clamp(1.7rem,5.5vw,2.8rem); letter-spacing: -.02em; line-height: 1.12; padding: .1rem 0; transition: color .3s; }
-/* Trattino segnaposto: nasce a larghezza 0 e si allunga (con la spaziatura) in
-   hover, spingendo il testo — tratto caratteristico del menu di riferimento. */
-.menu-list button::before {
-  content: ""; flex: none; height: 3px; width: 0; margin-right: 0; border-radius: 3px;
-  background: currentColor;
-  transition: width .42s cubic-bezier(.2,.7,.3,1), margin-right .42s cubic-bezier(.2,.7,.3,1);
-}
-.menu-list button:hover { color: var(--brand); }
-.menu-list button:hover::before { width: clamp(26px, 4.5vw, 52px); margin-right: clamp(14px, 2vw, 22px); }
+.menu-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: clamp(.45rem, 1.4vw, .9rem); }
+.menu-list > li { opacity: 0; transform: translateY(16px); }
+.menu.open .menu-list > li { opacity: 1; transform: none; transition: opacity .5s cubic-bezier(.2,.7,.3,1) var(--d), transform .5s cubic-bezier(.2,.7,.3,1) var(--d); }
+
+/* Voci di primo livello (grandi, Fraunces) con trattino animato in hover. */
+.m-item { display: flex; align-items: center; width: 100%; text-align: left; background: none; border: none; cursor: pointer; color: var(--ink); font-family: var(--font-display); font-weight: 500; font-size: clamp(1.6rem,5vw,2.6rem); letter-spacing: -.02em; line-height: 1.12; padding: .06rem 0; transition: color .3s; }
+.m-item::before { content: ""; flex: none; height: 3px; width: 0; margin-right: 0; border-radius: 3px; background: currentColor; transition: width .42s cubic-bezier(.2,.7,.3,1), margin-right .42s cubic-bezier(.2,.7,.3,1); }
+.m-item:hover { color: var(--brand); }
+.m-item:hover::before { width: clamp(24px, 4vw, 46px); margin-right: clamp(12px, 2vw, 20px); }
+/* Genitore aperto: trattino persistente + colore accento. */
+.m-group.is-open > .m-parent { color: var(--brand); }
+.m-group.is-open > .m-parent::before { width: clamp(24px, 4vw, 46px); margin-right: clamp(12px, 2vw, 20px); }
+
+/* Sottomenu ad accordion: rientrato, tipografia più piccola. */
+.m-sub { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .42s cubic-bezier(.2,.7,.3,1); }
+.m-group.is-open > .m-sub { grid-template-rows: 1fr; }
+.m-sub-list { overflow: hidden; min-height: 0; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.m-group.is-open > .m-sub .m-sub-list { padding: .35rem 0 .35rem; }
+.m-sub-item { position: relative; display: flex; align-items: baseline; gap: .6rem; width: 100%; text-align: left; background: none; border: none; cursor: pointer; color: var(--ink-soft); font-family: var(--font-sans); font-weight: 500; font-size: clamp(.98rem, 2.1vw, 1.18rem); line-height: 1.5; padding: .26rem 0 .26rem clamp(1.3rem, 4vw, 2.4rem); transition: color .22s, padding-left .28s; }
+.m-sub-item::before { content: ""; position: absolute; left: clamp(.3rem,1.4vw,1rem); top: 50%; width: 0; height: 2px; border-radius: 2px; background: currentColor; transform: translateY(-50%); transition: width .3s; }
+.m-sub-item:hover { color: var(--brand); padding-left: clamp(1.7rem, 5vw, 2.9rem); }
+.m-sub-item:hover::before { width: clamp(10px, 2vw, 18px); }
+.m-sub-label { flex: 0 1 auto; }
+.m-sub-date { flex: none; font-size: .72rem; color: var(--ink-faint); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
 .menu-controls { display: flex; flex-wrap: wrap; gap: 1.6rem 2.4rem; padding-top: 1rem; border-top: 1px solid var(--border); }
 .menu-ctl { display: flex; flex-direction: column; gap: .55rem; }
 .menu-ctl-label { font-size: .75rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); font-weight: 600; }
@@ -442,7 +453,7 @@ body.menu-open { overflow: hidden; }
   .reveal, .project-body > * { opacity: 1; transform: none; filter: none; transition: none; }
   .status-live::before { animation: none; }
   .tilt-inner { transition: none; }
-  .menu, .menu-list li, .burger span { transition: none; }
+  .menu, .menu-list li, .burger span, .m-sub, .m-item::before, .m-sub-item { transition: none; }
 }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .34s; }
 /* ============================================================================

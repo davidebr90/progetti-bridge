@@ -38,6 +38,7 @@ const T = {
     menuOpen: "Apri il menu", menuClose: "Chiudi il menu",
     chooseStyle: "Scegli stile",
     blogNav: "Blog & Filosofia", minRead: "min di lettura", backBlog: "← Torna al blog",
+    portfolio: "Progetti / Portfolio",
   },
   en: {
     sections: "Sections", language: "Language", theme: "Theme",
@@ -47,6 +48,7 @@ const T = {
     menuOpen: "Open the menu", menuClose: "Close the menu",
     chooseStyle: "Choose style",
     blogNav: "Blog & Philosophy", minRead: "min read", backBlog: "← Back to the blog",
+    portfolio: "Projects / Portfolio",
   },
 };
 
@@ -618,19 +620,60 @@ function renderMenu() {
   document.getElementById("menu-lang-label").textContent = t("language");
   document.getElementById("menu-theme-label").textContent = t("theme");
 
-  // Elenco sezioni: Intro + progetti + Blog + Profilo
+  // Struttura ad ALBERO: Intro · Progetti (sub) · Profilo · Blog (sub).
+  const nodes = [];
+  nodes.push({ label: t("intro"), sel: "#hero" });
+  nodes.push({
+    label: t("portfolio"),
+    children: PROJECTS.map((p, i) => ({ label: p.title, sel: `[data-proj="${i}"]` })),
+  });
+  nodes.push({ label: t("profile"), sel: "#bio" });
+  if (ARTICLES.length) {
+    nodes.push({
+      label: t("blogNav"),
+      children: ARTICLES.map((a) => ({ label: a.title, meta: fmtArticleDate(a.date), article: a.id })),
+    });
+  }
   const list = document.getElementById("menu-list");
-  const items = [["#hero", t("intro")]];
-  PROJECTS.forEach((p, i) => items.push([`[data-proj="${i}"]`, p.title]));
-  if (ARTICLES.length) items.push(["#blog", t("blogNav")]);
-  items.push(["#bio", t("profile")]);
-  list.innerHTML = items
-    .map(([sel, label], i) => `<li style="--d:${i * 45}ms"><button type="button" data-sel="${esc(sel)}">${esc(label)}</button></li>`)
+  list.innerHTML = nodes
+    .map((n, i) => {
+      const delay = `style="--d:${i * 55}ms"`;
+      if (!n.children) {
+        return `<li ${delay}><button type="button" class="m-item" data-sel="${esc(n.sel)}">${esc(n.label)}</button></li>`;
+      }
+      const subs = n.children
+        .map((c) => {
+          const attr = c.article ? `data-article="${esc(c.article)}"` : `data-sel="${esc(c.sel)}"`;
+          const meta = c.meta ? `<span class="m-sub-date">${esc(c.meta)}</span>` : "";
+          return `<li><button type="button" class="m-sub-item" ${attr}><span class="m-sub-label">${esc(c.label)}</span>${meta}</button></li>`;
+        })
+        .join("");
+      return `<li class="m-group" ${delay}>
+        <button type="button" class="m-item m-parent" aria-expanded="false">${esc(n.label)}</button>
+        <div class="m-sub"><ul class="m-sub-list">${subs}</ul></div>
+      </li>`;
+    })
     .join("");
-  list.querySelectorAll("button").forEach((b) =>
+  // Foglie: chiudi il menu e scrolla alla sezione.
+  list.querySelectorAll(".m-item[data-sel], .m-sub-item[data-sel]").forEach((b) =>
     b.addEventListener("click", () => {
       closeMenu();
       setTimeout(() => scrollToTarget(b.dataset.sel), 260);
+    }),
+  );
+  // Articoli: chiudi il menu e apri il lettore.
+  list.querySelectorAll(".m-sub-item[data-article]").forEach((b) =>
+    b.addEventListener("click", () => {
+      closeMenu();
+      setTimeout(() => openArticle(b.dataset.article), 300);
+    }),
+  );
+  // Genitori: apri/chiudi il sottomenu (il genitore resta, con trattino).
+  list.querySelectorAll(".m-parent").forEach((b) =>
+    b.addEventListener("click", () => {
+      const group = b.closest(".m-group");
+      const open = group.classList.toggle("is-open");
+      b.setAttribute("aria-expanded", open ? "true" : "false");
     }),
   );
 
