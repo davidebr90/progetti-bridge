@@ -212,7 +212,9 @@ main { position: relative; }
   --handle: color-mix(in srgb, var(--ink) 34%, var(--surface));
   display: grid; place-items: center;
   height: clamp(206px, 32vmin, 300px);
-  margin: .2rem 0 1.5rem;
+  /* spazio ampio sotto: l'ultimo cassetto, aprendosi, sporge in avanti/in basso
+     e non deve mai coprire il suggerimento sottostante */
+  margin: .2rem 0 clamp(2.6rem, 7vmin, 4rem);
   animation: rise .9s .1s cubic-bezier(.2,.7,.3,1) both;
 }
 .chest-stage, .chest-stage *, .chest-stage *::before, .chest-stage *::after { transform-style: preserve-3d; box-sizing: border-box; }
@@ -252,7 +254,7 @@ main { position: relative; }
 .chest-stage summary { outline: transparent; height: 100%; width: 100%; list-style: none; }
 .chest-stage summary::-webkit-details-marker { display: none; }
 .chest-stage summary::after { content: ''; position: absolute; background: linear-gradient(var(--handle), var(--handle)) 50% 15%/40% 8% no-repeat, transparent; height: 110%; width: 110%; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0.5vmin); }
-.hero-hint { font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); margin: -.6rem 0 0; animation: rise .9s .22s cubic-bezier(.2,.7,.3,1) both; }
+.hero-hint { font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); margin: 0; animation: rise .9s .22s cubic-bezier(.2,.7,.3,1) both; }
 @media (prefers-reduced-motion: reduce) {
   .chest-stage details, .chest-stage .drawer__structure { transition: none; }
 }
