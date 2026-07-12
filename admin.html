@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="it" data-theme="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin · Progetti</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="color-scheme" content="light dark" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <script>
+      (function () {
+        try {
+          var p = localStorage.getItem("bridge-theme");
+          if (p === "light" || p === "dark") document.documentElement.setAttribute("data-theme", p);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="admin">
+    <header class="site-header" id="header">
+      <div class="wrap">
+        <a class="brand" href="./">
+          <span class="brand-mark">D</span>
+          <span>Admin</span>
+        </a>
+        <div class="theme-seg" role="group" aria-label="Tema" id="theme-seg"></div>
+      </div>
+    </header>
+
+    <main class="wrap admin-wrap">
+      <section class="panel" id="auth-panel">
+        <h2>Accesso</h2>
+        <p class="muted">
+          Serve un <strong>Personal Access Token</strong> di GitHub (fine-grained, permesso
+          <em>Contents: Read and write</em> sul repository della pagina). Resta salvato solo in questo browser.
+        </p>
+        <div class="field">
+          <label for="repo">Repository <span class="muted">(utente/nome)</span></label>
+          <input id="repo" type="text" placeholder="davidebr90/progetti-bridge" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="branch">Branch</label>
+          <input id="branch" type="text" placeholder="main" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="token">Token</label>
+          <input id="token" type="password" placeholder="github_pat_…" autocomplete="off" />
+        </div>
+        <div class="row">
+          <button class="btn btn-primary" id="btn-load">Connetti e carica</button>
+          <button class="btn" id="btn-forget" type="button">Dimentica token</button>
+        </div>
+        <p class="status-line" id="auth-status"></p>
+      </section>
+
+      <section class="panel hidden" id="edit-panel">
+        <div class="panel-head">
+          <div>
+            <h2>Progetti</h2>
+            <p class="muted" id="site-line"></p>
+          </div>
+          <button class="btn" id="btn-add" type="button">+ Nuovo progetto</button>
+        </div>
+        <div id="proj-list" class="proj-list"></div>
+        <div class="sticky-save">
+          <span class="status-line" id="save-status"></span>
+          <button class="btn btn-primary" id="btn-save">Salva su GitHub</button>
+        </div>
+      </section>
+    </main>
+
+    <template id="proj-tpl">
+      <details class="proj">
+        <summary>
+          <span class="proj-dot"></span>
+          <span class="proj-name">Progetto</span>
+          <span class="proj-status muted"></span>
+        </summary>
+        <div class="proj-body">
+          <div class="grid2">
+            <label>ID <input data-k="id" /></label>
+            <label>Titolo <input data-k="title" /></label>
+            <label>Sottotitolo <input data-k="tagline" /></label>
+            <label>Stato
+              <select data-k="status">
+                <option value="live">Live</option>
+                <option value="beta">Beta</option>
+                <option value="wip">In sviluppo</option>
+              </select>
+            </label>
+            <label>Accento <input data-k="accent" type="text" placeholder="#0f8a5f" /></label>
+            <label>Logo (URL) <input data-k="logo" /></label>
+            <label>Chiave demo <input data-k="demoKey" placeholder="warmageddon" /></label>
+            <label>Repository (URL) <input data-k="repo" /></label>
+          </div>
+          <label class="full">Descrizione <textarea data-k="description" rows="3"></textarea></label>
+          <label class="full">Tag <span class="muted">(separati da virgola)</span> <input data-k="tags" /></label>
+          <label class="full">Punti chiave <span class="muted">(uno per riga)</span> <textarea data-k="highlights" rows="3"></textarea></label>
+          <label class="full">Screenshot <span class="muted">(un URL per riga)</span> <textarea data-k="screenshots" rows="2"></textarea></label>
+          <div class="row">
+            <button class="btn btn-danger" data-act="del" type="button">Elimina progetto</button>
+            <button class="btn" data-act="up" type="button">↑ Su</button>
+            <button class="btn" data-act="down" type="button">↓ Giù</button>
+          </div>
+        </div>
+      </details>
+    </template>
+
+    <script type="module" src="./admin.js"></script>
+  </body>
+</html>

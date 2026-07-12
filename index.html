@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="it" data-theme="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Progetti di Davide</title>
+    <meta name="description" content="Panoramica dei progetti: demo live, codice e dettagli." />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d0e10" media="(prefers-color-scheme: dark)" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <script>
+      // Tema PRIMA del paint: niente flash. auto = segue il sistema.
+      (function () {
+        try {
+          var p = localStorage.getItem("bridge-theme");
+          if (p === "light" || p === "dark") document.documentElement.setAttribute("data-theme", p);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <header class="site-header" id="header">
+      <div class="wrap">
+        <a class="brand" href="./" aria-label="Home">
+          <span class="brand-mark" id="brand-mark">D</span>
+          <span id="brand-name">Progetti</span>
+        </a>
+        <div class="theme-seg" role="group" aria-label="Tema" id="theme-seg"></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero wrap">
+        <p class="hero-eyebrow" id="hero-eyebrow">Portfolio</p>
+        <h1 id="hero-title">I miei progetti</h1>
+        <p id="hero-tagline"></p>
+      </section>
+
+      <section class="wrap">
+        <div class="grid" id="grid" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <span id="footer-name">© Davide</span>
+        <a id="footer-gh" href="#" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </footer>
+
+    <dialog class="modal" id="modal">
+      <div class="modal-card" id="modal-card"></div>
+    </dialog>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

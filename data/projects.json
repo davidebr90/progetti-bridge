@@ -1,0 +1,100 @@
+{
+  "site": {
+    "title": "Progetti di Davide",
+    "tagline": "Una panoramica dei progetti su cui sto lavorando: demo live, codice e dettagli.",
+    "author": "Davide Pica",
+    "githubUser": "davidebr90"
+  },
+  "projects": [
+    {
+      "id": "warmageddon",
+      "title": "wArmageddon",
+      "tagline": "Demone WhatsApp self-hosted",
+      "description": "Gestisci il tuo account WhatsApp (chat, media, gruppi, stati) da un'interfaccia web, via API REST e da un server MCP per gli assistenti AI. Si collega come dispositivo companion tramite Baileys, con risponditore automatico opzionale. Tutti i dati restano sul tuo server.",
+      "status": "beta",
+      "accent": "#0f8a5f",
+      "logo": "",
+      "tags": ["TypeScript", "Baileys", "React", "Fastify", "MCP", "Postgres"],
+      "demoKey": "warmageddon",
+      "repo": "",
+      "screenshots": [],
+      "highlights": [
+        "WebUI stile WhatsApp Desktop + API REST + server MCP",
+        "Risponditore AI con persona, memoria e ricerca proattiva",
+        "Companion multi-device via Baileys, dati 100% self-hosted"
+      ]
+    },
+    {
+      "id": "lavagna",
+      "title": "Lavagna Tattica",
+      "tagline": "Lavagna per allenatori di basket",
+      "description": "Web app per disegnare schemi e giocate di pallacanestro, con animazione dei movimenti, salvataggio e riproduzione. Costruita in React + Konva, gira self-hosted su VPS.",
+      "status": "live",
+      "accent": "#e08a1e",
+      "logo": "",
+      "tags": ["React", "Konva", "Canvas", "Self-hosted"],
+      "demoKey": "lavagna",
+      "repo": "",
+      "screenshots": [],
+      "highlights": [
+        "Editor su canvas con animazione dei movimenti",
+        "Salvataggio e riproduzione delle giocate",
+        "Motore di animazione dedicato (useAnimEngine)"
+      ]
+    },
+    {
+      "id": "symbinux",
+      "title": "Symbinux",
+      "tagline": "GUI cross-platform in Rust (gtk4)",
+      "description": "Fork di Nokinux: interfaccia grafica cross-platform in Rust con gtk4, gestione wireless via BLE reale, installer Windows. Verificato su Linux e Windows.",
+      "status": "wip",
+      "accent": "#8a63d2",
+      "logo": "",
+      "tags": ["Rust", "gtk4", "BLE", "Cross-platform"],
+      "demoKey": "",
+      "repo": "https://github.com/davidebr90/symbinux",
+      "screenshots": [],
+      "highlights": [
+        "GUI Rust gtk4 cross-platform (Linux + Windows)",
+        "Crate symbinux-wireless: BLE reale su Windows",
+        "Installer Windows (Inno Setup) testato"
+      ]
+    },
+    {
+      "id": "stavau",
+      "title": "stavau",
+      "tagline": "Privacy by proximity",
+      "description": "App che blocca automaticamente il PC quando ti allontani, rilevando la prossimità del telefono via Bluetooth Low Energy. Testata dal vivo su Windows 11.",
+      "status": "wip",
+      "accent": "#2f9bd2",
+      "logo": "",
+      "tags": ["BLE", "Windows", "Privacy", "Rust"],
+      "demoKey": "",
+      "repo": "https://github.com/davidebr90/stavau",
+      "screenshots": [],
+      "highlights": [
+        "Blocco PC automatico via prossimità BLE",
+        "Testata dal vivo su Windows 11",
+        "Strategy engine per Android / iPhone (v0.2)"
+      ]
+    },
+    {
+      "id": "vvf-quiz",
+      "title": "VVF Quiz",
+      "tagline": "Quiz idoneità tecnica antincendio",
+      "description": "Piattaforma di quiz per l'idoneità tecnica antincendio dei Vigili del Fuoco: banca dati completa dei quesiti ufficiali (DM 2/9/2021 + vecchio banco DM 10/3/98), pronta per la web app.",
+      "status": "wip",
+      "accent": "#d24a3a",
+      "logo": "",
+      "tags": ["Quiz", "Web app", "Dataset"],
+      "demoKey": "",
+      "repo": "",
+      "screenshots": [],
+      "highlights": [
+        "639 quesiti ufficiali FOR2/FOR3 (DM 2/9/2021)",
+        "610 quesiti del vecchio banco (DM 10/3/98)",
+        "Base dati completa, web app in costruzione"
+      ]
+    }
+  ]
+}

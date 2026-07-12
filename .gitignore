@@ -1,0 +1,15 @@
+# Dipendenze / build (il sito è statico, ma per sicurezza)
+node_modules/
+dist/
+
+# Segreti — MAI committare token o env
+.env
+.env.*
+*.token
+*.secret
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
