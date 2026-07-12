@@ -537,8 +537,10 @@ function onWheelFp(e) {
 function onKeyFp(e) {
   if (!fpActive()) return;
   if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName || "")) return;
-  if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); fpGo(1); }
-  else if (e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); fpGo(-1); }
+  // Usa navigate(): stessa logica di rotella e frecce a schermo, così nel
+  // carosello i tasti freccia scorrono prima le card, poi cambiano sezione.
+  if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); navigate(1); }
+  else if (e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); navigate(-1); }
   else if (e.key === "Home") { e.preventDefault(); fpAnimateTo(0); }
   else if (e.key === "End") {
     const s = fpSections();
