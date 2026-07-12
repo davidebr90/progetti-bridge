@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
@@ -26,38 +26,43 @@
     </script>
   </head>
   <body>
-    <header class="site-header" id="header">
-      <div class="wrap">
-        <a class="brand" href="./" aria-label="Home">
-          <span class="brand-mark" id="brand-mark">D</span>
-          <span id="brand-name">Progetti</span>
-        </a>
-        <div class="theme-seg" role="group" aria-label="Tema" id="theme-seg"></div>
-      </div>
-    </header>
+    <!-- Controllo tema flottante, fuori da qualunque header -->
+    <div class="theme-float">
+      <div class="theme-seg" role="group" aria-label="Tema" id="theme-seg"></div>
+    </div>
 
     <main>
-      <section class="hero wrap">
-        <p class="hero-eyebrow" id="hero-eyebrow">Portfolio</p>
-        <h1 id="hero-title">I miei progetti</h1>
-        <p id="hero-tagline"></p>
+      <section class="hero">
+        <div class="hero-inner">
+          <p class="hero-eyebrow" id="hero-eyebrow">Portfolio</p>
+          <h1 id="hero-title">I miei progetti</h1>
+          <p class="hero-tagline" id="hero-tagline"></p>
+          <a class="hero-scroll" href="#projects" aria-label="Scorri ai progetti">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6" /></svg>
+          </a>
+        </div>
       </section>
 
-      <section class="wrap">
-        <div class="grid" id="grid" aria-live="polite"></div>
+      <div id="projects" class="projects"></div>
+
+      <section class="bio" id="bio" hidden>
+        <div class="bio-inner">
+          <div class="bio-photo" id="bio-photo"></div>
+          <div class="bio-content">
+            <p class="bio-eyebrow" id="bio-eyebrow"></p>
+            <h2 class="bio-name" id="bio-name"></h2>
+            <p class="bio-role" id="bio-role"></p>
+            <p class="bio-desc" id="bio-desc"></p>
+            <ul class="bio-quotes" id="bio-quotes"></ul>
+          </div>
+        </div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <div class="wrap">
-        <span id="footer-name">© Davide</span>
-        <a id="footer-gh" href="#" target="_blank" rel="noopener">GitHub</a>
-      </div>
+      <span id="footer-name">© Davide</span>
+      <a id="footer-gh" href="#" target="_blank" rel="noopener">GitHub</a>
     </footer>
-
-    <dialog class="modal" id="modal">
-      <div class="modal-card" id="modal-card"></div>
-    </dialog>
 
     <script type="module" src="./app.js"></script>
   </body>

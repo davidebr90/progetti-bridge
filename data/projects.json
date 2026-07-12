@@ -1,9 +1,20 @@
 {
   "site": {
     "title": "Progetti di Davide",
-    "tagline": "Una panoramica dei progetti su cui sto lavorando: demo live, codice e dettagli.",
+    "tagline": "Una panoramica di alcuni dei progetti su cui sto lavorando ed ho lavorato: demo live, codice e dettagli.",
     "author": "Davide Pica",
-    "githubUser": "davidebr90"
+    "githubUser": "davidebr90",
+    "bio": {
+      "eyebrow": "La persona",
+      "name": "Davide Pica",
+      "role": "Organizzatore di eventi in Puglia · sviluppatore per passione",
+      "description": "Costruisco strumenti che risolvono problemi reali: dall'organizzazione di eventi dal vivo alle piattaforme software che uso ogni giorno. Mi muovo tra sviluppo full-stack, automazioni e integrazioni, con un debole per le cose fatte bene, self-hosted e su misura.",
+      "quotes": [
+        "Se uno strumento non esiste come lo vorrei, lo costruisco.",
+        "Preferisco una soluzione semplice che funziona a una complicata che impressiona."
+      ],
+      "photo": ""
+    }
   },
   "projects": [
     {
@@ -40,6 +51,26 @@
         "Editor su canvas con animazione dei movimenti",
         "Salvataggio e riproduzione delle giocate",
         "Motore di animazione dedicato (useAnimEngine)"
+      ]
+    },
+    {
+      "id": "booking-engine",
+      "title": "Custom Booking Engine WordPress",
+      "tagline": "Motore di prenotazione su misura",
+      "description": "Sistema di prenotazione su plugin WordPress custom, creato per soddisfare le esigenze di un'azienda di catering. Sincronizzazione con Google Calendar, pagamenti con PayPal, Stripe e carte, e un sistema di notifiche email per cliente e amministratore, con auto-approvazione della prenotazione oppure messa in lista d'attesa fino alla conferma del gestore.",
+      "status": "live",
+      "accent": "#c9962e",
+      "logo": "",
+      "tags": ["WordPress", "PHP", "Stripe", "PayPal", "Google Calendar"],
+      "demoKey": "",
+      "demoUrl": "https://apuliancatering.it/booking/",
+      "repo": "",
+      "screenshots": [],
+      "highlights": [
+        "Sincronizzazione bidirezionale con Google Calendar",
+        "Pagamenti con PayPal, Stripe e carte",
+        "Notifiche email per cliente e amministratore",
+        "Auto-approvazione o lista d'attesa fino alla conferma del gestore"
       ]
     },
     {
