@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=11" />
+    <link rel="stylesheet" href="./styles.css?v=12" />
     <script>
       // Tema + interfaccia PRIMA del paint: niente flash.
       (function () {
@@ -90,13 +90,19 @@
       </section>
     </main>
 
-    <!-- Dock elegante: selettore d'interfaccia (sostituisce il footer tradizionale) -->
-    <footer class="dock" id="dock">
-      <a class="dock-brand" id="dock-brand" href="#hero">Davide Pica</a>
-      <div class="dock-switch" id="dock-switch" role="tablist" aria-label="Interfaccia"></div>
-      <div class="dock-social" id="dock-social"></div>
-    </footer>
+    <!-- Dock: nascosto di default, compare all'hover (o tap) del trigger in basso -->
+    <div class="dock-wrap" id="dock-wrap">
+      <footer class="dock" id="dock">
+        <a class="dock-brand" id="dock-brand" href="#hero">Davide Pica</a>
+        <div class="dock-switch" id="dock-switch" role="tablist" aria-label="Interfaccia"></div>
+        <div class="dock-social" id="dock-social"></div>
+      </footer>
+      <button class="dock-trigger" id="dock-trigger" type="button" aria-label="Cambia interfaccia" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>
+        <span class="dock-trigger-n" id="dock-trigger-n"></span>
+      </button>
+    </div>
 
-    <script type="module" src="./app.js?v=11"></script>
+    <script type="module" src="./app.js?v=12"></script>
   </body>
 </html>

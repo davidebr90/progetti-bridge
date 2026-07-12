@@ -431,33 +431,39 @@ function fpGo(dir) {
   if (next === cur) return;
   fpAnimateTo(window.scrollY + secs[next].getBoundingClientRect().top);
 }
-function normDelta(e) {
-  return e.deltaMode === 1 ? e.deltaY * 40 : e.deltaY; // "righe" → px
+// Avanza il deck di UNA card (scrollBy animato: compatibile con lo scroll-snap x
+// del deck, che invece "rimbalzerebbe" gli incrementi piccoli del trackpad).
+// Ritorna false se è già al bordo nella direzione richiesta (→ prosegue in verticale).
+function deckGo(deck, dir) {
+  const atEnd = deck.scrollLeft + deck.clientWidth >= deck.scrollWidth - 4;
+  const atStart = deck.scrollLeft <= 4;
+  if ((dir > 0 && atEnd) || (dir < 0 && atStart)) return false;
+  const card = deck.querySelector(".deck-card");
+  const step = card ? card.getBoundingClientRect().width + 28 : deck.clientWidth * 0.85;
+  fpLock = true;
+  clearTimeout(fpWatchdog);
+  fpWatchdog = setTimeout(fpUnlock, 1100);
+  deck.scrollBy({ left: dir * step, behavior: "smooth" });
+  setTimeout(() => { fpLock = false; clearTimeout(fpWatchdog); }, 560);
+  return true;
 }
-// Rotella: nel carosello sul deck → scroll ORIZZONTALE fino al bordo; poi (e in
-// cinema sempre) → avanzamento full-page di UNA sezione con transizione animata.
+// Rotella: nel carosello, quando la sezione corrente è il deck → avanza le card
+// in ORIZZONTALE (una per gesto); al bordo prosegue in verticale. Altrove (e in
+// cinema) → avanzamento full-page di UNA sezione con transizione animata.
 function onWheelFp(e) {
   if (!fpActive()) return;
-  const ui = document.documentElement.getAttribute("data-ui");
-  if (ui === "carosello") {
-    const deck = document.getElementById("deck");
-    if (deck && e.target.closest && e.target.closest("#deck")) {
-      const dy = normDelta(e);
-      if (Math.abs(e.deltaX) <= Math.abs(dy)) {
-        const atStart = deck.scrollLeft <= 0;
-        const atEnd = deck.scrollLeft + deck.clientWidth >= deck.scrollWidth - 1;
-        if ((dy > 0 && !atEnd) || (dy < 0 && !atStart)) {
-          e.preventDefault();
-          deck.scrollLeft += dy;
-          return; // resta orizzontale finché non è al bordo
-        }
-      }
-    }
-  }
   e.preventDefault(); // controllo totale: niente scroll libero della rotella
   if (fpLock) return;
   if (Math.abs(e.deltaY) < 4) return;
-  fpGo(e.deltaY > 0 ? 1 : -1);
+  const dir = e.deltaY > 0 ? 1 : -1;
+  const ui = document.documentElement.getAttribute("data-ui");
+  if (ui === "carosello") {
+    const secs = fpSections();
+    const onDeck = secs[currentSectionIndex(secs)]?.id === "stage";
+    const deck = document.getElementById("deck");
+    if (onDeck && deck && deckGo(deck, dir)) return; // scorrimento orizzontale card
+  }
+  fpGo(dir);
 }
 function onKeyFp(e) {
   if (!fpActive()) return;
@@ -470,22 +476,16 @@ function onKeyFp(e) {
     if (s.length) fpAnimateTo(window.scrollY + s[s.length - 1].getBoundingClientRect().top);
   }
 }
-// Frecce laterali: nel carosello scorrono il deck (fino al bordo) poi la sezione;
-// altrove avanzano di una sezione full-page.
+// Frecce laterali: nel carosello, se siamo sul deck scorrono le card (fino al
+// bordo) poi la sezione; altrove avanzano di una sezione full-page.
 function navigate(dir) {
+  if (fpLock) return;
   const ui = document.documentElement.getAttribute("data-ui");
   if (ui === "carosello") {
+    const secs = fpSections();
+    const onDeck = secs[currentSectionIndex(secs)]?.id === "stage";
     const deck = document.getElementById("deck");
-    if (deck) {
-      const atEnd = deck.scrollLeft + deck.clientWidth >= deck.scrollWidth - 4;
-      const atStart = deck.scrollLeft <= 4;
-      if ((dir > 0 && !atEnd) || (dir < 0 && !atStart)) {
-        const card = deck.querySelector(".deck-card");
-        const step = card ? card.getBoundingClientRect().width + 28 : deck.clientWidth * 0.8;
-        deck.scrollBy({ left: dir * step, behavior: "smooth" });
-        return;
-      }
-    }
+    if (onDeck && deck && deckGo(deck, dir)) return;
   }
   fpGo(dir);
 }
@@ -519,6 +519,10 @@ function applyUI(key) {
   const show = key === "cinema" || key === "carosello";
   arrows.dataset.show = show ? "1" : "0";
   arrows.setAttribute("aria-hidden", show ? "false" : "true");
+  // Numero dell'interfaccia attiva sul trigger del dock.
+  const idx = INTERFACES.findIndex((i) => i.key === key);
+  const tn = document.getElementById("dock-trigger-n");
+  if (tn) tn.textContent = idx >= 0 ? String(idx + 1) : "";
 }
 function renderDock() {
   const sw = document.getElementById("dock-switch");
@@ -668,6 +672,30 @@ async function main() {
   // transizione animata e magnetica. Attivo solo in cinema/carosello.
   window.addEventListener("wheel", onWheelFp, { passive: false });
   window.addEventListener("keydown", onKeyFp);
+
+  // Dock a comparsa: hover su desktop (CSS); tap sul trigger su mobile (JS).
+  const dockWrap = document.getElementById("dock-wrap");
+  const dockTrigger = document.getElementById("dock-trigger");
+  if (dockWrap && dockTrigger) {
+    dockTrigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = dockWrap.classList.toggle("open");
+      dockTrigger.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    document.addEventListener("click", (e) => {
+      if (dockWrap.classList.contains("open") && !dockWrap.contains(e.target)) {
+        dockWrap.classList.remove("open");
+        dockTrigger.setAttribute("aria-expanded", "false");
+      }
+    });
+    // Selezionata un'interfaccia dal dock → richiudi (utile su mobile).
+    document.getElementById("dock-switch").addEventListener("click", (e) => {
+      if (e.target.closest(".dock-tab")) {
+        dockWrap.classList.remove("open");
+        dockTrigger.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
 
   const bust = `?t=${Math.floor(Date.now() / 60000)}`;
   const [data, links] = await Promise.all([
