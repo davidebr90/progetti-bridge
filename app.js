@@ -37,6 +37,7 @@ const T = {
     "status.live": "Live", "status.beta": "Beta", "status.wip": "In sviluppo",
     menuOpen: "Apri il menu", menuClose: "Chiudi il menu",
     chooseStyle: "Scegli stile",
+    blogNav: "Blog & Filosofia", minRead: "min di lettura", backBlog: "← Torna al blog",
   },
   en: {
     sections: "Sections", language: "Language", theme: "Theme",
@@ -45,6 +46,7 @@ const T = {
     "status.live": "Live", "status.beta": "Beta", "status.wip": "In progress",
     menuOpen: "Open the menu", menuClose: "Close the menu",
     chooseStyle: "Choose style",
+    blogNav: "Blog & Philosophy", minRead: "min read", backBlog: "← Back to the blog",
   },
 };
 
@@ -373,12 +375,16 @@ function fpSections() {
   const list = [document.getElementById("hero")];
   if (ui === "cinema") list.push(...document.querySelectorAll("#stage .snap"));
   else list.push(document.getElementById("stage"));
+  const blog = document.getElementById("blog");
+  if (blog && !blog.hidden) list.push(blog);
   const bio = document.getElementById("bio");
   if (bio && !bio.hidden) list.push(bio);
   return list.filter(Boolean);
 }
 function fpActive() {
   const ui = document.documentElement.getAttribute("data-ui");
+  // Con il lettore articolo aperto lo scroll full-page è sospeso.
+  if (document.getElementById("reader") && !document.getElementById("reader").hidden) return false;
   return (ui === "cinema" || ui === "carosello") && !document.body.classList.contains("menu-open");
 }
 function currentSectionIndex(secs) {
@@ -612,10 +618,11 @@ function renderMenu() {
   document.getElementById("menu-lang-label").textContent = t("language");
   document.getElementById("menu-theme-label").textContent = t("theme");
 
-  // Elenco sezioni: Intro + progetti + Profilo
+  // Elenco sezioni: Intro + progetti + Blog + Profilo
   const list = document.getElementById("menu-list");
   const items = [["#hero", t("intro")]];
   PROJECTS.forEach((p, i) => items.push([`[data-proj="${i}"]`, p.title]));
+  if (ARTICLES.length) items.push(["#blog", t("blogNav")]);
   items.push(["#bio", t("profile")]);
   list.innerHTML = items
     .map(([sel, label], i) => `<li style="--d:${i * 45}ms"><button type="button" data-sel="${esc(sel)}">${esc(label)}</button></li>`)
@@ -682,6 +689,87 @@ function renderBio() {
   document.getElementById("dock-social").innerHTML = socialHTML(bio.social);
 }
 
+/* ---------- Blog & Filosofia ---------- */
+let ARTICLES = [];
+let BLOGMETA = {};
+// Data localizzata e compatta (es. "15 gen 2026").
+function fmtArticleDate(iso) {
+  const d = new Date(iso + "T00:00:00");
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString(LANG === "en" ? "en-GB" : "it-IT", { day: "numeric", month: "short", year: "numeric" });
+}
+// Mini-renderer Markdown (paragrafi, **grassetto**, *corsivo*, --- separatore).
+function mdToHtml(md) {
+  const inline = (s) =>
+    esc(s)
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.+?)\*/g, "<em>$1</em>");
+  return (md || "")
+    .split(/\n{2,}/)
+    .map((block) => {
+      const b = block.trim();
+      if (!b) return "";
+      if (b === "---" || b === "***") return "<hr />";
+      return `<p>${inline(b).replace(/\n/g, "<br />")}</p>`;
+    })
+    .join("");
+}
+function articleCardHTML(a) {
+  return `<button class="art-card reveal" type="button" data-id="${esc(a.id)}" style="--accent:${esc(a.accent || "var(--brand)")}">
+    <span class="art-meta"><span class="art-cat">${esc(a.category || "")}</span><span class="art-date">${esc(fmtArticleDate(a.date))}</span></span>
+    <span class="art-title">${esc(a.title)}</span>
+    <span class="art-excerpt">${esc(a.excerpt || "")}</span>
+    <span class="art-read">${a.minutes ? `${a.minutes} ${t("minRead")}` : ""} <span class="art-arrow">→</span></span>
+  </button>`;
+}
+function renderBlog() {
+  if (!ARTICLES.length) return;
+  const section = document.getElementById("blog");
+  section.hidden = false;
+  document.getElementById("blog-eyebrow").textContent = loc(BLOGMETA, "eyebrow") || "Blog & Filosofia";
+  document.getElementById("blog-title").textContent = loc(BLOGMETA, "title") || "";
+  document.getElementById("blog-lead").textContent = loc(BLOGMETA, "lead") || "";
+  const listEl = document.getElementById("blog-list");
+  listEl.innerHTML = ARTICLES.map(articleCardHTML).join("");
+  listEl.querySelectorAll(".art-card").forEach((c) =>
+    c.addEventListener("click", () => openArticle(c.dataset.id)),
+  );
+  observeReveal();
+}
+function openArticle(id) {
+  const a = ARTICLES.find((x) => x.id === id);
+  if (!a) return;
+  const reader = document.getElementById("reader");
+  const art = document.getElementById("reader-article");
+  art.style.setProperty("--accent", a.accent || "var(--brand)");
+  art.innerHTML = `
+    <p class="ra-meta"><span class="ra-cat">${esc(a.category || "")}</span> · <span>${esc(fmtArticleDate(a.date))}</span>${a.minutes ? ` · <span>${a.minutes} ${esc(t("minRead"))}</span>` : ""}</p>
+    <h1 class="ra-title">${esc(a.title)}</h1>
+    <div class="ra-body">${mdToHtml(a.body)}</div>
+    <div class="ra-foot"><button type="button" class="ra-back" id="ra-back">${esc(t("backBlog"))}</button></div>`;
+  reader.hidden = false;
+  document.body.classList.add("reader-open");
+  requestAnimationFrame(() => reader.classList.add("show"));
+  art.scrollTop = 0;
+  updateReaderProgress();
+  const back = document.getElementById("ra-back");
+  if (back) back.addEventListener("click", closeReader);
+}
+function closeReader() {
+  const reader = document.getElementById("reader");
+  reader.classList.remove("show");
+  document.body.classList.remove("reader-open");
+  setTimeout(() => { reader.hidden = true; }, 320);
+}
+function updateReaderProgress() {
+  const art = document.getElementById("reader-article");
+  const bar = document.getElementById("reader-progress");
+  if (!art || !bar) return;
+  const max = art.scrollHeight - art.clientHeight;
+  const p = max > 0 ? Math.min(100, Math.max(0, (art.scrollTop / max) * 100)) : 0;
+  bar.style.setProperty("--p", `${p}%`);
+}
+
 /* ---------- Stringhe statiche (hero, etichetta dock) ---------- */
 function applyLangToStatic() {
   document.getElementById("hero-tagline").textContent = loc(SITE, "tagline") || "";
@@ -690,6 +778,7 @@ function applyLangToStatic() {
   const trig = document.getElementById("dock-trigger");
   if (trig) trig.title = t("chooseStyle");
   renderBio();
+  renderBlog();
 }
 
 /* ---------- Avvio ---------- */
@@ -719,6 +808,16 @@ async function main() {
   window.addEventListener("wheel", onWheelFp, { passive: false });
   window.addEventListener("keydown", onKeyFp);
 
+  // Lettore articolo: chiusura (Esc / click sul bordo) + barra di progresso.
+  const reader = document.getElementById("reader");
+  const readerArt = document.getElementById("reader-article");
+  document.getElementById("reader-close").addEventListener("click", closeReader);
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !reader.hidden) closeReader();
+  });
+  reader.addEventListener("click", (e) => { if (e.target === reader) closeReader(); });
+  readerArt.addEventListener("scroll", updateReaderProgress, { passive: true });
+
   // Dock a comparsa: hover su desktop (CSS); tap sul trigger su mobile (JS).
   const dockWrap = document.getElementById("dock-wrap");
   const dockTrigger = document.getElementById("dock-trigger");
@@ -744,13 +843,16 @@ async function main() {
   }
 
   const bust = `?t=${Math.floor(Date.now() / 60000)}`;
-  const [data, links] = await Promise.all([
+  const [data, links, blog] = await Promise.all([
     fetch(`./data/projects.json${bust}`).then((r) => r.json()),
     fetch(`./data/links.json${bust}`).then((r) => r.json()).catch(() => ({})),
+    fetch(`./data/articles.json${bust}`).then((r) => r.json()).catch(() => ({ articles: [] })),
   ]);
   LINKS = links || {};
   PROJECTS = data.projects || [];
   SITE = data.site || {};
+  ARTICLES = (blog && blog.articles) || [];
+  BLOGMETA = (blog && blog.meta) || {};
 
   if (SITE.title) document.title = SITE.title;
   document.getElementById("hero-title").textContent = SITE.title || "";

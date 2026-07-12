@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=14" />
+    <link rel="stylesheet" href="./styles.css?v=15" />
     <script>
       // Tema + interfaccia PRIMA del paint: niente flash.
       (function () {
@@ -75,6 +75,15 @@
 
       <div id="stage" class="stage"></div>
 
+      <section class="blog" id="blog" hidden>
+        <div class="blog-inner">
+          <p class="blog-eyebrow" id="blog-eyebrow">Blog &amp; Filosofia</p>
+          <h2 class="blog-title" id="blog-title">Filosofia &amp; Tech</h2>
+          <p class="blog-lead" id="blog-lead"></p>
+          <div class="blog-list" id="blog-list"></div>
+        </div>
+      </section>
+
       <section class="bio" id="bio" hidden>
         <div class="bio-inner">
           <div class="bio-photo" id="bio-photo"></div>
@@ -97,12 +106,23 @@
         <div class="dock-switch" id="dock-switch" role="tablist" aria-label="Interfaccia"></div>
         <div class="dock-social" id="dock-social"></div>
       </footer>
-      <button class="dock-trigger" id="dock-trigger" type="button" aria-label="Cambia interfaccia" aria-expanded="false">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>
+      <button class="dock-trigger" id="dock-trigger" type="button" aria-label="Scegli stile" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.82L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z"/><path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7"/><path d="M14.5 17.5 4.5 15"/></svg>
         <span class="dock-trigger-n" id="dock-trigger-n"></span>
       </button>
     </div>
 
-    <script type="module" src="./app.js?v=14"></script>
+    <!-- Lettore articolo a schermo intero -->
+    <div class="reader" id="reader" hidden>
+      <div class="reader-bar">
+        <button class="reader-close" id="reader-close" type="button" aria-label="Chiudi">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <span class="reader-progress" id="reader-progress"></span>
+      </div>
+      <article class="reader-article" id="reader-article"></article>
+    </div>
+
+    <script type="module" src="./app.js?v=15"></script>
   </body>
 </html>
