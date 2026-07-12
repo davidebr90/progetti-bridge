@@ -259,8 +259,10 @@ main { position: relative; }
 
 /* Oggetti DENTRO al cassetto: appoggiati sul fondo, visibili quando lo apri. */
 .chest-stage .chest-obj {
-  position: absolute; left: 50%; bottom: 16%; width: 4.4vmin; height: 4.4vmin;
-  transform: translate(-50%, 0) translateZ(-2vmin);
+  position: absolute; left: 50%; bottom: 15%; width: 4.4vmin; height: 4.4vmin;
+  /* translateZ ~ metà della profondità del cassetto: oggetto centrato sul fondo,
+     non a filo del bordo anteriore. */
+  transform: translate(-50%, 0) translateZ(calc(var(--depth) * -0.42vmin));
   transform-origin: bottom center;
   opacity: 0; transition: opacity .2s ease .08s;
 }
@@ -269,7 +271,7 @@ main { position: relative; }
 /* Palla e stella: "billboard", contro-ruotano la rotazione della scena per restare
    sempre frontali (una sfera/stella piatta non deve appiattirsi ruotando). */
 .chest-stage .obj-ball, .chest-stage .obj-star {
-  transform: translate(-50%, 0) translateZ(-2vmin) rotateY(calc(-1 * var(--ry, 38deg))) rotateX(calc(-1 * var(--rx, -30deg)));
+  transform: translate(-50%, 0) translateZ(calc(var(--depth) * -0.42vmin)) rotateY(calc(-1 * var(--ry, 38deg))) rotateX(calc(-1 * var(--rx, -30deg)));
 }
 /* Cubo / regalo: tre facce isometriche (veri volumi 3D). */
 .chest-stage .obj-face { position: absolute; inset: 0; }
