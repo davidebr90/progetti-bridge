@@ -164,7 +164,7 @@ html.fp-animating { scroll-snap-type: none !important; }
 
 /* Magnetico: UNA sezione per gesto di scroll (snap-stop always), transizione
    fluida. Ogni progetto e hero/bio = pagina piena. */
-html[data-ui="cinema"] { scroll-snap-type: y mandatory; }
+html[data-ui="cinema"] { scroll-snap-type: y proximity; }
 [data-ui="cinema"] .hero, [data-ui="cinema"] .snap, [data-ui="cinema"] .bio {
   scroll-snap-align: start; scroll-snap-stop: always;
 }
@@ -192,7 +192,7 @@ html[data-ui="cinema"] { scroll-snap-type: y mandatory; }
 /* Carosello full-page: hero → deck (orizzontale) → bio come sezioni magnetiche.
    Lo scroll verticale sopra al deck viene tradotto in orizzontale (JS) finché
    non si raggiunge l'ultima card, poi prosegue in verticale verso la bio. */
-html[data-ui="carosello"] { scroll-snap-type: y mandatory; }
+html[data-ui="carosello"] { scroll-snap-type: y proximity; }
 [data-ui="carosello"] .hero, [data-ui="carosello"] .stage, [data-ui="carosello"] .bio {
   scroll-snap-align: start; scroll-snap-stop: always;
 }

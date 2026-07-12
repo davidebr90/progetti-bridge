@@ -388,6 +388,15 @@ function currentSectionIndex(secs) {
   return best;
 }
 let fpLock = false;
+let fpWatchdog = 0;
+// Sblocca SEMPRE lo stato full-page (watchdog): se per qualunque motivo
+// l'animazione non completa (tab in background, eccezione, rAF sospeso…), il
+// sito non deve mai restare "congelato"/non scrollabile.
+function fpUnlock() {
+  fpLock = false;
+  document.documentElement.classList.remove("fp-animating");
+  clearTimeout(fpWatchdog);
+}
 // Anima lo scroll della finestra fino a targetY con easing (transizione visibile),
 // bloccando l'input finché non completa (+ cooldown anti-momentum del trackpad).
 function fpAnimateTo(targetY, dur = 760) {
@@ -398,6 +407,8 @@ function fpAnimateTo(targetY, dur = 760) {
   if (reduce) { window.scrollTo(0, startY + dist); return; }
   fpLock = true;
   document.documentElement.classList.add("fp-animating"); // disattiva lo snap CSS durante l'animazione
+  clearTimeout(fpWatchdog);
+  fpWatchdog = setTimeout(fpUnlock, dur + 900); // rete di sicurezza: mai bloccati
   const t0 = performance.now();
   const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2); // easeInOutCubic
   function frame(now) {
@@ -406,7 +417,8 @@ function fpAnimateTo(targetY, dur = 760) {
     if (t < 1) requestAnimationFrame(frame);
     else {
       document.documentElement.classList.remove("fp-animating");
-      setTimeout(() => { fpLock = false; }, 160);
+      clearTimeout(fpWatchdog);
+      setTimeout(() => { fpLock = false; }, 140);
     }
   }
   requestAnimationFrame(frame);
