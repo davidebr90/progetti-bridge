@@ -178,7 +178,7 @@ const RENDER = {
   cinema(stage, projects) {
     stage.innerHTML = projects
       .map(
-        (p, i) => `<section class="snap project" data-proj="${i}" style="--accent:${esc(p.accent || "var(--brand)")}">
+        (p, i) => `<section class="snap project reveal" data-proj="${i}" style="--accent:${esc(p.accent || "var(--brand)")}">
           <div class="project-inner">
             <div class="project-visual reveal"><span class="p-status-float">${pill(p)}</span>${visualInner(p)}</div>
             <div class="project-body">${bodyHTML(p)}</div>
@@ -519,20 +519,40 @@ function deckGo(deck, dir) {
 // Rotella: nel carosello, quando la sezione corrente è il deck → avanza le card
 // in ORIZZONTALE (una per gesto); al bordo prosegue in verticale. Altrove (e in
 // cinema) → avanzamento full-page di UNA sezione con transizione animata.
+// MODELLO IBRIDO: sul desktop la rotella resta NATIVA (scroll libero + snap CSS di
+// prossimità). L'unica eccezione è il deck orizzontale del carosello: lì il browser
+// non tradurrebbe lo scroll verticale in avanzamento tra le card, quindi lo facciamo
+// noi (una card per gesto, animata). Al bordo del deck lasciamo proseguire la pagina.
+// Frecce a schermo e tasti mantengono invece la transizione animata (fpGo).
 function onWheelFp(e) {
-  if (!fpActive()) return;
-  e.preventDefault(); // controllo totale: niente scroll libero della rotella
-  if (fpLock) return;
+  if (document.body.classList.contains("menu-open")) return;
+  const reader = document.getElementById("reader");
+  if (reader && !reader.hidden) return;
+
+  const ui = document.documentElement.getAttribute("data-ui");
+  const deck = ui === "carosello" ? document.getElementById("deck") : null;
+  let overDeck = false;
+  if (deck) {
+    const r = deck.getBoundingClientRect();
+    overDeck = r.height > 0 && e.clientY >= r.top && e.clientY <= r.bottom;
+  }
+
+  if (!overDeck) {
+    // Percorso nativo: se è in corso un'animazione (freccia/tasto) l'utente ha la
+    // precedenza — la annulliamo e restituiamo il controllo allo scroll nativo.
+    if (fpLock) { if (fpRAF) fpRAF(); fpUnlock(); }
+    return;
+  }
+
+  // Sopra al deck del carosello.
+  if (fpLock) { e.preventDefault(); return; } // una card per gesto (throttle)
   if (Math.abs(e.deltaY) < 4) return;
   const dir = e.deltaY > 0 ? 1 : -1;
-  const ui = document.documentElement.getAttribute("data-ui");
-  if (ui === "carosello") {
-    const secs = fpSections();
-    const onDeck = secs[currentSectionIndex(secs)]?.id === "stage";
-    const deck = document.getElementById("deck");
-    if (onDeck && deck && deckGo(deck, dir)) return; // scorrimento orizzontale card
-  }
-  fpGo(dir);
+  const atEnd = deck.scrollLeft + deck.clientWidth >= deck.scrollWidth - 4;
+  const atStart = deck.scrollLeft <= 4;
+  if ((dir > 0 && atEnd) || (dir < 0 && atStart)) return; // al bordo: pagina libera
+  e.preventDefault();
+  deckGo(deck, dir);
 }
 function onKeyFp(e) {
   if (!fpActive()) return;

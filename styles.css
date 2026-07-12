@@ -141,9 +141,50 @@ main { position: relative; }
 .btn[aria-disabled="true"] { opacity: .5; pointer-events: none; }
 .btn svg { width: 16px; height: 16px; }
 
-/* Reveal fade-in/out premium (IntersectionObserver → .in-view) */
+/* Reveal fade-in/out premium (IntersectionObserver → .in-view) — FALLBACK */
 .reveal { opacity: 0; transform: translateY(38px) scale(.985); filter: blur(6px); transition: opacity .85s cubic-bezier(.2,.7,.3,1), transform .85s cubic-bezier(.2,.7,.3,1), filter .85s ease; }
 .reveal.in-view { opacity: 1; transform: none; filter: none; }
+
+/* Scroll-Driven Animations (CSS): dove il browser le supporta, l'apparizione del
+   contenuto è legata a QUANTO si scrolla (progressione morbida), non a un semplice
+   trigger d'ingresso. Dove non sono supportate resta il fallback IntersectionObserver
+   qui sopra. Rispetta prefers-reduced-motion (più in basso forziamo tutto visibile). */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Fine entro entry ~55%: per le sezioni a tutta pagina il punto "centrato"
+       coincide con entry 100%, quindi il contenuto è pienamente visibile a riposo. */
+    .reveal {
+      opacity: 1; transform: none; filter: none; transition: none;
+      animation: sda-reveal both linear;
+      animation-timeline: view();
+      animation-range: entry 4% entry 52%;
+    }
+    /* In cinema la sezione-progetto non deve dissolversi tutta: resta piena e
+       animiamo solo il suo contenuto (visual + testo). */
+    [data-ui="cinema"] .project.reveal { animation: none; opacity: 1; }
+
+    /* Testo dei progetti: stagger legato allo scroll della sezione (fine ≤ entry 75%). */
+    .project-body > * {
+      opacity: 1; transform: none; transition: none;
+      animation: sda-rise both linear;
+      animation-timeline: view();
+    }
+    .project-body > *:nth-child(1){ animation-range: entry 15% entry 50%; }
+    .project-body > *:nth-child(2){ animation-range: entry 20% entry 55%; }
+    .project-body > *:nth-child(3){ animation-range: entry 25% entry 60%; }
+    .project-body > *:nth-child(4){ animation-range: entry 30% entry 65%; }
+    .project-body > *:nth-child(5){ animation-range: entry 35% entry 70%; }
+    .project-body > *:nth-child(6){ animation-range: entry 40% entry 75%; }
+  }
+  @keyframes sda-reveal {
+    from { opacity: 0; transform: translateY(38px) scale(.985); filter: blur(6px); }
+    to   { opacity: 1; transform: none; filter: none; }
+  }
+  @keyframes sda-rise {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: none; }
+  }
+}
 
 /* ---- HERO ---- */
 .hero { min-height: 100svh; display: grid; place-items: center; text-align: center; padding: clamp(4rem,10vw,7rem) clamp(1.1rem,4vw,2rem) clamp(3rem,6vw,4rem); }
