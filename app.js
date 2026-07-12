@@ -406,20 +406,26 @@ function currentSectionIndex(secs) {
 let fpLock = false;
 let fpWatchdog = 0;
 let fpRAF = 0;
-// Gate "un gesto = una slide" per rotella/trackpad. Il trackpad emette una raffica
-// di eventi con lunga coda di momentum: senza gate un solo tocco attraverserebbe
-// tutte le sezioni. Blocchiamo al primo evento e rilasciamo solo dopo un breve
-// SILENZIO (nessun evento wheel), così la coda di momentum viene inghiottita.
-let wheelStepLock = false;
+// Durata della transizione animata (frecce, tasti, un passo di rotella): lenta e morbida.
+const FP_NAV_DUR = 1050;
+// Gate "un gesto = una slide" per rotella/trackpad. Punto chiave: il lock ha un TETTO
+// massimo (hard cap) e si rilascia SEMPRE entro quel tempo, anche se il momentum del
+// trackpad continua a inviare eventi — così non può mai "piantarsi".
+let wheelLock = false;
 let lastWheelTs = 0;
-const FP_DUR_WHEEL = 1050; // durata transizione verticale da rotella: lenta e morbida
-function releaseWheelLock(minEndTs) {
-  const check = () => {
-    // sblocca solo se il trackpad è "fermo" da un attimo, altrimenti riprova
-    if (performance.now() - lastWheelTs < 140) setTimeout(check, 140);
-    else wheelStepLock = false;
+let wheelReleaseTimer = 0;
+function armWheelRelease(minDur) {
+  clearTimeout(wheelReleaseTimer);
+  const startedAt = performance.now();
+  const HARD_CAP = 1500; // garanzia anti-freeze: oltre questo si sblocca comunque
+  const tick = () => {
+    const now = performance.now();
+    const elapsed = now - startedAt;
+    const quiet = now - lastWheelTs >= 130; // trackpad "fermo" da un attimo
+    if ((elapsed >= minDur && quiet) || elapsed >= HARD_CAP) wheelLock = false;
+    else wheelReleaseTimer = setTimeout(tick, 60);
   };
-  setTimeout(check, Math.max(0, minEndTs - performance.now()) + 140);
+  wheelReleaseTimer = setTimeout(tick, minDur);
 }
 // Easing morbide (le stesse "curve" degli esempi di scroll-animation vanilla):
 // easeInOutCubic = partenza/arrivo dolci; easeOutQuint = arrivo super morbido.
@@ -496,7 +502,7 @@ function fpGo(dir) {
   const cur = currentSectionIndex(secs);
   const next = Math.min(secs.length - 1, Math.max(0, cur + dir));
   if (next === cur) return;
-  fpAnimateTo(sectionTargetY(secs[next]), FP_DUR_WHEEL);
+  fpAnimateTo(sectionTargetY(secs[next]), FP_NAV_DUR);
 }
 // Scroll ORIZZONTALE morbido di UNA card: interpola scrollLeft con easing (niente
 // più `scrollBy` nativo brusco) e disattiva lo scroll-snap x DURANTE l'animazione
@@ -534,22 +540,22 @@ function deckGo(deck, dir) {
 // Rotella: nel carosello, quando la sezione corrente è il deck → avanza le card
 // in ORIZZONTALE (una per gesto); al bordo prosegue in verticale. Altrove (e in
 // cinema) → avanzamento full-page di UNA sezione con transizione animata.
-// Rotella/trackpad: UNA slide per gesto, con transizione lenta e morbida. Il gate
-// wheelStepLock scatta al primo evento del gesto e si rilascia solo dopo un breve
-// silenzio (releaseWheelLock), così la lunga coda di momentum del trackpad non fa
-// scorrere più sezioni. Nelle interfacce non full-page (griglia/rivista/cinetica)
-// lo scroll resta nativo. Frecce a schermo e tasti usano la stessa logica (navigate).
+// Rotella/trackpad: UNA slide per gesto, con transizione lenta e morbida. Lo snap
+// CSS puro non basta (un fling "salta" più sezioni), quindi intercettiamo qui — ma
+// con un lock a tetto massimo (armWheelRelease) che si sblocca SEMPRE, così il
+// momentum del trackpad non può mai piantare la pagina. Gli swipe ORIZZONTALI (deck
+// del carosello) restano nativi. Griglia/rivista/cinetica: scroll nativo.
 function onWheelFp(e) {
   if (document.body.classList.contains("menu-open")) return;
   const reader = document.getElementById("reader");
   if (reader && !reader.hidden) return;
   const ui = document.documentElement.getAttribute("data-ui");
-  if (ui !== "cinema" && ui !== "carosello") return; // altre interfacce: scroll nativo
+  if (ui !== "cinema" && ui !== "carosello") return; // altre interfacce: nativo
+  if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // swipe orizzontale: nativo (deck)
 
-  e.preventDefault(); // controllo del passo (un gesto = una slide)
-  const now = performance.now();
-  lastWheelTs = now;
-  if (wheelStepLock) return;               // gesto/animazione in corso: inghiotti la coda
+  e.preventDefault();
+  lastWheelTs = performance.now();
+  if (wheelLock) return;             // gesto/animazione in corso: inghiotti la coda
   if (Math.abs(e.deltaY) < 4) return;
   const dir = e.deltaY > 0 ? 1 : -1;
 
@@ -562,18 +568,18 @@ function onWheelFp(e) {
       const atEnd = deck.scrollLeft + deck.clientWidth >= deck.scrollWidth - 4;
       const atStart = deck.scrollLeft <= 4;
       if (overDeck && !((dir > 0 && atEnd) || (dir < 0 && atStart))) {
-        wheelStepLock = true;
+        wheelLock = true;
         deckGo(deck, dir);
-        releaseWheelLock(now + 980); // durata anim. deck (vedi deckGo)
+        armWheelRelease(950); // durata anim. deck
         return;
       }
     }
   }
 
   // Sezione verticale: transizione lenta con atterraggio morbido.
-  wheelStepLock = true;
+  wheelLock = true;
   fpGo(dir);
-  releaseWheelLock(now + FP_DUR_WHEEL);
+  armWheelRelease(FP_NAV_DUR);
 }
 function onKeyFp(e) {
   if (!fpActive()) return;
