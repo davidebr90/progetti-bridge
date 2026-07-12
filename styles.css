@@ -253,8 +253,10 @@ html[data-ui="carosello"] { scroll-snap-type: y proximity; }
 .kin-item { position: relative; background: transparent; border: none; cursor: pointer; color: inherit; text-align: left; padding: clamp(.6rem,1.6vw,1.1rem) 0; border-bottom: 1px solid var(--border); display: flex; align-items: baseline; gap: 1rem; font-family: inherit; overflow: hidden; }
 .kin-index { font-family: "Space Grotesk", var(--font-sans); font-weight: 700; font-size: .9rem; color: var(--accent, var(--brand)); flex: none; letter-spacing: .05em; }
 .kin-line { position: relative; font-family: var(--font-display); font-weight: 600; font-size: clamp(2.2rem,8vw,5.5rem); line-height: 1; letter-spacing: -.03em; color: transparent; -webkit-text-stroke: 1.2px var(--ink-faint); text-stroke: 1.2px var(--ink-faint); transition: -webkit-text-stroke-color .3s; }
-.kin-line::after { content: attr(data-text); position: absolute; inset: 0; color: var(--accent, var(--brand)); -webkit-text-stroke: 0; text-stroke: 0; clip-path: inset(0 100% 0 0); transition: clip-path .5s cubic-bezier(.2,.7,.3,1); }
-.kin-item:hover .kin-line::after { clip-path: inset(0 0 0 0); }
+/* La regione di clip è estesa in alto/basso (inset negativi) così le discendenti
+   (g, p) e le ascendenti non vengono tagliate dal box a line-height 1. */
+.kin-line::after { content: attr(data-text); position: absolute; inset: 0; color: var(--accent, var(--brand)); -webkit-text-stroke: 0; text-stroke: 0; clip-path: inset(-0.22em 100% -0.28em 0); transition: clip-path .5s cubic-bezier(.2,.7,.3,1); }
+.kin-item:hover .kin-line::after { clip-path: inset(-0.22em 0 -0.28em 0); }
 .kin-item:hover .kin-line { -webkit-text-stroke-color: transparent; }
 .kin-tag { margin-left: auto; color: var(--ink-faint); font-size: .9rem; flex: none; opacity: 0; transform: translateX(10px); transition: opacity .35s, transform .35s; }
 .kin-item:hover .kin-tag { opacity: 1; transform: none; }
