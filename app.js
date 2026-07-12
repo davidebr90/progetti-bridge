@@ -191,6 +191,7 @@ const RENDER = {
         </article>`,
       )
       .join("")}</div>`;
+    setupCarouselWheel(stage);
     observeReveal();
   },
   griglia(stage, projects) {
@@ -357,19 +358,37 @@ function setupKinetic(stage, projects) {
   });
 }
 
-/* ---------- Frecce ---------- */
+/* ---------- Frecce / navigazione full-page ---------- */
+// Sezioni verticali "a pagina piena": hero + (progetti in cinema | stage-deck in
+// carosello) + bio. Include SEMPRE hero e bio, così la freccia "su" dalla prima
+// voce torna davvero all'hero.
+function fpSections() {
+  const ui = document.documentElement.getAttribute("data-ui");
+  const list = [document.getElementById("hero")];
+  if (ui === "cinema") list.push(...document.querySelectorAll("#stage .snap"));
+  else list.push(document.getElementById("stage"));
+  const bio = document.getElementById("bio");
+  if (bio && !bio.hidden) list.push(bio);
+  return list.filter(Boolean);
+}
 function navigate(dir) {
   const ui = document.documentElement.getAttribute("data-ui");
   if (ui === "carosello") {
+    // Nel carosello le frecce scorrono il deck orizzontalmente; SOLO quando si è
+    // al bordo (prima/ultima card) si passa alla sezione verticale successiva.
     const deck = document.getElementById("deck");
     if (deck) {
-      const card = deck.querySelector(".deck-card");
-      const step = card ? card.getBoundingClientRect().width + 28 : deck.clientWidth * 0.8;
-      deck.scrollBy({ left: dir * step, behavior: "smooth" });
+      const atEnd = deck.scrollLeft + deck.clientWidth >= deck.scrollWidth - 4;
+      const atStart = deck.scrollLeft <= 4;
+      if ((dir > 0 && !atEnd) || (dir < 0 && !atStart)) {
+        const card = deck.querySelector(".deck-card");
+        const step = card ? card.getBoundingClientRect().width + 28 : deck.clientWidth * 0.8;
+        deck.scrollBy({ left: dir * step, behavior: "smooth" });
+        return;
+      }
     }
-    return;
   }
-  const secs = [...document.querySelectorAll(".snap")];
+  const secs = fpSections();
   if (!secs.length) return;
   const mid = window.innerHeight / 2;
   let idx = 0;
@@ -377,6 +396,29 @@ function navigate(dir) {
     if (s.getBoundingClientRect().top <= mid) idx = i;
   });
   secs[Math.min(secs.length - 1, Math.max(0, idx + dir))].scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/**
+ * Carosello: traduce lo scroll verticale (rotella/trackpad) in scorrimento
+ * ORIZZONTALE del deck finché non si raggiunge l'ultima (o la prima) card; al
+ * bordo lascia passare l'evento così la navigazione full-page prosegue in
+ * verticale (magnetica) verso la bio o l'hero.
+ */
+function setupCarouselWheel(stage) {
+  const deck = stage.querySelector("#deck");
+  if (!deck) return;
+  const onWheel = (e) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // gesto già orizzontale
+    const dy = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaY; // normalizza "righe"→px
+    const atStart = deck.scrollLeft <= 0;
+    const atEnd = deck.scrollLeft + deck.clientWidth >= deck.scrollWidth - 1;
+    if ((dy > 0 && !atEnd) || (dy < 0 && !atStart)) {
+      e.preventDefault();
+      deck.scrollLeft += dy;
+    }
+  };
+  deck.addEventListener("wheel", onWheel, { passive: false });
+  cleanup.push(() => deck.removeEventListener("wheel", onWheel));
 }
 
 /* ---------- Interfaccia ---------- */
