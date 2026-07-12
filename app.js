@@ -1089,11 +1089,77 @@ const HERO_DRAWERS = [
 // Easter-egg: ogni tanto (~45% dei caricamenti) un cassetto nasconde un piccolo
 // oggetto isometrico (nello stesso stile della cassettiera) che "salta fuori"
 // quando lo apri. Tipo di oggetto e cassetto scelti a caso.
-const CHEST_OBJECTS = ["cube", "ball", "star", "gift"];
+const CHEST_OBJECTS = ["die", "gift", "crate", "book", "mug", "key", "plant", "bulb"];
 function objectMarkup(type) {
-  if (type === "cube" || type === "gift")
-    return `<span class="obj-face obj-top"></span><span class="obj-face obj-left"></span><span class="obj-face obj-front"></span>${type === "gift" ? '<span class="obj-ribbon"></span>' : ""}`;
-  return ""; // ball, star: forma unica (gradiente / clip-path)
+  switch (type) {
+    case "die":
+      return `<svg class="obj-svg" viewBox="0 0 100 100" aria-hidden="true">
+        <polygon points="50,16 84,35 50,54 16,35" fill="#f3eee2"/>
+        <polygon points="16,35 50,54 50,92 16,73" fill="#dcd6c7"/>
+        <polygon points="84,35 50,54 50,92 84,73" fill="#c8c2b2"/>
+        <circle cx="41" cy="32" r="3.4" fill="#33312c"/><circle cx="59" cy="32" r="3.4" fill="#33312c"/>
+        <circle cx="27" cy="50" r="3.2" fill="#33312c"/><circle cx="33" cy="62" r="3.2" fill="#33312c"/><circle cx="39" cy="74" r="3.2" fill="#33312c"/>
+        <circle cx="67" cy="64" r="3.4" fill="#33312c"/></svg>`;
+    case "gift":
+      return `<svg class="obj-svg" viewBox="0 0 100 100" aria-hidden="true">
+        <polygon points="50,22 84,40 50,58 16,40" fill="#e86b63"/>
+        <polygon points="16,40 50,58 50,94 16,75" fill="#d8544c"/>
+        <polygon points="84,40 50,58 50,94 84,75" fill="#c6473f"/>
+        <polygon points="46,55 54,55 54,94 46,94" fill="#f2c14e"/>
+        <polygon points="50,22 60,27 50,32 40,27" fill="#f2c14e"/>
+        <polygon points="16,40 33,49 33,45 16,36" fill="#f2c14e"/><polygon points="84,40 67,49 67,45 84,36" fill="#f2c14e"/>
+        <circle cx="50" cy="24" r="6" fill="#f2c14e"/><circle cx="50" cy="24" r="2.6" fill="#cf9a22"/></svg>`;
+    case "crate":
+      return `<svg class="obj-svg" viewBox="0 0 100 100" aria-hidden="true">
+        <polygon points="50,18 84,37 50,56 16,37" fill="#c08a44"/>
+        <polygon points="16,37 50,56 50,92 16,73" fill="#aa7a3a"/>
+        <polygon points="84,37 50,56 50,92 84,73" fill="#8f6530"/>
+        <polygon points="16,37 50,56 50,92 16,73" fill="none" stroke="#7a561f" stroke-width="2"/>
+        <polygon points="84,37 50,56 50,92 84,73" fill="none" stroke="#6b4a1a" stroke-width="2"/>
+        <line x1="16" y1="55" x2="50" y2="74" stroke="#7a561f" stroke-width="1.6"/>
+        <line x1="84" y1="55" x2="50" y2="74" stroke="#6b4a1a" stroke-width="1.6"/>
+        <line x1="33" y1="28" x2="33" y2="64" stroke="#7a561f" stroke-width="1.3"/>
+        <line x1="67" y1="28" x2="67" y2="64" stroke="#6b4a1a" stroke-width="1.3"/></svg>`;
+    case "book":
+      return `<svg class="obj-svg" viewBox="0 0 100 100" aria-hidden="true">
+        <rect x="24" y="28" width="50" height="64" rx="3" fill="#3f78c9"/>
+        <rect x="24" y="28" width="10" height="64" rx="2" fill="#2c5aa0"/>
+        <rect x="60" y="33" width="12" height="54" fill="#f4f1e8"/>
+        <rect x="41" y="45" width="24" height="4" rx="2" fill="#cfe0f7"/>
+        <rect x="41" y="55" width="17" height="3" rx="1.5" fill="#cfe0f7"/></svg>`;
+    case "mug":
+      return `<svg class="obj-svg" viewBox="0 0 100 100" aria-hidden="true">
+        <path d="M30 40 h34 v34 a9 9 0 0 1 -9 9 h-16 a9 9 0 0 1 -9 -9 z" fill="#e0863c"/>
+        <rect x="30" y="40" width="34" height="9" fill="#c26f2c"/>
+        <path d="M64 48 h8 a11 11 0 0 1 0 22 h-8" fill="none" stroke="#e0863c" stroke-width="7"/>
+        <path d="M40 22 q5 6 0 12" stroke="#c9b7a8" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M52 20 q5 6 0 12" stroke="#c9b7a8" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`;
+    case "key":
+      return `<svg class="obj-svg" viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="32" cy="50" r="16" fill="none" stroke="#d8a838" stroke-width="8"/>
+        <circle cx="32" cy="50" r="5" fill="#b5892a"/>
+        <rect x="46" y="46" width="40" height="8" rx="2" fill="#d8a838"/>
+        <rect x="72" y="54" width="6" height="11" rx="1" fill="#d8a838"/>
+        <rect x="81" y="54" width="5" height="8" rx="1" fill="#d8a838"/></svg>`;
+    case "plant":
+      return `<svg class="obj-svg" viewBox="0 0 100 100" aria-hidden="true">
+        <path d="M50 60 C40 42 30 42 34 27 C47 31 50 44 50 60" fill="#3f9d5a"/>
+        <path d="M50 60 C60 40 72 42 68 25 C54 31 50 44 50 60" fill="#54b56a"/>
+        <path d="M50 60 v-30" stroke="#2f7d45" stroke-width="2.5" fill="none"/>
+        <path d="M37 63 h26 l-4 25 h-18 z" fill="#c4663a"/>
+        <rect x="34" y="58" width="32" height="8" rx="2" fill="#d67a4d"/></svg>`;
+    case "bulb":
+      return `<svg class="obj-svg" viewBox="0 0 100 100" aria-hidden="true">
+        <path d="M50 14 v-8 M28 24 l-5 -5 M72 24 l5 -5" stroke="#f2c14e" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="50" cy="42" r="22" fill="#ffd45e"/>
+        <path d="M42 40 l8 8 8 -8" stroke="#e0a020" stroke-width="3" fill="none"/>
+        <rect x="40" y="62" width="20" height="10" fill="#9aa0a6"/>
+        <rect x="40" y="66" width="20" height="2" fill="#7d838a"/>
+        <rect x="40" y="70" width="20" height="2" fill="#7d838a"/>
+        <rect x="44" y="74" width="12" height="7" rx="2" fill="#6b7075"/></svg>`;
+    default:
+      return "";
+  }
 }
 function buildHeroChest() {
   const host = document.getElementById("hero-chest");

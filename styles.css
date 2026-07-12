@@ -258,29 +258,41 @@ main { position: relative; }
 .chest-stage summary::after { content: ''; position: absolute; background: linear-gradient(var(--handle), var(--handle)) 50% 15%/40% 8% no-repeat, transparent; height: 110%; width: 110%; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0.5vmin); }
 
 /* Oggetti DENTRO al cassetto: appoggiati sul fondo, visibili quando lo apri. */
+/* Oggetti illustrati (SVG) dentro al cassetto: "billboard" — restano sempre
+   frontali quando la scena ruota, quindi sempre leggibili. Centrati e alzati a
+   metà cassetto così non li copre la parete frontale. */
 .chest-stage .chest-obj {
-  position: absolute; left: 50%; bottom: 15%; width: 4.4vmin; height: 4.4vmin;
-  /* translateZ ~ metà della profondità del cassetto: oggetto centrato sul fondo,
-     non a filo del bordo anteriore. */
-  transform: translate(-50%, 0) translateZ(calc(var(--depth) * -0.42vmin));
-  transform-origin: bottom center;
-  opacity: 0; transition: opacity .2s ease .08s;
+  position: absolute; left: 50%; bottom: 32%; width: 4.8vmin; height: 4.8vmin;
+  transform: translate(-50%, 0) translateZ(calc(var(--depth) * -0.32vmin)) rotateY(calc(-1 * var(--ry, 38deg))) rotateX(calc(-1 * var(--rx, -30deg)));
+  transform-origin: center;
+  /* Sempre presenti: a cassetto chiuso li nasconde la geometria (parete frontale),
+     quindi non "compaiono dopo" — l'oggetto è già lì mentre il cassetto si apre. */
+  opacity: 1;
 }
-/* Visibili solo a cassetto aperto (a cassetto chiuso il contenuto non si vede). */
-.chest-stage details[open] + .drawer__structure .chest-obj { opacity: 1; }
-/* Palla e stella: "billboard", contro-ruotano la rotazione della scena per restare
-   sempre frontali (una sfera/stella piatta non deve appiattirsi ruotando). */
-.chest-stage .obj-ball, .chest-stage .obj-star {
-  transform: translate(-50%, 0) translateZ(calc(var(--depth) * -0.42vmin)) rotateY(calc(-1 * var(--ry, 38deg))) rotateX(calc(-1 * var(--rx, -30deg)));
+.chest-stage .obj-svg { width: 100%; height: 100%; display: block; overflow: visible; filter: drop-shadow(0 .25vmin .35vmin rgba(0,0,0,.3)); }
+
+/* ===== Materia: ombre e texture per un aspetto meno "piatto" ===== */
+.chest-stage { --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+/* Ombra di contatto a terra: "appoggia" la cassettiera. */
+.chest-stage::before { content: ""; position: absolute; z-index: 0; left: 50%; bottom: 8%; width: 52%; height: 8%; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(0,0,0,.34), transparent); filter: blur(4px); pointer-events: none; }
+.chest-stage .chest { z-index: 1; }
+/* Texture sottile su corpo e interni (non sul pannello con la parola). */
+.chest-stage .chest__panel--top::after, .chest-stage .chest__panel--left::after, .chest-stage .chest__panel--right::after, .chest-stage .chest__panel--back::after,
+.chest-stage .drawer__panel--front::after, .chest-stage .drawer__panel--bottom::after, .chest-stage .drawer__panel--left::after, .chest-stage .drawer__panel--right::after {
+  content: ""; position: absolute; inset: 0; background: var(--noise); background-size: 108px 108px; opacity: .12; mix-blend-mode: overlay; pointer-events: none;
 }
-/* Cubo / regalo: tre facce isometriche (veri volumi 3D). */
-.chest-stage .obj-face { position: absolute; inset: 0; }
-.chest-stage .obj-cube .obj-front, .chest-stage .obj-gift .obj-front { background: var(--accent, var(--brand)); transform: translateZ(2.2vmin); }
-.chest-stage .obj-cube .obj-top, .chest-stage .obj-gift .obj-top { background: color-mix(in srgb, var(--accent, var(--brand)) 60%, white); transform: rotateX(90deg) translateZ(2.2vmin); }
-.chest-stage .obj-cube .obj-left, .chest-stage .obj-gift .obj-left { background: color-mix(in srgb, var(--accent, var(--brand)) 68%, black); transform: rotateY(-90deg) translateZ(2.2vmin); }
-.chest-stage .obj-gift .obj-ribbon { position: absolute; inset: 0; transform: translateZ(2.28vmin); background: linear-gradient(90deg, transparent 41%, color-mix(in srgb, var(--accent, var(--brand)) 45%, white) 41% 59%, transparent 59%); }
-.chest-stage .obj-ball { border-radius: 50%; background: radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--accent, var(--brand)) 55%, white), var(--accent, var(--brand)) 52%, color-mix(in srgb, var(--accent, var(--brand)) 55%, black)); box-shadow: inset -0.3vmin -0.3vmin .8vmin color-mix(in srgb, var(--accent, var(--brand)) 55%, black); }
-.chest-stage .obj-star { background: var(--accent, var(--brand)); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+/* Shading direzionale (luce dall'alto-sinistra). */
+.chest-stage .chest__panel--top { background-image: linear-gradient(160deg, rgba(255,255,255,.14), rgba(0,0,0,.05)); }
+.chest-stage .chest__panel--right { background-image: linear-gradient(0deg, rgba(0,0,0,.12), rgba(255,255,255,.03)); }
+.chest-stage .chest__panel--left { background-image: linear-gradient(0deg, rgba(0,0,0,.16), transparent); }
+/* Facciata dei cassetti: sfumatura + leggera lucentezza. */
+.chest-stage .drawer__panel--front { background: linear-gradient(150deg, color-mix(in srgb, var(--unit-four) 82%, white), var(--unit-four) 62%); }
+/* Ambient occlusion dentro al cassetto. */
+.chest-stage .drawer__panel--bottom { background: linear-gradient(0deg, color-mix(in srgb, var(--drawer-three) 66%, black), var(--drawer-three)); }
+.chest-stage .drawer__panel--left, .chest-stage .drawer__panel--right { background: linear-gradient(180deg, color-mix(in srgb, var(--drawer-two) 86%, black), var(--drawer-two)); }
+.chest-stage .drawer__panel--back { box-shadow: inset 0 .5vmin .9vmin rgba(0,0,0,.13); }
+/* Ombra proiettata dal cassetto aperto. */
+.chest-stage details[open] + .drawer__structure { filter: drop-shadow(0 .4vmin .55vmin rgba(0,0,0,.28)); }
 .hero-hint { font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); margin: 0; animation: rise .9s .22s cubic-bezier(.2,.7,.3,1) both; }
 @media (prefers-reduced-motion: reduce) {
   .chest-stage details, .chest-stage .drawer__structure { transition: none; }

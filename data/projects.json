@@ -144,7 +144,7 @@
       "id": "symbinux",
       "title": "Symbinux",
       "tagline": "GUI cross-platform in Rust (gtk4)",
-      "description": "Fork di Nokinux: interfaccia grafica cross-platform in Rust con gtk4, gestione wireless via BLE reale, installer Windows. Verificato su Linux e Windows.",
+      "description": "Fork moderno di Nokinux, progetto che lanciai nel lontano 2008, e di cui mi ritrovai a gestire il team di sviluppo per alcuni anni; interfaccia grafica cross-platform in Rust con gtk4, gestione wireless via BLE reale, installer Windows. Verificato e compilato su Linux e Windows, pensato per essere compatibile anche con MacOS (da compilare).",
       "status": "wip",
       "accent": "#8a63d2",
       "logo": "",
@@ -164,7 +164,7 @@
       ],
       "en": {
         "tagline": "Cross-platform GUI in Rust (gtk4)",
-        "description": "Fork of Nokinux: cross-platform GUI in Rust with gtk4, real BLE wireless management, Windows installer. Verified on Linux and Windows.",
+        "description": "A modern fork of Nokinux, a project I launched back in 2008 and whose development team I ended up leading for a few years; cross-platform GUI in Rust with gtk4, wireless management over real BLE, Windows installer. Built and verified on Linux and Windows, and designed to be macOS-compatible too (still to be compiled).",
         "highlights": [
           "Cross-platform Rust gtk4 GUI (Linux + Windows)",
           "symbinux-wireless crate: real BLE on Windows",
