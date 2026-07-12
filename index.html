@@ -30,10 +30,26 @@
     </script>
   </head>
   <body>
-    <!-- Controllo tema flottante -->
-    <div class="theme-float">
-      <div class="theme-seg" role="group" aria-label="Tema" id="theme-seg"></div>
-    </div>
+    <!-- Hamburger flottante + menu overlay (sezioni + lingua + tema) -->
+    <button class="burger" id="burger" aria-label="Apri il menu" aria-expanded="false" aria-controls="menu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="menu" id="menu" aria-hidden="true">
+      <div class="menu-inner">
+        <p class="menu-label" id="menu-sections-label">Sezioni</p>
+        <ul class="menu-list" id="menu-list"></ul>
+        <div class="menu-controls">
+          <div class="menu-ctl">
+            <span class="menu-ctl-label" id="menu-lang-label">Lingua</span>
+            <div class="lang-seg" role="group" aria-label="Lingua" id="lang-seg"></div>
+          </div>
+          <div class="menu-ctl">
+            <span class="menu-ctl-label" id="menu-theme-label">Tema</span>
+            <div class="theme-seg" role="group" aria-label="Tema" id="theme-seg"></div>
+          </div>
+        </div>
+      </div>
+    </nav>
 
     <!-- Frecce di navigazione verticale (interfaccia cinema) -->
     <div class="nav-arrows" id="nav-arrows" aria-hidden="true">

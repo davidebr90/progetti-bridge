@@ -4,6 +4,9 @@
     "tagline": "Una panoramica di alcuni dei progetti su cui sto lavorando ed ho lavorato: demo live, codice e dettagli.",
     "author": "Davide Pica",
     "githubUser": "davidebr90",
+    "en": {
+      "tagline": "A look at some of the projects I'm working on and have worked on: live demos, code and details."
+    },
     "bio": {
       "eyebrow": "La persona",
       "name": "Davide Pica",
@@ -19,6 +22,15 @@
         "linkedin": "",
         "instagram": "",
         "facebook": ""
+      },
+      "en": {
+        "eyebrow": "About",
+        "role": "Event organizer in Puglia · developer by passion",
+        "description": "I build tools that solve real problems: from live event organization to the software platforms I use every day. I move between full-stack development, automation and integrations, with a soft spot for things done well, self-hosted and bespoke.",
+        "quotes": [
+          "If a tool doesn't exist the way I want it, I build it.",
+          "I prefer a simple solution that works over a complicated one that impresses."
+        ]
       }
     }
   },
@@ -39,7 +51,16 @@
         "WebUI stile WhatsApp Desktop + API REST + server MCP",
         "Risponditore AI con persona, memoria e ricerca proattiva",
         "Companion multi-device via Baileys, dati 100% self-hosted"
-      ]
+      ],
+      "en": {
+        "tagline": "Self-hosted WhatsApp daemon",
+        "description": "Manage your WhatsApp account (chats, media, groups, statuses) from a web interface, via a REST API and from an MCP server for AI assistants. It connects as a companion device through Baileys, with an optional auto-responder. All data stays on your server.",
+        "highlights": [
+          "WhatsApp Desktop-style WebUI + REST API + MCP server",
+          "AI responder with persona, memory and proactive search",
+          "Multi-device companion via Baileys, 100% self-hosted data"
+        ]
+      }
     },
     {
       "id": "lavagna",
@@ -57,7 +78,16 @@
         "Editor su canvas con animazione dei movimenti",
         "Salvataggio e riproduzione delle giocate",
         "Motore di animazione dedicato (useAnimEngine)"
-      ]
+      ],
+      "en": {
+        "tagline": "Tactics board for basketball coaches",
+        "description": "Web app to draw basketball plays and schemes, with movement animation, saving and playback. Built in React + Konva, self-hosted on a VPS.",
+        "highlights": [
+          "Canvas editor with movement animation",
+          "Save and replay plays",
+          "Dedicated animation engine (useAnimEngine)"
+        ]
+      }
     },
     {
       "id": "booking-engine",
@@ -77,7 +107,17 @@
         "Pagamenti con PayPal, Stripe e carte",
         "Notifiche email per cliente e amministratore",
         "Auto-approvazione o lista d'attesa fino alla conferma del gestore"
-      ]
+      ],
+      "en": {
+        "tagline": "Bespoke booking engine",
+        "description": "Booking system built as a custom WordPress plugin for a catering company. Google Calendar sync, payments via PayPal, Stripe and cards, and an email notification system for client and admin, with auto-approval of the booking or waitlisting until the manager confirms.",
+        "highlights": [
+          "Two-way Google Calendar sync",
+          "Payments via PayPal, Stripe and cards",
+          "Email notifications for client and admin",
+          "Auto-approval or waitlist until the manager confirms"
+        ]
+      }
     },
     {
       "id": "symbinux",
@@ -95,7 +135,16 @@
         "GUI Rust gtk4 cross-platform (Linux + Windows)",
         "Crate symbinux-wireless: BLE reale su Windows",
         "Installer Windows (Inno Setup) testato"
-      ]
+      ],
+      "en": {
+        "tagline": "Cross-platform GUI in Rust (gtk4)",
+        "description": "Fork of Nokinux: cross-platform GUI in Rust with gtk4, real BLE wireless management, Windows installer. Verified on Linux and Windows.",
+        "highlights": [
+          "Cross-platform Rust gtk4 GUI (Linux + Windows)",
+          "symbinux-wireless crate: real BLE on Windows",
+          "Windows installer (Inno Setup) tested"
+        ]
+      }
     },
     {
       "id": "stavau",
@@ -113,7 +162,16 @@
         "Blocco PC automatico via prossimità BLE",
         "Testata dal vivo su Windows 11",
         "Strategy engine per Android / iPhone (v0.2)"
-      ]
+      ],
+      "en": {
+        "tagline": "Privacy by proximity",
+        "description": "App that automatically locks your PC when you walk away, detecting the phone's proximity via Bluetooth Low Energy. Tested live on Windows 11.",
+        "highlights": [
+          "Automatic PC lock via BLE proximity",
+          "Tested live on Windows 11",
+          "Strategy engine for Android / iPhone (v0.2)"
+        ]
+      }
     },
     {
       "id": "vvf-quiz",
@@ -131,7 +189,16 @@
         "639 quesiti ufficiali FOR2/FOR3 (DM 2/9/2021)",
         "610 quesiti del vecchio banco (DM 10/3/98)",
         "Base dati completa, web app in costruzione"
-      ]
+      ],
+      "en": {
+        "tagline": "Fire-safety technical aptitude quiz",
+        "description": "Quiz platform for the fire-safety technical aptitude exam of the Italian Fire Brigade: complete database of official questions (DM 2/9/2021 + old DM 10/3/98 bank), ready for the web app.",
+        "highlights": [
+          "639 official FOR2/FOR3 questions (DM 2/9/2021)",
+          "610 questions from the old bank (DM 10/3/98)",
+          "Complete dataset, web app under construction"
+        ]
+      }
     }
   ]
 }

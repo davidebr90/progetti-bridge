@@ -1,7 +1,7 @@
 /* Progetti Bridge — pagina pubblica statica, senza framework.
- * Cinque interfacce completamente diverse per gli STESSI dati, commutabili dal
- * dock in basso; tema chiaro/scuro/auto; reveal allo scroll; sezione bio con
- * social. Tutta l'animazione è CSS + un filo di JS per tilt/accordion/cinetica. */
+ * 5 interfacce commutabili per gli STESSI dati; tema chiaro/scuro/auto e lingua
+ * IT/EN dentro un menu hamburger flottante che elenca anche le sezioni; reveal
+ * allo scroll; bio con social. Animazione = CSS + un filo di JS. */
 
 const ICONS = {
   sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
@@ -17,10 +17,33 @@ const ICONS = {
   close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
 };
 
-const STATUS = {
-  live: { cls: "status-live", label: "Live" },
-  beta: { cls: "status-beta", label: "Beta" },
-  wip: { cls: "status-wip", label: "In sviluppo" },
+// Bandiere (SVG, niente emoji: su Windows le flag-emoji non si vedono).
+const FLAGS = {
+  it: '<svg viewBox="0 0 24 16" aria-hidden="true"><rect width="8" height="16" fill="#009246"/><rect x="8" width="8" height="16" fill="#fff"/><rect x="16" width="8" height="16" fill="#ce2b37"/></svg>',
+  en: '<svg viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0l24 16M24 0L0 16" stroke="#c8102e" stroke-width="1.6"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.3"/><path d="M12 0v16M0 8h24" stroke="#c8102e" stroke-width="3.2"/></svg>',
+};
+
+const LANGS = [
+  ["it", FLAGS.it, "Italiano"],
+  ["en", FLAGS.en, "English"],
+];
+
+/* ---------- i18n stringhe UI ---------- */
+const T = {
+  it: {
+    sections: "Sezioni", language: "Lingua", theme: "Tema",
+    intro: "Intro", profile: "Profilo",
+    demo: "Live demo", demoOff: "Demo offline", codeBtn: "Codice",
+    "status.live": "Live", "status.beta": "Beta", "status.wip": "In sviluppo",
+    menuOpen: "Apri il menu", menuClose: "Chiudi il menu",
+  },
+  en: {
+    sections: "Sections", language: "Language", theme: "Theme",
+    intro: "Intro", profile: "Profile",
+    demo: "Live demo", demoOff: "Demo offline", codeBtn: "Code",
+    "status.live": "Live", "status.beta": "Beta", "status.wip": "In progress",
+    menuOpen: "Open the menu", menuClose: "Close the menu",
+  },
 };
 
 const INTERFACES = [
@@ -31,9 +54,29 @@ const INTERFACES = [
   { key: "cinetica", name: "Cinetica", hint: "Titoli in movimento" },
 ];
 
-/* ---------- Tema ---------- */
 const THEME_KEY = "bridge-theme";
 const UI_KEY = "bridge-ui";
+const LANG_KEY = "bridge-lang";
+
+/* ---------- Lingua ---------- */
+function getLang() {
+  try {
+    const v = localStorage.getItem(LANG_KEY);
+    if (v === "it" || v === "en") return v;
+  } catch {}
+  return (navigator.language || "it").toLowerCase().startsWith("en") ? "en" : "it";
+}
+let LANG = "it";
+function t(key) {
+  return (T[LANG] && T[LANG][key]) || (T.it[key] ?? key);
+}
+/** Campo localizzato: usa obj.en[field] se lingua EN e presente, altrimenti il default. */
+function loc(obj, field) {
+  if (LANG === "en" && obj && obj.en && obj.en[field] != null) return obj.en[field];
+  return obj ? obj[field] : undefined;
+}
+
+/* ---------- Tema ---------- */
 function getPref() {
   try {
     const v = localStorage.getItem(THEME_KEY);
@@ -81,56 +124,51 @@ function demoUrl(p) {
   return p.demoUrl || (p.demoKey ? LINKS[p.demoKey] || "" : "") || "";
 }
 function visualInner(p) {
-  if (p.screenshots && p.screenshots[0]) return `<img class="p-shot" src="${esc(p.screenshots[0])}" alt="Anteprima ${esc(p.title)}" loading="lazy" decoding="async" />`;
+  if (p.screenshots && p.screenshots[0]) return `<img class="p-shot" src="${esc(p.screenshots[0])}" alt="${esc(p.title)}" loading="lazy" decoding="async" />`;
   if (p.logo) return `<img class="p-logo-img" src="${esc(p.logo)}" alt="${esc(p.title)}" loading="lazy" decoding="async" />`;
   return `<span class="p-mono">${monogram(p.title)}</span>`;
 }
 function actionsHTML(p) {
   const demo = demoUrl(p);
   const demoBtn = demo
-    ? `<a class="btn btn-primary" href="${esc(demo)}" target="_blank" rel="noopener">${ICONS.ext} Live demo</a>`
+    ? `<a class="btn btn-primary" href="${esc(demo)}" target="_blank" rel="noopener">${ICONS.ext} ${t("demo")}</a>`
     : p.demoKey || p.demoUrl
-      ? `<span class="btn" aria-disabled="true" title="Demo non disponibile al momento">${ICONS.ext} Demo offline</span>`
+      ? `<span class="btn" aria-disabled="true">${ICONS.ext} ${t("demoOff")}</span>`
       : "";
-  const repoBtn = p.repo ? `<a class="btn" href="${esc(p.repo)}" target="_blank" rel="noopener">${ICONS.code} Codice</a>` : "";
+  const repoBtn = p.repo ? `<a class="btn" href="${esc(p.repo)}" target="_blank" rel="noopener">${ICONS.code} ${t("codeBtn")}</a>` : "";
   return demoBtn + repoBtn;
 }
 function highlightsHTML(p) {
-  return (p.highlights || []).map((h) => `<li>${esc(h)}</li>`).join("");
+  return (loc(p, "highlights") || []).map((h) => `<li>${esc(h)}</li>`).join("");
 }
 function tagsHTML(p) {
-  return (p.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join("");
+  return (p.tags || []).map((x) => `<span class="tag">${esc(x)}</span>`).join("");
 }
 function pill(p) {
-  const st = STATUS[p.status] || STATUS.wip;
-  return `<span class="status ${st.cls}">${st.label}</span>`;
+  const cls = { live: "status-live", beta: "status-beta", wip: "status-wip" }[p.status] || "status-wip";
+  return `<span class="status ${cls}">${t(`status.${p.status}`)}</span>`;
 }
 
 /* ============================================================
-   INTERFACCE — ognuna riceve (stage, projects) e disegna il DOM
+   INTERFACCE
    ============================================================ */
-
 function bodyHTML(p) {
   return `
-    <p class="p-eyebrow">${esc(p.tagline || "")}</p>
+    <p class="p-eyebrow">${esc(loc(p, "tagline") || "")}</p>
     <h2 class="p-title">${esc(p.title)}</h2>
-    <p class="p-desc">${esc(p.description || "")}</p>
+    <p class="p-desc">${esc(loc(p, "description") || "")}</p>
     ${highlightsHTML(p) ? `<ul class="p-highlights">${highlightsHTML(p)}</ul>` : ""}
     ${tagsHTML(p) ? `<div class="p-tags">${tagsHTML(p)}</div>` : ""}
     <div class="p-actions">${actionsHTML(p)}</div>`;
 }
 
 const RENDER = {
-  // 1) CINEMA — sezioni a tutta pagina, alternate, scroll-snap + frecce
   cinema(stage, projects) {
     stage.innerHTML = projects
       .map(
-        (p) => `<section class="snap project" style="--accent:${esc(p.accent || "var(--brand)")}">
+        (p, i) => `<section class="snap project" data-proj="${i}" style="--accent:${esc(p.accent || "var(--brand)")}">
           <div class="project-inner">
-            <div class="project-visual reveal">
-              <span class="p-status-float">${pill(p)}</span>
-              ${visualInner(p)}
-            </div>
+            <div class="project-visual reveal"><span class="p-status-float">${pill(p)}</span>${visualInner(p)}</div>
             <div class="project-body">${bodyHTML(p)}</div>
           </div>
         </section>`,
@@ -138,17 +176,15 @@ const RENDER = {
       .join("");
     observeReveal();
   },
-
-  // 2) CAROSELLO — deck orizzontale con scroll-snap
   carosello(stage, projects) {
     stage.innerHTML = `<div class="deck" id="deck">${projects
       .map(
-        (p) => `<article class="deck-card reveal" style="--accent:${esc(p.accent || "var(--brand)")}">
+        (p, i) => `<article class="deck-card reveal" data-proj="${i}" style="--accent:${esc(p.accent || "var(--brand)")}">
           <div class="deck-visual">${visualInner(p)}<span class="p-status-float">${pill(p)}</span></div>
           <div class="deck-body">
-            <p class="p-eyebrow">${esc(p.tagline || "")}</p>
+            <p class="p-eyebrow">${esc(loc(p, "tagline") || "")}</p>
             <h2 class="p-title">${esc(p.title)}</h2>
-            <p class="p-desc">${esc(p.description || "")}</p>
+            <p class="p-desc">${esc(loc(p, "description") || "")}</p>
             <div class="p-tags">${tagsHTML(p)}</div>
             <div class="p-actions">${actionsHTML(p)}</div>
           </div>
@@ -157,21 +193,16 @@ const RENDER = {
       .join("")}</div>`;
     observeReveal();
   },
-
-  // 3) GRIGLIA — schede con tilt 3D + glare al puntatore
   griglia(stage, projects) {
     stage.innerHTML = `<div class="grid">${projects
       .map(
-        (p) => `<article class="tilt reveal" style="--accent:${esc(p.accent || "var(--brand)")}">
+        (p, i) => `<article class="tilt reveal" data-proj="${i}" style="--accent:${esc(p.accent || "var(--brand)")}">
           <div class="tilt-inner">
             <span class="tilt-glare"></span>
-            <div class="tilt-top">
-              <span class="tilt-logo">${visualInner(p)}</span>
-              ${pill(p)}
-            </div>
+            <div class="tilt-top"><span class="tilt-logo">${visualInner(p)}</span>${pill(p)}</div>
             <h3 class="tilt-title">${esc(p.title)}</h3>
-            <p class="tilt-tagline">${esc(p.tagline || "")}</p>
-            <p class="tilt-desc">${esc(p.description || "")}</p>
+            <p class="tilt-tagline">${esc(loc(p, "tagline") || "")}</p>
+            <p class="tilt-desc">${esc(loc(p, "description") || "")}</p>
             <div class="p-tags">${tagsHTML(p)}</div>
             <div class="p-actions">${actionsHTML(p)}</div>
           </div>
@@ -181,22 +212,17 @@ const RENDER = {
     setupTilt(stage);
     observeReveal();
   },
-
-  // 4) RIVISTA — indice editoriale ad accordion
   rivista(stage, projects) {
     stage.innerHTML = `<div class="mag">${projects
       .map(
-        (p, i) => `<article class="mag-row" style="--accent:${esc(p.accent || "var(--brand)")}">
+        (p, i) => `<article class="mag-row" data-proj="${i}" style="--accent:${esc(p.accent || "var(--brand)")}">
           <button class="mag-head" type="button" aria-expanded="false">
             <span class="mag-num">${String(i + 1).padStart(2, "0")}</span>
-            <span class="mag-titles">
-              <span class="mag-title">${esc(p.title)}</span>
-              <span class="mag-tagline">${esc(p.tagline || "")}</span>
-            </span>
+            <span class="mag-titles"><span class="mag-title">${esc(p.title)}</span><span class="mag-tagline">${esc(loc(p, "tagline") || "")}</span></span>
             <span class="mag-meta">${pill(p)}<span class="mag-chevron">${ICONS.arrowR}</span></span>
           </button>
           <div class="mag-panel"><div class="mag-panel-in">
-            <p class="p-desc">${esc(p.description || "")}</p>
+            <p class="p-desc">${esc(loc(p, "description") || "")}</p>
             ${highlightsHTML(p) ? `<ul class="p-highlights">${highlightsHTML(p)}</ul>` : ""}
             <div class="p-tags">${tagsHTML(p)}</div>
             <div class="p-actions">${actionsHTML(p)}</div>
@@ -207,22 +233,19 @@ const RENDER = {
     setupAccordion(stage);
     observeReveal();
   },
-
-  // 5) CINETICA — titoli enormi in movimento, click → pannello dettaglio
   cinetica(stage, projects) {
     stage.innerHTML =
       `<div class="kin">` +
       projects
         .map(
-          (p, i) => `<button class="kin-item" type="button" data-i="${i}" style="--accent:${esc(p.accent || "var(--brand)")}">
+          (p, i) => `<button class="kin-item" type="button" data-i="${i}" data-proj="${i}" style="--accent:${esc(p.accent || "var(--brand)")}">
             <span class="kin-index">0${i + 1}</span>
             <span class="kin-line" data-text="${esc(p.title)}">${esc(p.title)}</span>
-            <span class="kin-tag">${esc(p.tagline || "")}</span>
+            <span class="kin-tag">${esc(loc(p, "tagline") || "")}</span>
           </button>`,
         )
         .join("") +
-      `</div>
-      <div class="kin-panel" id="kin-panel" hidden><div class="kin-panel-card" id="kin-panel-card"></div></div>`;
+      `</div><div class="kin-panel" id="kin-panel" hidden><div class="kin-panel-card" id="kin-panel-card"></div></div>`;
     setupKinetic(stage, projects);
     observeReveal();
   },
@@ -238,7 +261,6 @@ function runCleanup() {
   });
   cleanup = [];
 }
-
 let revealObserver = null;
 function observeReveal() {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -256,25 +278,19 @@ function observeReveal() {
   );
   targets.forEach((el) => revealObserver.observe(el));
 }
-
 function setupTilt(stage) {
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduce) return;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   stage.querySelectorAll(".tilt").forEach((card) => {
     const inner = card.querySelector(".tilt-inner");
     const onMove = (e) => {
       const r = card.getBoundingClientRect();
       const px = (e.clientX - r.left) / r.width;
       const py = (e.clientY - r.top) / r.height;
-      const rx = (0.5 - py) * 12;
-      const ry = (px - 0.5) * 14;
-      inner.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(0)`;
+      inner.style.transform = `perspective(900px) rotateX(${(0.5 - py) * 12}deg) rotateY(${(px - 0.5) * 14}deg)`;
       card.style.setProperty("--gx", `${px * 100}%`);
       card.style.setProperty("--gy", `${py * 100}%`);
     };
-    const onLeave = () => {
-      inner.style.transform = "";
-    };
+    const onLeave = () => (inner.style.transform = "");
     card.addEventListener("pointermove", onMove);
     card.addEventListener("pointerleave", onLeave);
     cleanup.push(() => {
@@ -283,10 +299,8 @@ function setupTilt(stage) {
     });
   });
 }
-
 function setupAccordion(stage) {
-  const heads = stage.querySelectorAll(".mag-head");
-  heads.forEach((h) => {
+  stage.querySelectorAll(".mag-head").forEach((h) => {
     const onClick = () => {
       const row = h.closest(".mag-row");
       const open = row.classList.toggle("open");
@@ -296,7 +310,6 @@ function setupAccordion(stage) {
     cleanup.push(() => h.removeEventListener("click", onClick));
   });
 }
-
 function setupKinetic(stage, projects) {
   const panel = stage.querySelector("#kin-panel");
   const card = stage.querySelector("#kin-panel-card");
@@ -305,13 +318,13 @@ function setupKinetic(stage, projects) {
     if (!p) return;
     card.style.setProperty("--accent", p.accent || "var(--brand)");
     card.innerHTML = `
-      <button class="kin-close" type="button" aria-label="Chiudi">${ICONS.close}</button>
+      <button class="kin-close" type="button" aria-label="${esc(t("menuClose"))}">${ICONS.close}</button>
       <div class="kin-panel-visual">${visualInner(p)}</div>
       <div class="kin-panel-body">
-        <p class="p-eyebrow">${esc(p.tagline || "")}</p>
+        <p class="p-eyebrow">${esc(loc(p, "tagline") || "")}</p>
         <h2 class="p-title">${esc(p.title)}</h2>
         <div style="margin:.2rem 0 1rem">${pill(p)}</div>
-        <p class="p-desc">${esc(p.description || "")}</p>
+        <p class="p-desc">${esc(loc(p, "description") || "")}</p>
         ${highlightsHTML(p) ? `<ul class="p-highlights">${highlightsHTML(p)}</ul>` : ""}
         <div class="p-tags">${tagsHTML(p)}</div>
         <div class="p-actions">${actionsHTML(p)}</div>
@@ -344,10 +357,7 @@ function setupKinetic(stage, projects) {
   });
 }
 
-/* ---------- Navigazione a frecce (cinema: verticale · carosello: orizzontale) ---------- */
-function snapSections() {
-  return [...document.querySelectorAll(".snap")];
-}
+/* ---------- Frecce ---------- */
 function navigate(dir) {
   const ui = document.documentElement.getAttribute("data-ui");
   if (ui === "carosello") {
@@ -359,20 +369,17 @@ function navigate(dir) {
     }
     return;
   }
-  // cinema: scorri di sezione
-  const secs = snapSections();
+  const secs = [...document.querySelectorAll(".snap")];
   if (!secs.length) return;
   const mid = window.innerHeight / 2;
   let idx = 0;
   secs.forEach((s, i) => {
-    const r = s.getBoundingClientRect();
-    if (r.top <= mid) idx = i;
+    if (s.getBoundingClientRect().top <= mid) idx = i;
   });
-  const next = Math.min(secs.length - 1, Math.max(0, idx + dir));
-  secs[next].scrollIntoView({ behavior: "smooth", block: "start" });
+  secs[Math.min(secs.length - 1, Math.max(0, idx + dir))].scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-/* ---------- Dock / interfaccia ---------- */
+/* ---------- Interfaccia ---------- */
 let PROJECTS = [];
 function getUI() {
   try {
@@ -391,18 +398,16 @@ function setUI(key) {
 function applyUI(key) {
   runCleanup();
   document.documentElement.setAttribute("data-ui", key);
-  const stage = document.getElementById("stage");
-  (RENDER[key] || RENDER.cinema)(stage, PROJECTS);
-  // aggiorna stato attivo nel dock
+  (RENDER[key] || RENDER.cinema)(document.getElementById("stage"), PROJECTS);
   document.querySelectorAll(".dock-tab").forEach((b) => {
     const on = b.dataset.ui === key;
     b.classList.toggle("is-active", on);
     b.setAttribute("aria-selected", on ? "true" : "false");
   });
-  // frecce solo dove hanno senso
   const arrows = document.getElementById("nav-arrows");
-  arrows.dataset.show = key === "cinema" || key === "carosello" ? "1" : "0";
-  arrows.setAttribute("aria-hidden", arrows.dataset.show === "1" ? "false" : "true");
+  const show = key === "cinema" || key === "carosello";
+  arrows.dataset.show = show ? "1" : "0";
+  arrows.setAttribute("aria-hidden", show ? "false" : "true");
 }
 function renderDock() {
   const sw = document.getElementById("dock-switch");
@@ -413,7 +418,72 @@ function renderDock() {
   sw.querySelectorAll(".dock-tab").forEach((b) => b.addEventListener("click", () => setUI(b.dataset.ui)));
 }
 
-/* ---------- Social ---------- */
+/* ---------- Menu hamburger (sezioni + lingua + tema) ---------- */
+function closeMenu() {
+  const menu = document.getElementById("menu");
+  const burger = document.getElementById("burger");
+  menu.classList.remove("open");
+  menu.setAttribute("aria-hidden", "true");
+  burger.classList.remove("open");
+  burger.setAttribute("aria-expanded", "false");
+  burger.setAttribute("aria-label", t("menuOpen"));
+  document.body.classList.remove("menu-open");
+}
+function openMenu() {
+  const menu = document.getElementById("menu");
+  const burger = document.getElementById("burger");
+  menu.classList.add("open");
+  menu.setAttribute("aria-hidden", "false");
+  burger.classList.add("open");
+  burger.setAttribute("aria-expanded", "true");
+  burger.setAttribute("aria-label", t("menuClose"));
+  document.body.classList.add("menu-open");
+}
+function scrollToTarget(sel) {
+  const el = document.querySelector(sel);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: sel === "#hero" ? "start" : "center", inline: "center" });
+}
+function renderMenu() {
+  // Etichette
+  document.getElementById("menu-sections-label").textContent = t("sections");
+  document.getElementById("menu-lang-label").textContent = t("language");
+  document.getElementById("menu-theme-label").textContent = t("theme");
+
+  // Elenco sezioni: Intro + progetti + Profilo
+  const list = document.getElementById("menu-list");
+  const items = [["#hero", t("intro")]];
+  PROJECTS.forEach((p, i) => items.push([`[data-proj="${i}"]`, p.title]));
+  items.push(["#bio", t("profile")]);
+  list.innerHTML = items
+    .map(([sel, label], i) => `<li style="--d:${i * 45}ms"><button type="button" data-sel="${esc(sel)}">${esc(label)}</button></li>`)
+    .join("");
+  list.querySelectorAll("button").forEach((b) =>
+    b.addEventListener("click", () => {
+      closeMenu();
+      setTimeout(() => scrollToTarget(b.dataset.sel), 260);
+    }),
+  );
+
+  // Bandiere lingua
+  const seg = document.getElementById("lang-seg");
+  seg.innerHTML = LANGS.map(
+    ([k, fl, lbl]) => `<button type="button" data-lang="${k}" title="${lbl}" aria-label="${lbl}" aria-pressed="${k === LANG}" class="${k === LANG ? "is-active" : ""}"><span class="flag">${fl}</span><span class="lang-code">${k.toUpperCase()}</span></button>`,
+  ).join("");
+  seg.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => setLang(b.dataset.lang)));
+}
+function setLang(lang) {
+  if (lang !== "it" && lang !== "en") return;
+  LANG = lang;
+  try {
+    localStorage.setItem(LANG_KEY, lang);
+  } catch {}
+  document.documentElement.setAttribute("lang", lang);
+  applyLangToStatic();
+  renderMenu();
+  applyUI(getUI()); // ridisegna i progetti nella lingua nuova
+}
+
+/* ---------- Social / Bio ---------- */
 function socialHTML(social) {
   if (!social) return "";
   const order = [
@@ -427,47 +497,55 @@ function socialHTML(social) {
       const url = social[k];
       return url
         ? `<a class="soc" href="${esc(url)}" target="_blank" rel="noopener" aria-label="${lbl}" title="${lbl}">${ic}</a>`
-        : `<span class="soc is-off" aria-label="${lbl} (da impostare)" title="${lbl} — link da impostare">${ic}</span>`;
+        : `<span class="soc is-off" aria-label="${lbl}" title="${lbl}">${ic}</span>`;
     })
     .join("");
 }
-
-/* ---------- Bio ---------- */
-function renderBio(bio) {
+let SITE = {};
+function renderBio() {
+  const bio = SITE.bio;
   if (!bio) return;
-  const section = document.getElementById("bio");
-  section.hidden = false;
-  document.getElementById("bio-eyebrow").textContent = bio.eyebrow || "La persona";
+  document.getElementById("bio").hidden = false;
+  document.getElementById("bio-eyebrow").textContent = loc(bio, "eyebrow") || "";
   document.getElementById("bio-name").textContent = bio.name || "";
-  document.getElementById("bio-role").textContent = bio.role || "";
-  document.getElementById("bio-desc").textContent = bio.description || "";
+  document.getElementById("bio-role").textContent = loc(bio, "role") || "";
+  document.getElementById("bio-desc").textContent = loc(bio, "description") || "";
   const photo = document.getElementById("bio-photo");
   photo.innerHTML = bio.photo
-    ? `<img src="${esc(bio.photo)}" alt="${esc(bio.name || "Foto")}" loading="lazy" decoding="async" />`
+    ? `<img src="${esc(bio.photo)}" alt="${esc(bio.name || "")}" loading="lazy" decoding="async" />`
     : `<span class="bio-photo-mono">${monogram(bio.name || "D")}</span>`;
-  document.getElementById("bio-quotes").innerHTML = (bio.quotes || []).map((q) => `<li>“${esc(q)}”</li>`).join("");
+  document.getElementById("bio-quotes").innerHTML = (loc(bio, "quotes") || []).map((q) => `<li>“${esc(q)}”</li>`).join("");
   document.getElementById("bio-social").innerHTML = socialHTML(bio.social);
   document.getElementById("dock-social").innerHTML = socialHTML(bio.social);
 }
 
+/* ---------- Stringhe statiche (hero, dock brand) ---------- */
+function applyLangToStatic() {
+  document.getElementById("hero-tagline").textContent = loc(SITE, "tagline") || "";
+  renderBio();
+}
+
 /* ---------- Avvio ---------- */
 async function main() {
+  LANG = getLang();
+  document.documentElement.setAttribute("lang", LANG);
   renderThemeSeg(getPref());
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
     if (getPref() === "auto") applyPref("auto");
   });
   renderDock();
 
-  // frecce
-  document.querySelectorAll(".nav-arrow").forEach((b) =>
-    b.addEventListener("click", () => navigate(Number(b.dataset.dir))),
-  );
+  // Hamburger
+  const burger = document.getElementById("burger");
+  burger.addEventListener("click", () => (burger.classList.contains("open") ? closeMenu() : openMenu()));
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && burger.classList.contains("open")) closeMenu();
+  });
+
+  // Frecce
+  document.querySelectorAll(".nav-arrow").forEach((b) => b.addEventListener("click", () => navigate(Number(b.dataset.dir))));
   const heroScroll = document.getElementById("hero-scroll");
-  if (heroScroll)
-    heroScroll.addEventListener("click", () => {
-      const first = document.querySelector("#stage .snap, #stage .deck-card, #stage .tilt, #stage .mag-row, #stage .kin-item, #stage > *");
-      (first || document.getElementById("stage")).scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+  if (heroScroll) heroScroll.addEventListener("click", () => scrollToTarget('[data-proj="0"]'));
 
   const bust = `?t=${Math.floor(Date.now() / 60000)}`;
   const [data, links] = await Promise.all([
@@ -476,14 +554,14 @@ async function main() {
   ]);
   LINKS = links || {};
   PROJECTS = data.projects || [];
+  SITE = data.site || {};
 
-  const site = data.site || {};
-  if (site.title) document.title = site.title;
-  document.getElementById("hero-title").textContent = site.title || "I miei progetti";
-  document.getElementById("hero-tagline").textContent = site.tagline || "";
-  document.getElementById("dock-brand").textContent = site.author || "Portfolio";
-  renderBio(site.bio);
+  if (SITE.title) document.title = SITE.title;
+  document.getElementById("hero-title").textContent = SITE.title || "";
+  document.getElementById("dock-brand").textContent = SITE.author || "Portfolio";
 
+  applyLangToStatic();
+  renderMenu();
   applyUI(getUI());
 }
 
