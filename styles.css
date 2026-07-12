@@ -194,6 +194,68 @@ main { position: relative; }
 .hero-tagline { font-size: clamp(1.05rem,2.6vw,1.35rem); color: var(--ink-soft); margin: 0; max-width: 42ch; line-height: 1.5; animation: rise .9s .2s cubic-bezier(.2,.7,.3,1) both; }
 .hero-scroll { margin-top: clamp(2.2rem,6vw,3.6rem); color: var(--ink-faint); display: inline-grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--border); background: transparent; cursor: pointer; animation: rise 1s .3s cubic-bezier(.2,.7,.3,1) both, floaty 2.6s 1.2s ease-in-out infinite; transition: color .2s, border-color .2s, background .2s; }
 .hero-scroll:hover { color: var(--ink); border-color: var(--border-strong); background: var(--surface-2); }
+
+/* ===== Hero: cassettiera 3D interattiva (pura CSS, ispirata a jh3y "Pure CSS
+   Drawers"). Clicca un cassetto per aprirlo e leggere la parola. Colori legati ai
+   token del tema (chiaro/scuro). ===== */
+.chest-stage {
+  --hover: 0.06; --default: 0.012; --limit: 0.92;
+  --height: 26; --width: 18; --depth: 13; --frame: 1;
+  --transition: 0.34s;
+  --unit-one: color-mix(in srgb, var(--ink) 74%, var(--surface));
+  --unit-two: color-mix(in srgb, var(--ink) 60%, var(--surface));
+  --unit-three: color-mix(in srgb, var(--ink) 46%, var(--surface));
+  --unit-four: color-mix(in srgb, var(--ink) 40%, var(--surface));
+  --drawer-one: color-mix(in srgb, var(--ink) 5%, var(--surface));
+  --drawer-two: color-mix(in srgb, var(--ink) 15%, var(--surface));
+  --drawer-three: color-mix(in srgb, var(--ink) 9%, var(--surface));
+  --handle: color-mix(in srgb, var(--ink) 34%, var(--surface));
+  display: grid; place-items: center;
+  height: clamp(206px, 32vmin, 300px);
+  margin: .2rem 0 1.5rem;
+  animation: rise .9s .1s cubic-bezier(.2,.7,.3,1) both;
+}
+.chest-stage, .chest-stage *, .chest-stage *::before, .chest-stage *::after { transform-style: preserve-3d; box-sizing: border-box; }
+.chest-stage .chest { position: relative; height: calc(var(--height) * 1vmin); width: calc(var(--width) * 1vmin); transform: rotateX(-30deg) rotateY(38deg); color: var(--ink); }
+.chest-stage .chest__panel { position: absolute; }
+.chest-stage .chest__panel--back { background: var(--unit-two); }
+.chest-stage .chest__panel--back, .chest-stage .chest__panel--front { height: 100%; width: 100%; transform: translate3d(0, 0, calc(var(--depth) * var(--coefficient))); }
+.chest-stage .chest__panel--front-frame { height: 100%; width: 100%; border: calc(var(--frame) * 1vmin) solid var(--unit-one); border-bottom-width: calc(var(--frame) * 2vmin); transform: translate3d(0, 0, 0); }
+.chest-stage .chest__panel--front-frame::after, .chest-stage .chest__panel--front-frame::before { content: ''; background: var(--unit-one); height: calc(var(--frame) * 1.5vmin); width: calc(var(--width) * 1vmin); position: absolute; transform: translate(-50%, -50%); left: 50%; }
+.chest-stage .chest__panel--front-frame::after { top: calc(100 / 3 * 1.01%); }
+.chest-stage .chest__panel--front-frame::before { top: calc(100 / 3 * 2.01%); }
+.chest-stage .chest__panel--front { --coefficient: 0.5vmin; }
+.chest-stage .chest__panel--back { --coefficient: -0.5vmin; }
+.chest-stage .chest__panel--left, .chest-stage .chest__panel--right { height: 100%; left: 50%; width: calc(var(--depth) * 1vmin); background: var(--unit-three); transform: translate(-50%, 0) rotateY(90deg) translate3d(0, 0, calc(var(--width) * var(--coefficient))); }
+.chest-stage .chest__panel--right { width: calc((var(--depth) * 1vmin) + 2px); --coefficient: 0.5vmin; }
+.chest-stage .chest__panel--left { --coefficient: -0.5vmin; }
+.chest-stage .chest__panel--top, .chest-stage .chest__panel--bottom { height: calc(var(--depth) * 1vmin); width: calc(var(--width) * 1vmin); background: var(--unit-two); }
+.chest-stage .chest__panel--top { top: 0; width: calc((var(--width) * 1vmin) + 0.1vmin); height: calc((var(--depth) * 1vmin) + 0.1vmin); left: 50%; transform: translate(-50%, -50%) rotateX(-90deg); }
+.chest-stage .chest__panel--bottom { bottom: 0; transform: translate(0, 50%) rotateX(-90deg); }
+.chest-stage .chest__drawer { --drawer-height: calc((var(--height) - (5 * var(--frame))) / 3); position: absolute; top: var(--top, 0); left: 50%; height: calc(var(--drawer-height) * 1vmin); width: calc((var(--width) - (2 * var(--frame))) * 1vmin); transform: translate3d(-50%, 0, calc((var(--depth) * 0.5vmin) + 0.01vmin)); }
+.chest-stage .chest__drawer[data-position="1"] { --top: calc(var(--frame) * 1vmin); }
+.chest-stage .chest__drawer[data-position="2"] { --top: calc(((2 * var(--frame)) + var(--drawer-height)) * 1vmin); }
+.chest-stage .chest__drawer[data-position="3"] { --top: calc(((3 * var(--frame)) + (2 * var(--drawer-height))) * 1vmin); }
+.chest-stage .drawer__structure { height: 100%; width: 100%; position: absolute; top: 0; left: 0; }
+.chest-stage .drawer__panel { position: absolute; }
+.chest-stage .drawer__panel--left, .chest-stage .drawer__panel--right { width: calc(var(--depth) * 1vmin); height: 65%; background: var(--drawer-two); bottom: 1%; }
+.chest-stage .drawer__panel--left { left: 0; transform-origin: 0 50%; transform: rotateY(90deg); }
+.chest-stage .drawer__panel--right { right: 0; transform-origin: 100% 50%; transform: rotateY(-90deg); }
+.chest-stage .drawer__panel--front { height: calc((var(--drawer-height) + (0.6 * var(--frame))) * 1vmin); width: calc((var(--width) - (0.6 * var(--frame))) * 1vmin); top: 50%; left: 50%; transform: translate3d(-50%, -50%, 1px); background: var(--unit-four); border-radius: .4vmin; }
+.chest-stage .drawer__panel--bottom, .chest-stage .drawer__panel--back { width: 100%; }
+.chest-stage .drawer__panel--bottom { height: calc(var(--depth) * 1vmin); background: var(--drawer-three); bottom: 5%; left: 50%; transform-origin: 50% 100%; transform: translate(-50%, 0) rotateX(90deg); }
+.chest-stage .drawer__panel--back { height: 65%; background: var(--drawer-one); bottom: 1%; left: 50%; transform: translate3d(-50%, 0, calc(var(--depth) * -1vmin)); text-align: center; line-height: calc(var(--drawer-height) * 0.65vmin); font-family: var(--font-display, serif); font-weight: 600; font-size: 1.95vmin; letter-spacing: -.01em; color: var(--accent, var(--brand)); white-space: nowrap; overflow: visible; }
+.chest-stage details { position: absolute; height: 100%; width: 100%; top: 0; left: 0; cursor: pointer; outline: transparent; }
+.chest-stage details:hover:not([open]), .chest-stage details:hover:not([open]) + .drawer__structure { --open: var(--hover); }
+.chest-stage details, .chest-stage .drawer__structure { transition: transform var(--transition) cubic-bezier(.2,.7,.3,1); transform: translate3d(0, 0, calc((var(--open, var(--default)) * var(--depth)) * 1vmin)); }
+.chest-stage details[open], .chest-stage details[open] + .drawer__structure { --open: var(--limit); }
+.chest-stage summary { outline: transparent; height: 100%; width: 100%; list-style: none; }
+.chest-stage summary::-webkit-details-marker { display: none; }
+.chest-stage summary::after { content: ''; position: absolute; background: linear-gradient(var(--handle), var(--handle)) 50% 15%/40% 8% no-repeat, transparent; height: 110%; width: 110%; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0.5vmin); }
+.hero-hint { font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); margin: -.6rem 0 0; animation: rise .9s .22s cubic-bezier(.2,.7,.3,1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .chest-stage details, .chest-stage .drawer__structure { transition: none; }
+}
 @keyframes rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
 @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
 

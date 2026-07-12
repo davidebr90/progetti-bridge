@@ -1062,6 +1062,49 @@ function injectJsonLd() {
   el.textContent = json;
 }
 
+/* ---------- Hero: cassettiera 3D con terzine casuali ---------- */
+// Frasi su 3 righe (una per cassetto). Ne viene scelta una a caso ad ogni caricamento.
+const HERO_DRAWERS = [
+  ["apri", "i cassetti", "della mente"],
+  ["scemo", "chi", "legge"],
+  ["sei un", "vero", "curiosone"],
+  ["niente", "di", "segreto"],
+  ["tira", "il", "cassetto"],
+  ["occhio", "che", "mordono"],
+  ["dentro", "solo", "polvere"],
+  ["ficcanaso", "eh?", "lo sapevo"],
+];
+function buildHeroChest() {
+  const host = document.getElementById("hero-chest");
+  if (!host) return;
+  const words = HERO_DRAWERS[Math.floor(Math.random() * HERO_DRAWERS.length)];
+  const drawers = words
+    .map(
+      (w, i) => `
+      <div class="chest__drawer drawer" data-position="${i + 1}">
+        <details><summary aria-label="Apri il cassetto"></summary></details>
+        <div class="drawer__structure">
+          <div class="drawer__panel drawer__panel--back"><span>${esc(w)}</span></div>
+          <div class="drawer__panel drawer__panel--bottom"></div>
+          <div class="drawer__panel drawer__panel--right"></div>
+          <div class="drawer__panel drawer__panel--left"></div>
+          <div class="drawer__panel drawer__panel--front"></div>
+        </div>
+      </div>`,
+    )
+    .join("");
+  host.innerHTML = `
+    <div class="chest">
+      <div class="chest__panel chest__panel--back"></div>
+      <div class="chest__panel chest__panel--top"></div>
+      <div class="chest__panel chest__panel--bottom"></div>
+      <div class="chest__panel chest__panel--right"></div>
+      <div class="chest__panel chest__panel--front"><div class="chest__panel chest__panel--front-frame"></div></div>
+      <div class="chest__panel chest__panel--left"></div>
+      ${drawers}
+    </div>`;
+}
+
 /* ---------- Avvio ---------- */
 async function main() {
   LANG = getLang();
@@ -1071,6 +1114,7 @@ async function main() {
     if (getPref() === "auto") applyPref("auto");
   });
   renderDock();
+  buildHeroChest();
 
   // Hamburger
   const burger = document.getElementById("burger");
