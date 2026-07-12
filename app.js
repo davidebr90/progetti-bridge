@@ -40,7 +40,7 @@ const T = {
     blogNav: "Blog & Filosofia", minRead: "min di lettura", backBlog: "← Torna al blog",
     portfolio: "Progetti / Portfolio",
     heroEyebrow: "Portfolio",
-    seoTitle: "Davide Pica — Progetti, Blog & Filosofia",
+    seoTitle: "Davide Pica · Progetti, Blog & Filosofia",
     seoDesc: "Portfolio di Davide Pica: progetti software (self-hosted, WhatsApp, Rust, WordPress) con demo live e codice, e articoli su tecnologia, energia, demografia, AI e capitale umano.",
   },
   en: {
@@ -53,7 +53,7 @@ const T = {
     blogNav: "Blog & Philosophy", minRead: "min read", backBlog: "← Back to the blog",
     portfolio: "Projects / Portfolio",
     heroEyebrow: "Portfolio",
-    seoTitle: "Davide Pica — Projects, Blog & Philosophy",
+    seoTitle: "Davide Pica · Projects, Blog & Philosophy",
     seoDesc: "Davide Pica's portfolio: self-hosted, custom software (WhatsApp, Rust, WordPress) with live demos and code, plus a series of essays on technology, energy, demographics, AI and human capital.",
   },
 };
