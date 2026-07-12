@@ -238,7 +238,7 @@ const RENDER = {
       `<div class="kin">` +
       projects
         .map(
-          (p, i) => `<button class="kin-item" type="button" data-i="${i}" data-proj="${i}" style="--accent:${esc(p.accent || "var(--brand)")}">
+          (p, i) => `<button class="kin-item reveal" type="button" data-i="${i}" data-proj="${i}" style="--accent:${esc(p.accent || "var(--brand)")}">
             <span class="kin-index">0${i + 1}</span>
             <span class="kin-line" data-text="${esc(p.title)}">${esc(p.title)}</span>
             <span class="kin-tag">${esc(loc(p, "tagline") || "")}</span>

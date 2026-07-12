@@ -259,6 +259,10 @@ html[data-ui="carosello"] { scroll-snap-type: y mandatory; }
 .kin-tag { margin-left: auto; color: var(--ink-faint); font-size: .9rem; flex: none; opacity: 0; transform: translateX(10px); transition: opacity .35s, transform .35s; }
 .kin-item:hover .kin-tag { opacity: 1; transform: none; }
 .kin-panel { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 1.2rem; background: color-mix(in srgb, #05060a 55%, transparent); backdrop-filter: blur(4px); opacity: 0; transition: opacity .3s; }
+/* `display:grid` sopra vinceva sull'attributo hidden (stessa specificità): il
+   pannello restava un overlay invisibile che bloccava hover/click sui titoli.
+   Questo selettore più specifico ripristina display:none quando è nascosto. */
+.kin-panel[hidden] { display: none; }
 .kin-panel.show { opacity: 1; }
 .kin-panel-card { width: min(880px, 96vw); max-height: 90vh; overflow: auto; display: grid; grid-template-columns: 1fr 1.2fr; background: var(--surface); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow-lg); transform: translateY(18px) scale(.98); transition: transform .34s cubic-bezier(.2,.7,.3,1); }
 .kin-panel.show .kin-panel-card { transform: none; }
