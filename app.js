@@ -191,7 +191,6 @@ const RENDER = {
         </article>`,
       )
       .join("")}</div>`;
-    setupCarouselWheel(stage);
     observeReveal();
   },
   griglia(stage, projects) {
@@ -358,10 +357,15 @@ function setupKinetic(stage, projects) {
   });
 }
 
-/* ---------- Frecce / navigazione full-page ---------- */
+/* ========================================================================
+   FULL-PAGE SCROLL CONTROLLER (cinema/carosello): magnetico, UNA sezione per
+   gesto, con transizione animata (JS + easing) e blocco durante lo scorrimento.
+   Su DESKTOP (rotella/tastiera) hijackiamo lo scroll; su TOUCH resta lo
+   scroll-snap nativo (momentum dell'OS).
+   ======================================================================== */
 // Sezioni verticali "a pagina piena": hero + (progetti in cinema | stage-deck in
-// carosello) + bio. Include SEMPRE hero e bio, così la freccia "su" dalla prima
-// voce torna davvero all'hero.
+// carosello) + bio. Include SEMPRE hero e bio (così la freccia "su" dalla prima
+// voce torna all'hero).
 function fpSections() {
   const ui = document.documentElement.getAttribute("data-ui");
   const list = [document.getElementById("hero")];
@@ -371,11 +375,94 @@ function fpSections() {
   if (bio && !bio.hidden) list.push(bio);
   return list.filter(Boolean);
 }
+function fpActive() {
+  const ui = document.documentElement.getAttribute("data-ui");
+  return (ui === "cinema" || ui === "carosello") && !document.body.classList.contains("menu-open");
+}
+function currentSectionIndex(secs) {
+  let best = 0, bestD = Infinity;
+  secs.forEach((s, i) => {
+    const d = Math.abs(s.getBoundingClientRect().top);
+    if (d < bestD) { bestD = d; best = i; }
+  });
+  return best;
+}
+let fpLock = false;
+// Anima lo scroll della finestra fino a targetY con easing (transizione visibile),
+// bloccando l'input finché non completa (+ cooldown anti-momentum del trackpad).
+function fpAnimateTo(targetY, dur = 760) {
+  const startY = window.scrollY;
+  const dist = Math.round(targetY) - startY;
+  if (Math.abs(dist) < 2) return;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) { window.scrollTo(0, startY + dist); return; }
+  fpLock = true;
+  document.documentElement.classList.add("fp-animating"); // disattiva lo snap CSS durante l'animazione
+  const t0 = performance.now();
+  const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2); // easeInOutCubic
+  function frame(now) {
+    const t = Math.min(1, (now - t0) / dur);
+    window.scrollTo(0, startY + dist * ease(t));
+    if (t < 1) requestAnimationFrame(frame);
+    else {
+      document.documentElement.classList.remove("fp-animating");
+      setTimeout(() => { fpLock = false; }, 160);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+function fpGo(dir) {
+  const secs = fpSections();
+  if (!secs.length) return;
+  const cur = currentSectionIndex(secs);
+  const next = Math.min(secs.length - 1, Math.max(0, cur + dir));
+  if (next === cur) return;
+  fpAnimateTo(window.scrollY + secs[next].getBoundingClientRect().top);
+}
+function normDelta(e) {
+  return e.deltaMode === 1 ? e.deltaY * 40 : e.deltaY; // "righe" → px
+}
+// Rotella: nel carosello sul deck → scroll ORIZZONTALE fino al bordo; poi (e in
+// cinema sempre) → avanzamento full-page di UNA sezione con transizione animata.
+function onWheelFp(e) {
+  if (!fpActive()) return;
+  const ui = document.documentElement.getAttribute("data-ui");
+  if (ui === "carosello") {
+    const deck = document.getElementById("deck");
+    if (deck && e.target.closest && e.target.closest("#deck")) {
+      const dy = normDelta(e);
+      if (Math.abs(e.deltaX) <= Math.abs(dy)) {
+        const atStart = deck.scrollLeft <= 0;
+        const atEnd = deck.scrollLeft + deck.clientWidth >= deck.scrollWidth - 1;
+        if ((dy > 0 && !atEnd) || (dy < 0 && !atStart)) {
+          e.preventDefault();
+          deck.scrollLeft += dy;
+          return; // resta orizzontale finché non è al bordo
+        }
+      }
+    }
+  }
+  e.preventDefault(); // controllo totale: niente scroll libero della rotella
+  if (fpLock) return;
+  if (Math.abs(e.deltaY) < 4) return;
+  fpGo(e.deltaY > 0 ? 1 : -1);
+}
+function onKeyFp(e) {
+  if (!fpActive()) return;
+  if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName || "")) return;
+  if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); fpGo(1); }
+  else if (e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); fpGo(-1); }
+  else if (e.key === "Home") { e.preventDefault(); fpAnimateTo(0); }
+  else if (e.key === "End") {
+    const s = fpSections();
+    if (s.length) fpAnimateTo(window.scrollY + s[s.length - 1].getBoundingClientRect().top);
+  }
+}
+// Frecce laterali: nel carosello scorrono il deck (fino al bordo) poi la sezione;
+// altrove avanzano di una sezione full-page.
 function navigate(dir) {
   const ui = document.documentElement.getAttribute("data-ui");
   if (ui === "carosello") {
-    // Nel carosello le frecce scorrono il deck orizzontalmente; SOLO quando si è
-    // al bordo (prima/ultima card) si passa alla sezione verticale successiva.
     const deck = document.getElementById("deck");
     if (deck) {
       const atEnd = deck.scrollLeft + deck.clientWidth >= deck.scrollWidth - 4;
@@ -388,37 +475,7 @@ function navigate(dir) {
       }
     }
   }
-  const secs = fpSections();
-  if (!secs.length) return;
-  const mid = window.innerHeight / 2;
-  let idx = 0;
-  secs.forEach((s, i) => {
-    if (s.getBoundingClientRect().top <= mid) idx = i;
-  });
-  secs[Math.min(secs.length - 1, Math.max(0, idx + dir))].scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-/**
- * Carosello: traduce lo scroll verticale (rotella/trackpad) in scorrimento
- * ORIZZONTALE del deck finché non si raggiunge l'ultima (o la prima) card; al
- * bordo lascia passare l'evento così la navigazione full-page prosegue in
- * verticale (magnetica) verso la bio o l'hero.
- */
-function setupCarouselWheel(stage) {
-  const deck = stage.querySelector("#deck");
-  if (!deck) return;
-  const onWheel = (e) => {
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // gesto già orizzontale
-    const dy = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaY; // normalizza "righe"→px
-    const atStart = deck.scrollLeft <= 0;
-    const atEnd = deck.scrollLeft + deck.clientWidth >= deck.scrollWidth - 1;
-    if ((dy > 0 && !atEnd) || (dy < 0 && !atStart)) {
-      e.preventDefault();
-      deck.scrollLeft += dy;
-    }
-  };
-  deck.addEventListener("wheel", onWheel, { passive: false });
-  cleanup.push(() => deck.removeEventListener("wheel", onWheel));
+  fpGo(dir);
 }
 
 /* ---------- Interfaccia ---------- */
@@ -483,7 +540,13 @@ function openMenu() {
 }
 function scrollToTarget(sel) {
   const el = document.querySelector(sel);
-  if (el) el.scrollIntoView({ behavior: "smooth", block: sel === "#hero" ? "start" : "center", inline: "center" });
+  if (!el) return;
+  if (fpActive()) {
+    // Con il controller full-page: transizione animata e magnetica alla sezione.
+    fpAnimateTo(window.scrollY + el.getBoundingClientRect().top);
+  } else {
+    el.scrollIntoView({ behavior: "smooth", block: sel === "#hero" ? "start" : "center", inline: "center" });
+  }
 }
 function renderMenu() {
   // Etichette
@@ -588,6 +651,11 @@ async function main() {
   document.querySelectorAll(".nav-arrow").forEach((b) => b.addEventListener("click", () => navigate(Number(b.dataset.dir))));
   const heroScroll = document.getElementById("hero-scroll");
   if (heroScroll) heroScroll.addEventListener("click", () => scrollToTarget('[data-proj="0"]'));
+
+  // Full-page scroll (desktop): rotella + tastiera → una sezione per gesto,
+  // transizione animata e magnetica. Attivo solo in cinema/carosello.
+  window.addEventListener("wheel", onWheelFp, { passive: false });
+  window.addEventListener("keydown", onKeyFp);
 
   const bust = `?t=${Math.floor(Date.now() / 60000)}`;
   const [data, links] = await Promise.all([

@@ -157,8 +157,13 @@ main { position: relative; }
 @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
 
 /* ============================ INTERFACCIA 1 · CINEMA ======================= */
+/* Durante la transizione JS del controller full-page disattiviamo lo snap nativo
+   (che altrimenti "combatterebbe" con l'animazione della rotella). Su touch lo
+   snap resta attivo (momentum dell'OS). */
+html.fp-animating { scroll-snap-type: none !important; }
+
 /* Magnetico: UNA sezione per gesto di scroll (snap-stop always), transizione
-   fluida (scroll-behavior smooth). Ogni progetto e hero/bio = pagina piena. */
+   fluida. Ogni progetto e hero/bio = pagina piena. */
 html[data-ui="cinema"] { scroll-snap-type: y mandatory; }
 [data-ui="cinema"] .hero, [data-ui="cinema"] .snap, [data-ui="cinema"] .bio {
   scroll-snap-align: start; scroll-snap-stop: always;
