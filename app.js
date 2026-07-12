@@ -36,6 +36,7 @@ const T = {
     demo: "Live demo", demoOff: "Demo offline", codeBtn: "Codice",
     "status.live": "Live", "status.beta": "Beta", "status.wip": "In sviluppo",
     menuOpen: "Apri il menu", menuClose: "Chiudi il menu",
+    chooseStyle: "Scegli stile",
   },
   en: {
     sections: "Sections", language: "Language", theme: "Theme",
@@ -43,6 +44,7 @@ const T = {
     demo: "Live demo", demoOff: "Demo offline", codeBtn: "Code",
     "status.live": "Live", "status.beta": "Beta", "status.wip": "In progress",
     menuOpen: "Open the menu", menuClose: "Close the menu",
+    chooseStyle: "Choose style",
   },
 };
 
@@ -640,9 +642,13 @@ function renderBio() {
   document.getElementById("dock-social").innerHTML = socialHTML(bio.social);
 }
 
-/* ---------- Stringhe statiche (hero, dock brand) ---------- */
+/* ---------- Stringhe statiche (hero, etichetta dock) ---------- */
 function applyLangToStatic() {
   document.getElementById("hero-tagline").textContent = loc(SITE, "tagline") || "";
+  const brand = document.getElementById("dock-brand");
+  if (brand) brand.textContent = t("chooseStyle"); // etichetta: è un selettore di stile
+  const trig = document.getElementById("dock-trigger");
+  if (trig) trig.title = t("chooseStyle");
   renderBio();
 }
 
@@ -708,7 +714,6 @@ async function main() {
 
   if (SITE.title) document.title = SITE.title;
   document.getElementById("hero-title").textContent = SITE.title || "";
-  document.getElementById("dock-brand").textContent = SITE.author || "Portfolio";
 
   applyLangToStatic();
   renderMenu();
