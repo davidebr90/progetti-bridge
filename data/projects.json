@@ -1,12 +1,12 @@
 {
   "site": {
-    "title": "Progetti di Davide",
-    "tagline": "Una panoramica di alcuni dei progetti su cui sto lavorando ed ho lavorato: demo live, codice e dettagli.",
+    "title": "Ah, sei qui?",
+    "tagline": "Visto che ci sei, ti apro i cassetti dei miei pensieri, visioni e progetti — passati e futuri. Non addormentarti però, xD",
     "author": "Davide Pica",
     "githubUser": "davidebr90",
     "en": {
-      "tagline": "A look at some of the projects I'm working on and have worked on: live demos, code and details.",
-      "title": "Davide's projects"
+      "tagline": "Since you dropped by, let me open the drawers of my thoughts, visions and projects — past and future. Try not to fall asleep though, xD",
+      "title": "Oh, you're here?"
     },
     "bio": {
       "eyebrow": "La persona",
