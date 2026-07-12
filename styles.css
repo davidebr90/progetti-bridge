@@ -451,7 +451,7 @@ body.reader-open { overflow: hidden; }
 /* ---- DOCK (footer non tradizionale, sempre accessibile) ---- */
 /* Contenitore fisso in basso: mostra solo il TRIGGER; il dock compare sopra
    all'hover (desktop) o al tap (mobile, classe .open). */
-.dock-wrap { position: fixed; left: 50%; bottom: clamp(.7rem,2vw,1.2rem); transform: translateX(-50%); z-index: 70; display: flex; flex-direction: column; align-items: center; }
+.dock-wrap { position: fixed; left: clamp(.7rem,2.2vw,1.4rem); bottom: clamp(.7rem,2vw,1.2rem); z-index: 70; display: flex; flex-direction: column; align-items: flex-start; }
 .dock-trigger {
   display: inline-flex; align-items: center; gap: .35rem; cursor: pointer;
   width: auto; height: 44px; padding: 0 .7rem 0 .8rem; border-radius: 999px;
@@ -463,16 +463,17 @@ body.reader-open { overflow: hidden; }
 .dock-trigger:hover, .dock-wrap:focus-within .dock-trigger { transform: translateY(-2px); border-color: var(--brand); color: var(--brand); }
 .dock-trigger-n { font-family: var(--font-display); font-weight: 600; font-size: .95rem; font-variant-numeric: tabular-nums; min-width: 1ch; }
 .dock {
-  position: absolute; left: 50%; bottom: calc(100% + .55rem); transform: translateX(-50%) translateY(10px);
+  position: absolute; left: 0; bottom: calc(100% + .55rem);
+  transform: translateY(12px) scale(.96); transform-origin: bottom left;
   opacity: 0; visibility: hidden; pointer-events: none;
-  transition: opacity .24s ease, transform .24s cubic-bezier(.2,.7,.3,1), visibility 0s .24s;
-  z-index: 71; display: flex; align-items: center; gap: clamp(.6rem,1.5vw,1.1rem); padding: .5rem .55rem .5rem .95rem; border-radius: 999px; background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: saturate(1.5) blur(14px); border: 1px solid var(--border); box-shadow: var(--shadow-lg); max-width: calc(100vw - 1.4rem); }
+  transition: opacity .24s ease, transform .3s cubic-bezier(.2,.7,.3,1), visibility 0s .24s;
+  z-index: 71; display: flex; align-items: center; gap: clamp(.6rem,1.5vw,1.1rem); padding: .5rem .55rem .5rem .95rem; border-radius: 999px; background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: saturate(1.5) blur(14px); border: 1px solid var(--border); box-shadow: var(--shadow-lg); max-width: calc(100vw - 1.6rem); }
 /* Zona-cuscinetto invisibile tra trigger e dock, così spostando il mouse verso
    il dock non si perde l'hover. */
 .dock::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: .7rem; }
 .dock-wrap:hover .dock, .dock-wrap:focus-within .dock, .dock-wrap.open .dock {
-  opacity: 1; visibility: visible; pointer-events: auto; transform: translateX(-50%);
-  transition: opacity .24s ease, transform .24s cubic-bezier(.2,.7,.3,1);
+  opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1);
+  transition: opacity .24s ease, transform .3s cubic-bezier(.2,.7,.3,1);
 }
 .dock-brand { font-family: var(--font-display); font-weight: 600; font-size: .95rem; letter-spacing: -.01em; white-space: nowrap; padding-right: .2rem; }
 .dock-switch { display: flex; gap: 2px; padding: 3px; background: var(--surface-2); border-radius: 999px; }
@@ -541,7 +542,7 @@ body.menu-open { overflow: hidden; }
 /* ---- Polish responsivo (mobile) ---- */
 @media (max-width: 640px) {
   .nav-arrows { display: none !important; }
-  .dock { gap: .3rem; padding: .4rem; bottom: .6rem; }
+  .dock { gap: .3rem; padding: .4rem .5rem; }
   .theme-float { display: none; }
   [data-ui="cinema"] .project-inner { grid-template-columns: 1fr; gap: 1.6rem; }
   [data-ui="cinema"] .project:nth-child(even) .project-visual { order: 0; }
