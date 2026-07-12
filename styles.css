@@ -254,6 +254,36 @@ main { position: relative; }
 .chest-stage summary { outline: transparent; height: 100%; width: 100%; list-style: none; }
 .chest-stage summary::-webkit-details-marker { display: none; }
 .chest-stage summary::after { content: ''; position: absolute; background: linear-gradient(var(--handle), var(--handle)) 50% 15%/40% 8% no-repeat, transparent; height: 110%; width: 110%; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0.5vmin); }
+
+/* Easter-egg: oggetto isometrico che salta fuori dal cassetto aperto. */
+.chest-stage .chest-obj {
+  position: absolute; left: 50%; top: 6%; width: 5.4vmin; height: 5.4vmin;
+  transform: translate(-50%, 2vmin) translateZ(6vmin) scale(.2);
+  opacity: 0; pointer-events: none;
+}
+.chest-stage details[open] + .drawer__structure .chest-obj {
+  animation: obj-pop .9s cubic-bezier(.2,1.3,.35,1) .18s both;
+}
+@keyframes obj-pop {
+  0%   { opacity: 0; transform: translate(-50%, 2vmin) translateZ(6vmin) scale(.2) rotate(-18deg); }
+  50%  { opacity: 1; }
+  72%  { transform: translate(-50%, -9vmin) translateZ(6vmin) scale(1.14) rotate(9deg); }
+  100% { opacity: 1; transform: translate(-50%, -7.4vmin) translateZ(6vmin) scale(1) rotate(0deg); }
+}
+/* Cubo / regalo: tre facce isometriche. */
+.chest-stage .obj-face { position: absolute; inset: 0; }
+.chest-stage .obj-cube .obj-front, .chest-stage .obj-gift .obj-front { background: var(--accent, var(--brand)); transform: translateZ(2.7vmin); }
+.chest-stage .obj-cube .obj-top, .chest-stage .obj-gift .obj-top { background: color-mix(in srgb, var(--accent, var(--brand)) 60%, white); transform: rotateX(90deg) translateZ(2.7vmin); }
+.chest-stage .obj-cube .obj-left, .chest-stage .obj-gift .obj-left { background: color-mix(in srgb, var(--accent, var(--brand)) 68%, black); transform: rotateY(-90deg) translateZ(2.7vmin); }
+/* Regalo: nastro sulla faccia frontale. */
+.chest-stage .obj-gift .obj-ribbon { position: absolute; inset: 0; transform: translateZ(2.78vmin); background: linear-gradient(90deg, transparent 41%, color-mix(in srgb, var(--accent, var(--brand)) 45%, white) 41% 59%, transparent 59%); }
+/* Palla: sfera resa con gradiente radiale. */
+.chest-stage .obj-ball { border-radius: 50%; background: radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--accent, var(--brand)) 55%, white), var(--accent, var(--brand)) 52%, color-mix(in srgb, var(--accent, var(--brand)) 55%, black)); box-shadow: inset -0.35vmin -0.35vmin 1vmin color-mix(in srgb, var(--accent, var(--brand)) 55%, black); }
+/* Stella: forma piatta con clip-path. */
+.chest-stage .obj-star { background: var(--accent, var(--brand)); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+@media (prefers-reduced-motion: reduce) {
+  .chest-stage details[open] + .drawer__structure .chest-obj { animation: none; opacity: 1; transform: translate(-50%, -7.4vmin) translateZ(6vmin) scale(1); }
+}
 .hero-hint { font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); margin: 0; animation: rise .9s .22s cubic-bezier(.2,.7,.3,1) both; }
 @media (prefers-reduced-motion: reduce) {
   .chest-stage details, .chest-stage .drawer__structure { transition: none; }

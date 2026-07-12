@@ -1073,11 +1073,33 @@ const HERO_DRAWERS = [
   ["occhio", "che", "mordono"],
   ["dentro", "solo", "polvere"],
   ["ficcanaso", "eh?", "lo sapevo"],
+  ["giù", "le", "mani"],
+  ["che", "curiosità", "eh?"],
+  ["top", "secret", "quasi"],
+  ["prima", "bussa", "cafone"],
+  ["hai", "trovato", "il vuoto"],
+  ["complimenti", "hai perso", "10 secondi"],
+  ["frughi", "sempre", "così?"],
+  ["shh", "non", "dirlo in giro"],
+  ["c'era", "un tesoro", "l'ho speso"],
+  ["cassetto", "vuoto", "come me"],
 ];
+// Easter-egg: ogni tanto (~45% dei caricamenti) un cassetto nasconde un piccolo
+// oggetto isometrico (nello stesso stile della cassettiera) che "salta fuori"
+// quando lo apri. Tipo di oggetto e cassetto scelti a caso.
+const CHEST_OBJECTS = ["cube", "ball", "star", "gift"];
+function objectMarkup(type) {
+  if (type === "cube" || type === "gift")
+    return `<span class="obj-face obj-top"></span><span class="obj-face obj-left"></span><span class="obj-face obj-front"></span>${type === "gift" ? '<span class="obj-ribbon"></span>' : ""}`;
+  return ""; // ball, star: forma unica (gradiente / clip-path)
+}
 function buildHeroChest() {
   const host = document.getElementById("hero-chest");
   if (!host) return;
   const words = HERO_DRAWERS[Math.floor(Math.random() * HERO_DRAWERS.length)];
+  const hasEgg = Math.random() < 0.45;
+  const eggDrawer = hasEgg ? Math.floor(Math.random() * 3) : -1;
+  const eggType = CHEST_OBJECTS[Math.floor(Math.random() * CHEST_OBJECTS.length)];
   const drawers = words
     .map(
       (w, i) => `
@@ -1089,6 +1111,7 @@ function buildHeroChest() {
           <div class="drawer__panel drawer__panel--right"></div>
           <div class="drawer__panel drawer__panel--left"></div>
           <div class="drawer__panel drawer__panel--front"></div>
+          ${i === eggDrawer ? `<div class="chest-obj obj-${eggType}">${objectMarkup(eggType)}</div>` : ""}
         </div>
       </div>`,
     )
