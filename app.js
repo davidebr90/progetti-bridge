@@ -204,6 +204,7 @@ const RENDER = {
       )
       .join("")}</div>`;
     observeReveal();
+    setupDeckDrag(stage.querySelector("#deck"));
   },
   griglia(stage, projects) {
     stage.innerHTML = `<div class="grid">${projects
@@ -536,6 +537,77 @@ function deckGo(deck, dir) {
     },
   });
   return true;
+}
+// Drag-to-scroll del deck (clicca e trascina, come su touch): il desktop non
+// trascina nativamente un overflow-x, quindi lo gestiamo coi pointer events. Al
+// rilascio agganciamo dolcemente la card più vicina. Un vero click (senza
+// trascinamento) resta valido; dopo un drag blocchiamo il click accidentale.
+function setupDeckDrag(deck) {
+  if (!deck) return;
+  let down = false, moved = false, startX = 0, startLeft = 0, pid = null, prevSnap = "";
+  const DRAG_THRESHOLD = 5;
+
+  const onDown = (e) => {
+    if (e.button != null && e.button !== 0) return; // solo tasto sinistro
+    down = true; moved = false; startX = e.clientX; startLeft = deck.scrollLeft; pid = e.pointerId;
+    prevSnap = deck.style.scrollSnapType;
+  };
+  const onMove = (e) => {
+    if (!down) return;
+    const dx = e.clientX - startX;
+    if (!moved && Math.abs(dx) > DRAG_THRESHOLD) {
+      moved = true;
+      deck.classList.add("dragging");        // cursore grabbing + niente snap/selezione
+      deck.style.scrollSnapType = "none";
+      try { deck.setPointerCapture(pid); } catch {}
+    }
+    if (moved) { deck.scrollLeft = startLeft - dx; e.preventDefault(); }
+  };
+  const end = () => {
+    if (!down) return;
+    down = false;
+    deck.classList.remove("dragging");
+    try { if (pid != null) deck.releasePointerCapture(pid); } catch {}
+    if (moved) {
+      snapDeckToNearest(deck, prevSnap);
+      // Neutralizza il click che segue immediatamente il trascinamento.
+      const block = (ev) => { ev.stopPropagation(); ev.preventDefault(); };
+      deck.addEventListener("click", block, { capture: true, once: true });
+      setTimeout(() => deck.removeEventListener("click", block, { capture: true }), 60);
+    }
+  };
+  deck.addEventListener("pointerdown", onDown);
+  deck.addEventListener("pointermove", onMove);
+  deck.addEventListener("pointerup", end);
+  deck.addEventListener("pointercancel", end);
+}
+// Aggancia dolcemente il deck alla card il cui centro è più vicino al centro viewport.
+function snapDeckToNearest(deck, prevSnap) {
+  const cards = [...deck.querySelectorAll(".deck-card")];
+  if (!cards.length) { deck.style.scrollSnapType = prevSnap || "x mandatory"; return; }
+  const deckLeft = deck.getBoundingClientRect().left;
+  const viewCenterAbs = deck.scrollLeft + deck.clientWidth / 2;
+  let best = cards[0], bd = Infinity;
+  cards.forEach((c) => {
+    const r = c.getBoundingClientRect();
+    const centerAbs = r.left - deckLeft + deck.scrollLeft + r.width / 2;
+    const d = Math.abs(centerAbs - viewCenterAbs);
+    if (d < bd) { bd = d; best = c; }
+  });
+  const r = best.getBoundingClientRect();
+  const centerAbs = r.left - deckLeft + deck.scrollLeft + r.width / 2;
+  const max = deck.scrollWidth - deck.clientWidth;
+  const target = Math.max(0, Math.min(max, centerAbs - deck.clientWidth / 2));
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) { deck.scrollLeft = target; deck.style.scrollSnapType = prevSnap || "x mandatory"; return; }
+  animateScroll({
+    get: () => deck.scrollLeft,
+    set: (v) => { deck.scrollLeft = v; },
+    target,
+    dur: 520,
+    ease: easeOutQuint,
+    onEnd: () => { deck.style.scrollSnapType = prevSnap || "x mandatory"; },
+  });
 }
 // Rotella: nel carosello, quando la sezione corrente è il deck → avanza le card
 // in ORIZZONTALE (una per gesto); al bordo prosegue in verticale. Altrove (e in

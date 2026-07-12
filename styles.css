@@ -239,7 +239,10 @@ html[data-ui="carosello"] { scroll-snap-type: y proximity; }
 }
 [data-ui="carosello"] .stage { min-height: 100svh; display: grid; align-items: center; padding: 0; }
 [data-ui="carosello"] .bio { min-height: 100svh; display: grid; align-items: center; }
-.deck { display: flex; gap: 40px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 1rem clamp(1.1rem,8vw,10vw); scrollbar-width: none; scroll-behavior: smooth; }
+.deck { display: flex; gap: 40px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 1rem clamp(1.1rem,8vw,10vw); scrollbar-width: none; scroll-behavior: smooth; cursor: grab; }
+.deck.dragging { cursor: grabbing; scroll-behavior: auto; user-select: none; scroll-snap-type: none; }
+.deck.dragging img, .deck.dragging a { pointer-events: none; }
+.deck img { -webkit-user-drag: none; user-select: none; }
 .deck::-webkit-scrollbar { display: none; }
 .deck-card { scroll-snap-align: center; flex: 0 0 min(88vw, 860px); min-height: 66svh; display: grid; grid-template-columns: 1.05fr 1fr; border-radius: 24px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-lg); background: var(--surface); }
 .deck-visual { position: relative; display: grid; place-items: center; background: radial-gradient(120% 120% at 25% 15%, color-mix(in srgb, var(--accent, var(--brand)) 45%, transparent), transparent 62%), linear-gradient(150deg, color-mix(in srgb, var(--accent, var(--brand)) 24%, var(--surface)) 0%, var(--surface) 80%); }
