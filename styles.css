@@ -213,13 +213,14 @@ main { position: relative; }
   --handle: color-mix(in srgb, var(--ink) 34%, var(--surface));
   display: grid; place-items: center;
   height: clamp(206px, 32vmin, 300px);
-  /* spazio ampio sotto: l'ultimo cassetto, aprendosi, sporge in avanti/in basso
-     e non deve mai coprire il suggerimento sottostante */
-  margin: .2rem 0 clamp(2.6rem, 7vmin, 4rem);
+  margin: .2rem 0 clamp(2.4rem, 6vmin, 3.6rem);
   animation: rise .9s .1s cubic-bezier(.2,.7,.3,1) both;
+  touch-action: none;      /* il drag ruota la scena, non scrolla la pagina */
+  cursor: grab; user-select: none;
 }
+.chest-stage.grabbing { cursor: grabbing; }
 .chest-stage, .chest-stage *, .chest-stage *::before, .chest-stage *::after { transform-style: preserve-3d; box-sizing: border-box; }
-.chest-stage .chest { position: relative; height: calc(var(--height) * 1vmin); width: calc(var(--width) * 1vmin); transform: rotateX(-30deg) rotateY(38deg); color: var(--ink); }
+.chest-stage .chest { position: relative; height: calc(var(--height) * 1vmin); width: calc(var(--width) * 1vmin); transform: rotateX(var(--rx, -30deg)) rotateY(var(--ry, 38deg)); color: var(--ink); will-change: transform; }
 .chest-stage .chest__panel { position: absolute; }
 .chest-stage .chest__panel--back { background: var(--unit-two); }
 .chest-stage .chest__panel--back, .chest-stage .chest__panel--front { height: 100%; width: 100%; transform: translate3d(0, 0, calc(var(--depth) * var(--coefficient))); }
@@ -256,35 +257,28 @@ main { position: relative; }
 .chest-stage summary::-webkit-details-marker { display: none; }
 .chest-stage summary::after { content: ''; position: absolute; background: linear-gradient(var(--handle), var(--handle)) 50% 15%/40% 8% no-repeat, transparent; height: 110%; width: 110%; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0.5vmin); }
 
-/* Easter-egg: oggetto isometrico che salta fuori dal cassetto aperto. */
+/* Oggetti DENTRO al cassetto: appoggiati sul fondo, visibili quando lo apri. */
 .chest-stage .chest-obj {
-  position: absolute; left: 50%; top: 6%; width: 5.4vmin; height: 5.4vmin;
-  transform: translate(-50%, 2vmin) translateZ(6vmin) scale(.2);
-  opacity: 0; pointer-events: none;
+  position: absolute; left: 50%; bottom: 16%; width: 4.4vmin; height: 4.4vmin;
+  transform: translate(-50%, 0) translateZ(-2vmin);
+  transform-origin: bottom center;
+  opacity: 0; transition: opacity .2s ease .08s;
 }
-.chest-stage details[open] + .drawer__structure .chest-obj {
-  animation: obj-pop .9s cubic-bezier(.2,1.3,.35,1) .18s both;
+/* Visibili solo a cassetto aperto (a cassetto chiuso il contenuto non si vede). */
+.chest-stage details[open] + .drawer__structure .chest-obj { opacity: 1; }
+/* Palla e stella: "billboard", contro-ruotano la rotazione della scena per restare
+   sempre frontali (una sfera/stella piatta non deve appiattirsi ruotando). */
+.chest-stage .obj-ball, .chest-stage .obj-star {
+  transform: translate(-50%, 0) translateZ(-2vmin) rotateY(calc(-1 * var(--ry, 38deg))) rotateX(calc(-1 * var(--rx, -30deg)));
 }
-@keyframes obj-pop {
-  0%   { opacity: 0; transform: translate(-50%, 2vmin) translateZ(6vmin) scale(.2) rotate(-18deg); }
-  50%  { opacity: 1; }
-  72%  { transform: translate(-50%, -9vmin) translateZ(6vmin) scale(1.14) rotate(9deg); }
-  100% { opacity: 1; transform: translate(-50%, -7.4vmin) translateZ(6vmin) scale(1) rotate(0deg); }
-}
-/* Cubo / regalo: tre facce isometriche. */
+/* Cubo / regalo: tre facce isometriche (veri volumi 3D). */
 .chest-stage .obj-face { position: absolute; inset: 0; }
-.chest-stage .obj-cube .obj-front, .chest-stage .obj-gift .obj-front { background: var(--accent, var(--brand)); transform: translateZ(2.7vmin); }
-.chest-stage .obj-cube .obj-top, .chest-stage .obj-gift .obj-top { background: color-mix(in srgb, var(--accent, var(--brand)) 60%, white); transform: rotateX(90deg) translateZ(2.7vmin); }
-.chest-stage .obj-cube .obj-left, .chest-stage .obj-gift .obj-left { background: color-mix(in srgb, var(--accent, var(--brand)) 68%, black); transform: rotateY(-90deg) translateZ(2.7vmin); }
-/* Regalo: nastro sulla faccia frontale. */
-.chest-stage .obj-gift .obj-ribbon { position: absolute; inset: 0; transform: translateZ(2.78vmin); background: linear-gradient(90deg, transparent 41%, color-mix(in srgb, var(--accent, var(--brand)) 45%, white) 41% 59%, transparent 59%); }
-/* Palla: sfera resa con gradiente radiale. */
-.chest-stage .obj-ball { border-radius: 50%; background: radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--accent, var(--brand)) 55%, white), var(--accent, var(--brand)) 52%, color-mix(in srgb, var(--accent, var(--brand)) 55%, black)); box-shadow: inset -0.35vmin -0.35vmin 1vmin color-mix(in srgb, var(--accent, var(--brand)) 55%, black); }
-/* Stella: forma piatta con clip-path. */
+.chest-stage .obj-cube .obj-front, .chest-stage .obj-gift .obj-front { background: var(--accent, var(--brand)); transform: translateZ(2.2vmin); }
+.chest-stage .obj-cube .obj-top, .chest-stage .obj-gift .obj-top { background: color-mix(in srgb, var(--accent, var(--brand)) 60%, white); transform: rotateX(90deg) translateZ(2.2vmin); }
+.chest-stage .obj-cube .obj-left, .chest-stage .obj-gift .obj-left { background: color-mix(in srgb, var(--accent, var(--brand)) 68%, black); transform: rotateY(-90deg) translateZ(2.2vmin); }
+.chest-stage .obj-gift .obj-ribbon { position: absolute; inset: 0; transform: translateZ(2.28vmin); background: linear-gradient(90deg, transparent 41%, color-mix(in srgb, var(--accent, var(--brand)) 45%, white) 41% 59%, transparent 59%); }
+.chest-stage .obj-ball { border-radius: 50%; background: radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--accent, var(--brand)) 55%, white), var(--accent, var(--brand)) 52%, color-mix(in srgb, var(--accent, var(--brand)) 55%, black)); box-shadow: inset -0.3vmin -0.3vmin .8vmin color-mix(in srgb, var(--accent, var(--brand)) 55%, black); }
 .chest-stage .obj-star { background: var(--accent, var(--brand)); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
-@media (prefers-reduced-motion: reduce) {
-  .chest-stage details[open] + .drawer__structure .chest-obj { animation: none; opacity: 1; transform: translate(-50%, -7.4vmin) translateZ(6vmin) scale(1); }
-}
 .hero-hint { font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); margin: 0; animation: rise .9s .22s cubic-bezier(.2,.7,.3,1) both; }
 @media (prefers-reduced-motion: reduce) {
   .chest-stage details, .chest-stage .drawer__structure { transition: none; }

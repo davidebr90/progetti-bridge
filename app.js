@@ -1099,12 +1099,14 @@ function buildHeroChest() {
   const host = document.getElementById("hero-chest");
   if (!host) return;
   const words = HERO_DRAWERS[Math.floor(Math.random() * HERO_DRAWERS.length)];
-  const hasEgg = Math.random() < 0.45;
-  const eggDrawer = hasEgg ? Math.floor(Math.random() * 3) : -1;
-  const eggType = CHEST_OBJECTS[Math.floor(Math.random() * CHEST_OBJECTS.length)];
+  // Ogni cassetto ha ~50% di contenere un oggetto; garantiamo almeno un oggetto.
+  const withObj = [0, 1, 2].map(() => Math.random() < 0.5);
+  if (!withObj.some(Boolean)) withObj[Math.floor(Math.random() * 3)] = true;
   const drawers = words
-    .map(
-      (w, i) => `
+    .map((w, i) => {
+      const type = CHEST_OBJECTS[Math.floor(Math.random() * CHEST_OBJECTS.length)];
+      const obj = withObj[i] ? `<div class="chest-obj obj-${type}">${objectMarkup(type)}</div>` : "";
+      return `
       <div class="chest__drawer drawer" data-position="${i + 1}">
         <details><summary aria-label="Apri il cassetto"></summary></details>
         <div class="drawer__structure">
@@ -1113,10 +1115,10 @@ function buildHeroChest() {
           <div class="drawer__panel drawer__panel--right"></div>
           <div class="drawer__panel drawer__panel--left"></div>
           <div class="drawer__panel drawer__panel--front"></div>
-          ${i === eggDrawer ? `<div class="chest-obj obj-${eggType}">${objectMarkup(eggType)}</div>` : ""}
+          ${obj}
         </div>
-      </div>`,
-    )
+      </div>`;
+    })
     .join("");
   host.innerHTML = `
     <div class="chest">
@@ -1128,6 +1130,77 @@ function buildHeroChest() {
       <div class="chest__panel chest__panel--left"></div>
       ${drawers}
     </div>`;
+  setupChestRotation(host);
+}
+
+// Rotazione 3D orbit della cassettiera (motore leggero, ibrido CSS+JS). Trascina
+// per ruotare rx/ry; al rilascio prosegue con inerzia. Un trascinamento non apre i
+// cassetti (il click viene annullato); doppio-click nel vuoto riporta all'angolo base.
+function setupChestRotation(stage) {
+  const chest = stage.querySelector(".chest");
+  if (!chest) return;
+  const DEF_RX = -30, DEF_RY = 38;
+  let rx = DEF_RX, ry = DEF_RY, vrx = 0, vry = 0;
+  let dragging = false, moved = false, lastX = 0, lastY = 0, pid = null, raf = 0;
+  const clampRx = (v) => Math.max(-72, Math.min(6, v));
+  const apply = () => {
+    chest.style.setProperty("--rx", rx.toFixed(2) + "deg");
+    chest.style.setProperty("--ry", ry.toFixed(2) + "deg");
+  };
+  apply();
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const onDown = (e) => {
+    dragging = true; moved = false; lastX = e.clientX; lastY = e.clientY; pid = e.pointerId;
+    vrx = vry = 0; cancelAnimationFrame(raf);
+    stage.classList.add("grabbing");
+    try { stage.setPointerCapture(pid); } catch {}
+  };
+  const onMove = (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+    if (!moved && Math.abs(dx) + Math.abs(dy) > 4) moved = true;
+    lastX = e.clientX; lastY = e.clientY;
+    ry += dx * 0.55; rx = clampRx(rx - dy * 0.55);
+    vry = dx * 0.55; vrx = -dy * 0.55;
+    apply();
+  };
+  const end = () => {
+    if (!dragging) return;
+    dragging = false;
+    stage.classList.remove("grabbing");
+    try { if (pid != null) stage.releasePointerCapture(pid); } catch {}
+    if (!moved || reduce) return;
+    const decay = () => {
+      vrx *= 0.93; vry *= 0.93;
+      if (Math.abs(vrx) < 0.03 && Math.abs(vry) < 0.03) return;
+      ry += vry; rx = clampRx(rx + vrx); apply();
+      raf = requestAnimationFrame(decay);
+    };
+    raf = requestAnimationFrame(decay);
+  };
+  stage.addEventListener("pointerdown", onDown);
+  stage.addEventListener("pointermove", onMove);
+  stage.addEventListener("pointerup", end);
+  stage.addEventListener("pointercancel", end);
+  // Un DRAG non deve aprire/chiudere un cassetto: annulla il click successivo.
+  stage.addEventListener("click", (e) => {
+    if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
+  }, true);
+  // Doppio click nel vuoto (non su un cassetto) → torna all'angolo di default.
+  stage.addEventListener("dblclick", (e) => {
+    if (e.target.closest("summary")) return;
+    cancelAnimationFrame(raf);
+    if (reduce) { rx = DEF_RX; ry = DEF_RY; apply(); return; }
+    const srx = rx, sry = ry; let t0 = null;
+    const tween = (ts) => {
+      if (t0 == null) t0 = ts;
+      const k = Math.min(1, (ts - t0) / 480), e2 = 1 - Math.pow(1 - k, 3);
+      rx = srx + (DEF_RX - srx) * e2; ry = sry + (DEF_RY - sry) * e2; apply();
+      if (k < 1) raf = requestAnimationFrame(tween);
+    };
+    raf = requestAnimationFrame(tween);
+  });
 }
 
 /* ---------- Avvio ---------- */
