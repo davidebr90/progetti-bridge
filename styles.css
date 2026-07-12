@@ -263,10 +263,13 @@ main { position: relative; }
    metà cassetto così non li copre la parete frontale. */
 .chest-stage .chest-obj {
   position: absolute; left: 50%; bottom: 32%; width: 4.8vmin; height: 4.8vmin;
-  transform: translate(-50%, 0) translateZ(calc(var(--depth) * -0.32vmin)) rotateY(calc(-1 * var(--ry, 38deg))) rotateX(calc(-1 * var(--rx, -30deg)));
-  transform-origin: center;
-  /* Sempre presenti: a cassetto chiuso li nasconde la geometria (parete frontale),
-     quindi non "compaiono dopo" — l'oggetto è già lì mentre il cassetto si apre. */
+  /* NIENTE billboard: l'oggetto è rivolto verso l'apertura del cassetto (come la
+     parola sul fondo) e viene occluso correttamente dalla geometria 3D. Da dietro
+     sparisce (backface-visibility) invece di comparire sulla facciata. */
+  transform: translate(-50%, 0) translateZ(calc(var(--depth) * -0.32vmin));
+  transform-origin: bottom center;
+  backface-visibility: hidden;
+  /* Sempre presenti: a cassetto chiuso li nasconde la geometria (parete frontale). */
   opacity: 1;
 }
 .chest-stage .obj-svg { width: 100%; height: 100%; display: block; overflow: visible; filter: drop-shadow(0 .25vmin .35vmin rgba(0,0,0,.3)); }
