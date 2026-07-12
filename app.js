@@ -1090,36 +1090,14 @@ const HERO_DRAWERS = [
 // oggetto isometrico (nello stesso stile della cassettiera) che "salta fuori"
 // quando lo apri. Tipo di oggetto e cassetto scelti a caso.
 const CHEST_OBJECTS = ["die", "gift", "crate", "book", "mug", "key", "plant", "bulb"];
+const BOX_OBJECTS = new Set(["die", "gift", "crate"]); // veri cubi 3D (6 facce)
+const CUBE_FACES = `<span class="cf cf-front"></span><span class="cf cf-back"></span><span class="cf cf-right"></span><span class="cf cf-left"></span><span class="cf cf-top"></span><span class="cf cf-bottom"></span>`;
 function objectMarkup(type) {
   switch (type) {
     case "die":
-      return `<svg class="obj-svg" viewBox="0 0 100 100" aria-hidden="true">
-        <polygon points="50,16 84,35 50,54 16,35" fill="#f3eee2"/>
-        <polygon points="16,35 50,54 50,92 16,73" fill="#dcd6c7"/>
-        <polygon points="84,35 50,54 50,92 84,73" fill="#c8c2b2"/>
-        <circle cx="41" cy="32" r="3.4" fill="#33312c"/><circle cx="59" cy="32" r="3.4" fill="#33312c"/>
-        <circle cx="27" cy="50" r="3.2" fill="#33312c"/><circle cx="33" cy="62" r="3.2" fill="#33312c"/><circle cx="39" cy="74" r="3.2" fill="#33312c"/>
-        <circle cx="67" cy="64" r="3.4" fill="#33312c"/></svg>`;
     case "gift":
-      return `<svg class="obj-svg" viewBox="0 0 100 100" aria-hidden="true">
-        <polygon points="50,22 84,40 50,58 16,40" fill="#e86b63"/>
-        <polygon points="16,40 50,58 50,94 16,75" fill="#d8544c"/>
-        <polygon points="84,40 50,58 50,94 84,75" fill="#c6473f"/>
-        <polygon points="46,55 54,55 54,94 46,94" fill="#f2c14e"/>
-        <polygon points="50,22 60,27 50,32 40,27" fill="#f2c14e"/>
-        <polygon points="16,40 33,49 33,45 16,36" fill="#f2c14e"/><polygon points="84,40 67,49 67,45 84,36" fill="#f2c14e"/>
-        <circle cx="50" cy="24" r="6" fill="#f2c14e"/><circle cx="50" cy="24" r="2.6" fill="#cf9a22"/></svg>`;
     case "crate":
-      return `<svg class="obj-svg" viewBox="0 0 100 100" aria-hidden="true">
-        <polygon points="50,18 84,37 50,56 16,37" fill="#c08a44"/>
-        <polygon points="16,37 50,56 50,92 16,73" fill="#aa7a3a"/>
-        <polygon points="84,37 50,56 50,92 84,73" fill="#8f6530"/>
-        <polygon points="16,37 50,56 50,92 16,73" fill="none" stroke="#7a561f" stroke-width="2"/>
-        <polygon points="84,37 50,56 50,92 84,73" fill="none" stroke="#6b4a1a" stroke-width="2"/>
-        <line x1="16" y1="55" x2="50" y2="74" stroke="#7a561f" stroke-width="1.6"/>
-        <line x1="84" y1="55" x2="50" y2="74" stroke="#6b4a1a" stroke-width="1.6"/>
-        <line x1="33" y1="28" x2="33" y2="64" stroke="#7a561f" stroke-width="1.3"/>
-        <line x1="67" y1="28" x2="67" y2="64" stroke="#6b4a1a" stroke-width="1.3"/></svg>`;
+      return CUBE_FACES;
     case "book":
       return `<svg class="obj-svg" viewBox="0 0 100 100" aria-hidden="true">
         <rect x="24" y="28" width="50" height="64" rx="3" fill="#3f78c9"/>
@@ -1171,7 +1149,8 @@ function buildHeroChest() {
   const drawers = words
     .map((w, i) => {
       const type = CHEST_OBJECTS[Math.floor(Math.random() * CHEST_OBJECTS.length)];
-      const obj = withObj[i] ? `<div class="chest-obj obj-${type}">${objectMarkup(type)}</div>` : "";
+      const box = BOX_OBJECTS.has(type) ? " obj-box" : "";
+      const obj = withObj[i] ? `<div class="chest-obj obj-${type}${box}">${objectMarkup(type)}</div>` : "";
       return `
       <div class="chest__drawer drawer" data-position="${i + 1}">
         <details><summary aria-label="Apri il cassetto"></summary></details>

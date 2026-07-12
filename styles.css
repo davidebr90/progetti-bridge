@@ -268,7 +268,6 @@ main { position: relative; }
      Niente billboard: la geometria 3D li occlude; da dietro spariscono. */
   transform: translate(-50%, 0) translateZ(calc(var(--depth) * -0.58vmin)) rotate(var(--tilt, 0deg));
   transform-origin: center bottom;
-  backface-visibility: hidden;
   opacity: 1;
 }
 /* Pose fisiche per-oggetto (rotazione sul piano dell'oggetto). */
@@ -277,7 +276,37 @@ main { position: relative; }
 .chest-stage .obj-book  { --tilt: -7deg; }    /* leggermente inclinato */
 .chest-stage .obj-plant { --tilt: 2deg; }
 .chest-stage .obj-mug   { --tilt: -3deg; }
-.chest-stage .obj-svg { width: 100%; height: 100%; display: block; overflow: visible; filter: drop-shadow(0 .25vmin .35vmin rgba(0,0,0,.3)); }
+.chest-stage .obj-svg { width: 100%; height: 100%; display: block; overflow: visible; backface-visibility: hidden; filter: drop-shadow(0 .25vmin .35vmin rgba(0,0,0,.3)); }
+
+/* ===== Veri cubi 3D (dado, regalo, cassa): 6 facce, occlusi come solidi ===== */
+.chest-stage .obj-box { --tilt: 0deg; }
+.chest-stage .cf { position: absolute; width: 3.6vmin; height: 3.6vmin; left: 50%; top: 50%; box-sizing: border-box; backface-visibility: hidden; }
+.chest-stage .cf-front  { transform: translate(-50%, -50%) translateZ(1.8vmin); }
+.chest-stage .cf-back   { transform: translate(-50%, -50%) rotateY(180deg) translateZ(1.8vmin); }
+.chest-stage .cf-right  { transform: translate(-50%, -50%) rotateY(90deg) translateZ(1.8vmin); }
+.chest-stage .cf-left   { transform: translate(-50%, -50%) rotateY(-90deg) translateZ(1.8vmin); }
+.chest-stage .cf-top    { transform: translate(-50%, -50%) rotateX(90deg) translateZ(1.8vmin); }
+.chest-stage .cf-bottom { transform: translate(-50%, -50%) rotateX(-90deg) translateZ(1.8vmin); }
+/* Ombreggiatura per faccia (luce dall'alto). */
+.chest-stage .obj-box .cf-top { filter: brightness(1.12); }
+.chest-stage .obj-box .cf-right { filter: brightness(.9); }
+.chest-stage .obj-box .cf-left, .chest-stage .obj-box .cf-back { filter: brightness(.78); }
+.chest-stage .obj-box .cf-bottom { filter: brightness(.7); }
+
+/* DADO: avorio + pallini (facce opposte sommano 7). */
+.chest-stage .obj-die .cf { background-color: #efe9dc; }
+.chest-stage .obj-die .cf-front  { background-image: radial-gradient(circle at 26% 26%, #33312c 13%, #0000 14%), radial-gradient(circle at 74% 26%, #33312c 13%, #0000 14%), radial-gradient(circle at 50% 50%, #33312c 13%, #0000 14%), radial-gradient(circle at 26% 74%, #33312c 13%, #0000 14%), radial-gradient(circle at 74% 74%, #33312c 13%, #0000 14%); } /* 5 */
+.chest-stage .obj-die .cf-back   { background-image: radial-gradient(circle at 27% 22%, #33312c 12%, #0000 13%), radial-gradient(circle at 27% 50%, #33312c 12%, #0000 13%), radial-gradient(circle at 27% 78%, #33312c 12%, #0000 13%), radial-gradient(circle at 73% 22%, #33312c 12%, #0000 13%), radial-gradient(circle at 73% 50%, #33312c 12%, #0000 13%), radial-gradient(circle at 73% 78%, #33312c 12%, #0000 13%); } /* 6 */
+.chest-stage .obj-die .cf-top    { background-image: radial-gradient(circle at 30% 30%, #33312c 13%, #0000 14%), radial-gradient(circle at 70% 70%, #33312c 13%, #0000 14%); } /* 2 */
+.chest-stage .obj-die .cf-bottom { background-image: radial-gradient(circle at 28% 28%, #33312c 12%, #0000 13%), radial-gradient(circle at 50% 50%, #33312c 12%, #0000 13%), radial-gradient(circle at 72% 72%, #33312c 12%, #0000 13%), radial-gradient(circle at 72% 28%, #33312c 12%, #0000 13%), radial-gradient(circle at 28% 72%, #33312c 12%, #0000 13%); } /* 5 */
+.chest-stage .obj-die .cf-right  { background-image: radial-gradient(circle at 28% 28%, #33312c 13%, #0000 14%), radial-gradient(circle at 50% 50%, #33312c 13%, #0000 14%), radial-gradient(circle at 72% 72%, #33312c 13%, #0000 14%); } /* 3 */
+.chest-stage .obj-die .cf-left   { background-image: radial-gradient(circle at 30% 30%, #33312c 13%, #0000 14%), radial-gradient(circle at 70% 30%, #33312c 13%, #0000 14%), radial-gradient(circle at 30% 70%, #33312c 13%, #0000 14%), radial-gradient(circle at 70% 70%, #33312c 13%, #0000 14%); } /* 4 */
+
+/* REGALO: rosso + nastro a croce dorato su ogni faccia. */
+.chest-stage .obj-gift .cf { background-color: #e0574f; background-image: linear-gradient(90deg, #0000 42%, #f2c14e 42% 58%, #0000 58%), linear-gradient(0deg, #0000 42%, #f2c14e 42% 58%, #0000 58%); }
+
+/* CASSA: legno + doghe + bordo scuro. */
+.chest-stage .obj-crate .cf { background-color: #b3813f; background-image: repeating-linear-gradient(90deg, #0000 0 28%, rgba(0,0,0,.18) 28% 31%); box-shadow: inset 0 0 0 .3vmin rgba(60,38,12,.55); }
 
 /* ===== Materia: ombre e texture per un aspetto meno "piatto" ===== */
 .chest-stage { --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
