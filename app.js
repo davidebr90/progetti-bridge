@@ -548,7 +548,9 @@ function setupDeckDrag(deck) {
   deck.addEventListener("pointercancel", end);
 }
 // Aggancia dolcemente il deck alla card il cui centro è più vicino al centro viewport.
+let deckSnapCancel = null;
 function snapDeckToNearest(deck, prevSnap) {
+  if (deckSnapCancel) { deckSnapCancel(); deckSnapCancel = null; }
   const cards = [...deck.querySelectorAll(".deck-card")];
   if (!cards.length) { deck.style.scrollSnapType = prevSnap || "x mandatory"; return; }
   const deckLeft = deck.getBoundingClientRect().left;
@@ -566,14 +568,48 @@ function snapDeckToNearest(deck, prevSnap) {
   const target = Math.max(0, Math.min(max, centerAbs - deck.clientWidth / 2));
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduce) { deck.scrollLeft = target; deck.style.scrollSnapType = prevSnap || "x mandatory"; return; }
-  animateScroll({
+  deckSnapCancel = animateScroll({
     get: () => deck.scrollLeft,
     set: (v) => { deck.scrollLeft = v; },
     target,
     dur: 520,
     ease: easeOutQuint,
-    onEnd: () => { deck.style.scrollSnapType = prevSnap || "x mandatory"; },
+    onEnd: () => { deck.style.scrollSnapType = prevSnap || "x mandatory"; deckSnapCancel = null; },
   });
+}
+/* Rotella nel CAROSELLO: quando la sezione portfolio (il deck) copre il viewport,
+   lo scroll verticale viene "intrappolato" e tradotto in scorrimento ORIZZONTALE
+   tra le card. Ai bordi (prima card scrollando su / ultima card scrollando giù)
+   NON facciamo preventDefault: lascia che lo scroll-snap verticale nativo passi
+   alla sezione adiacente (header sopra, bio sotto). Speculare in entrambi i versi. */
+let deckWheelSnapTimer = 0;
+function onWheelCarosello(e) {
+  if (document.documentElement.getAttribute("data-ui") !== "carosello") return;
+  if (!fpActive()) return;          // reader/menu aperti o UI non full-page → niente hijack
+  if (e.ctrlKey) return;            // pinch-zoom del trackpad: lascia stare
+  const deck = document.getElementById("deck");
+  const stage = document.getElementById("stage");
+  if (!deck || !stage) return;
+  // La sezione deck deve coprire PIENAMENTE il viewport (agganciata), altrimenti
+  // siamo in transizione verticale: lascia lavorare lo snap nativo.
+  const r = stage.getBoundingClientRect();
+  if (!(r.top <= 2 && r.bottom >= window.innerHeight - 2)) return;
+  const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+  if (!delta) return;
+  const dir = delta > 0 ? 1 : -1;
+  const max = deck.scrollWidth - deck.clientWidth;
+  if (max <= 0) return;             // una sola card / niente da scorrere → verticale nativo
+  const atEnd = deck.scrollLeft >= max - 2;
+  const atStart = deck.scrollLeft <= 2;
+  // Al bordo orizzontale nella direzione dello scroll → rilascia al verticale.
+  if ((dir > 0 && atEnd) || (dir < 0 && atStart)) return;
+  // Altrimenti intrappola la rotella e traducila 1:1 in scorrimento orizzontale.
+  e.preventDefault();
+  if (deckSnapCancel) { deckSnapCancel(); deckSnapCancel = null; }
+  if (deck.style.scrollSnapType !== "none") deck.style.scrollSnapType = "none";
+  deck.scrollLeft = Math.max(0, Math.min(max, deck.scrollLeft + delta));
+  clearTimeout(deckWheelSnapTimer);
+  deckWheelSnapTimer = setTimeout(() => snapDeckToNearest(deck, "x mandatory"), 110);
 }
 // La rotella/trackpad NON viene più intercettata: lo scroll verticale è nativo e
 // lo snap CSS (mandatory) aggancia la sezione a fine gesto, come nel riferimento
@@ -1415,6 +1451,9 @@ async function main() {
   // causava gli inceppamenti). La tastiera e le frecce a schermo usano lo scroll
   // nativo `smooth` verso la sezione adiacente.
   window.addEventListener("keydown", onKeyFp);
+  // Rotella: hijack verticale→orizzontale sul deck del carosello (passive:false
+  // per poter fare preventDefault mentre scorriamo le card).
+  window.addEventListener("wheel", onWheelCarosello, { passive: false });
 
   // Lettore articolo: chiusura (Esc / click sul bordo) + barra di progresso.
   const reader = document.getElementById("reader");
