@@ -37,7 +37,10 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=41" />
+    <!-- fullPage.js 2.9.7 (MIT, nessuna licenseKey). CSS PRIMA del nostro così i
+         nostri stili possono sovrascriverlo. -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.9.7/jquery.fullpage.min.css" />
+    <link rel="stylesheet" href="./styles.css?v=42" />
     <script>
       // Tema + interfaccia PRIMA del paint: niente flash.
       (function () {
@@ -176,6 +179,18 @@
       <article class="reader-article" id="reader-article"></article>
     </div>
 
-    <script type="module" src="./app.js?v=41"></script>
+    <!-- jQuery (richiesto da fullPage.js 2.x) + fullPage.js 2.9.7. Caricati come
+         script CLASSICI (globali) PRIMA del modulo app.js, che li usa via window.jQuery. -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.9.7/jquery.fullpage.min.js"></script>
+    <script>
+      // Req.5: segnala in console gli errori tipici di caricamento.
+      if (typeof window.jQuery === "undefined") {
+        console.error("[fullPage] fullpage.js requires jQuery — jQuery non caricato.");
+      } else if (typeof window.jQuery.fn.fullpage === "undefined") {
+        console.error("[fullPage] libreria non caricata: verifica il CDN fullPage 2.9.7.");
+      }
+    </script>
+    <script type="module" src="./app.js?v=42"></script>
   </body>
 </html>

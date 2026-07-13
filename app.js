@@ -549,6 +549,7 @@ function snapDeckToNearest(deck, prevSnap) {
 // lo snap CSS (mandatory) aggancia la sezione a fine gesto, come nel riferimento
 // Webflow. Restano attivi solo tastiera (onKeyFp) e frecce a schermo (navigate).
 function onKeyFp(e) {
+  if (isFullpageOn()) return; // in cinema con fullPage: la tastiera la gestisce fullPage
   if (!fpActive()) return;
   if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName || "")) return;
   // Usa navigate(): stessa logica di rotella e frecce a schermo, così nel
@@ -564,6 +565,11 @@ function onKeyFp(e) {
 // Frecce laterali: nel carosello, se siamo sul deck scorrono le card (fino al
 // bordo) poi la sezione; altrove avanzano di una sezione full-page.
 function navigate(dir) {
+  if (isFullpageOn()) {
+    if (dir > 0) window.jQuery.fn.fullpage.moveSectionDown();
+    else window.jQuery.fn.fullpage.moveSectionUp();
+    return;
+  }
   const ui = document.documentElement.getAttribute("data-ui");
   if (ui === "carosello") {
     const secs = fpSections();
@@ -584,6 +590,94 @@ function getUI() {
     return "cinema";
   }
 }
+/* ---------- fullPage.js (SOLO interfaccia "cinema") ----------
+   fullPage 2.9.7 governa una struttura #fullpage > .section. Qui la costruiamo
+   SPOSTANDO le sezioni reali (hero, progetti, blog, bio) in #fullpage all'ingresso
+   in cinema e le ripristiniamo uscendo, così le altre 4 interfacce restano intatte.
+   Se jQuery/fullPage non ci sono, si degrada allo scroll nativo (nessun crash). */
+function isFullpageOn() {
+  return !!(window.jQuery && document.documentElement.classList.contains("fp-active"));
+}
+function mountFullpage() {
+  const jq = window.jQuery;
+  if (!jq || !jq.fn || typeof jq.fn.fullpage !== "function") {
+    console.error("[fullPage] jQuery/fullpage non disponibili: resto sullo scroll nativo.");
+    return; // degrada: la cinema nativa (scroll-snap) resta attiva
+  }
+  const main = document.getElementById("main");
+  const hero = document.getElementById("hero");
+  const stage = document.getElementById("stage");
+  const blog = document.getElementById("blog");
+  const bio = document.getElementById("bio");
+  let fp = document.getElementById("fullpage");
+  if (!fp) {
+    fp = document.createElement("div");
+    fp.id = "fullpage";
+  }
+  fp.innerHTML = "";
+  main.appendChild(fp);
+  // Sezioni verticali, in ordine: hero → progetti → blog(se visibile) → bio(se visibile).
+  hero.classList.add("section");
+  fp.appendChild(hero);
+  stage.querySelectorAll(".project").forEach((pr) => {
+    pr.classList.add("section");
+    fp.appendChild(pr);
+  });
+  if (blog && !blog.hidden) {
+    blog.classList.add("section");
+    fp.appendChild(blog);
+  }
+  if (bio && !bio.hidden) {
+    bio.classList.add("section");
+    fp.appendChild(bio);
+  }
+  stage.style.display = "none";
+  document.documentElement.classList.add("fp-active");
+  const revealOf = (sec) => sec && sec.querySelectorAll(".reveal").forEach((el) => el.classList.add("in-view"));
+  jq("#fullpage").fullpage({
+    autoScrolling: true,
+    scrollingSpeed: 700,
+    navigation: true,
+    navigationPosition: "right",
+    fitToSection: true,
+    responsiveWidth: 768, // sotto 768px: autoScrolling OFF → scroll normale (mobile)
+    afterLoad: function (anchorLink, index) {
+      revealOf(document.querySelectorAll("#fullpage .section")[index - 1]);
+    },
+  });
+  revealOf(fp.querySelector(".section")); // prima sezione: reveal immediato
+}
+function unmountFullpage() {
+  const jq = window.jQuery;
+  const fp = document.getElementById("fullpage");
+  document.documentElement.classList.remove("fp-active");
+  try {
+    if (jq && jq.fn && typeof jq.fn.fullpage === "object" && jq.fn.fullpage.destroy) jq.fn.fullpage.destroy("all");
+    else if (jq && jq.fn && jq.fn.fullpage) jq.fn.fullpage.destroy("all");
+  } catch {}
+  if (!fp) return;
+  const main = document.getElementById("main");
+  const hero = document.getElementById("hero");
+  const stage = document.getElementById("stage");
+  const blog = document.getElementById("blog");
+  const bio = document.getElementById("bio");
+  // Ripristina in #main l'ordine originale: hero, stage, blog, bio.
+  if (hero) {
+    hero.classList.remove("section");
+    main.insertBefore(hero, stage);
+  }
+  if (blog) {
+    blog.classList.remove("section");
+    main.insertBefore(blog, fp);
+  }
+  if (bio) {
+    bio.classList.remove("section");
+    main.insertBefore(bio, fp);
+  }
+  if (stage) stage.style.display = "";
+  main.removeChild(fp); // i progetti spostati vengono scartati (rirenderizzati dopo)
+}
+
 function setUI(key) {
   try {
     localStorage.setItem(UI_KEY, key);
@@ -594,6 +688,12 @@ function applyUI(key) {
   runCleanup();
   document.documentElement.setAttribute("data-ui", key);
   (RENDER[key] || RENDER.cinema)(document.getElementById("stage"), PROJECTS);
+  // SOLO cinema: monta fullPage.js sui contenuti appena renderizzati; l'unmount è
+  // registrato in cleanup → runCleanup() lo esegue al prossimo cambio interfaccia.
+  if (key === "cinema") {
+    mountFullpage();
+    cleanup.push(unmountFullpage);
+  }
   document.querySelectorAll(".dock-tab").forEach((b) => {
     const on = b.dataset.ui === key;
     b.classList.toggle("is-active", on);
@@ -641,9 +741,18 @@ function openMenu() {
 function scrollToTarget(sel) {
   const el = document.querySelector(sel);
   if (!el) return;
+  if (isFullpageOn()) {
+    // fullPage attivo (cinema): vai alla sezione con la sua API moveTo(index).
+    const secs = Array.from(document.querySelectorAll("#fullpage .section"));
+    const sec = secs.includes(el) ? el : el.closest(".section");
+    const idx = sec ? secs.indexOf(sec) : -1;
+    if (idx >= 0) {
+      window.jQuery.fn.fullpage.moveTo(idx + 1);
+      return;
+    }
+  }
   if (fpActive()) {
-    // Con il controller full-page: transizione animata e magnetica alla sezione,
-    // centrando il contenuto (anche quando la sezione è più alta del viewport).
+    // Controller full-page NATIVO (carosello): transizione animata alla sezione.
     fpAnimateTo(sectionTargetY(el));
   } else {
     el.scrollIntoView({ behavior: "smooth", block: sel === "#hero" ? "start" : "center", inline: "center" });

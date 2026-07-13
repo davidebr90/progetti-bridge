@@ -339,7 +339,13 @@ main { position: relative; }
 /* Scroll a sezioni in stile Webflow: snap 100% NATIVO (nessun hijack JS della
    rotella). `mandatory` + `scroll-snap-stop: always` = una sezione per gesto,
    fluida su mouse/trackpad/touch. Ogni progetto e hero/bio = pagina piena. */
-html[data-ui="cinema"] { scroll-snap-type: y mandatory; }
+/* Snap nativo attivo SOLO se fullPage NON è montato (fullPage prende il controllo). */
+html[data-ui="cinema"]:not(.fp-active) { scroll-snap-type: y mandatory; }
+/* Con fullPage attivo: i dot laterali sostituiscono le frecce native; ogni .section
+   riempie il viewport (fullPage imposta l'altezza, noi togliamo margini che rompono). */
+html.fp-active #nav-arrows { display: none; }
+html.fp-active #fullpage .section { padding-top: 0; padding-bottom: 0; }
+html.fp-active #main { margin: 0; }
 [data-ui="cinema"] .hero, [data-ui="cinema"] .snap, [data-ui="cinema"] .bio {
   scroll-snap-align: center; scroll-snap-stop: always;
 }
