@@ -360,6 +360,11 @@ html[data-ui="cinema"]:not(.fp-active) { scroll-snap-type: y mandatory; }
 html.fp-active #nav-arrows { display: none; }
 html.fp-active #fullpage .section { padding-top: 0; padding-bottom: 0; }
 html.fp-active #main { margin: 0; }
+/* Cinema/fullPage: la sezione è alta 100vh e il contenuto è centrato. Compattiamo
+   logo e chest così tutto l'hero (logo compreso) sta nel viewport con respiro
+   sopra e sotto, evitando che il logo resti incollato al bordo superiore. */
+html.fp-active .hero-logo { width: min(288px, 52vw); margin-bottom: clamp(.8rem, 2.4vw, 1.4rem); }
+html.fp-active .chest-stage { height: clamp(158px, 23vmin, 216px); margin: 0 0 clamp(1.3rem, 3.6vmin, 2rem); }
 /* Anti-FOUC: nasconde il contenuto finché i dati reali non sostituiscono i
    placeholder statici (evita il flash "I miei progetti" → "Ah, sei qui?"). */
 #main { opacity: 0; }
@@ -593,9 +598,11 @@ body.lb-open { overflow: hidden; }
   opacity: 0; visibility: hidden; pointer-events: none;
   transition: opacity .24s ease, transform .3s cubic-bezier(.2,.7,.3,1), visibility 0s .24s;
   z-index: 71; display: flex; align-items: center; gap: clamp(.6rem,1.5vw,1.1rem); padding: .5rem .55rem .5rem .95rem; border-radius: 999px; background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: saturate(1.5) blur(14px); border: 1px solid var(--border); box-shadow: var(--shadow-lg); max-width: calc(100vw - 1.6rem); }
-/* Zona-cuscinetto invisibile tra trigger e dock, così spostando il mouse verso
-   il dock non si perde l'hover. */
-.dock::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: .7rem; }
+/* Zona-cuscinetto invisibile che collega trigger e dock su TUTTA la larghezza del
+   menu e giù fino al livello del trigger: così anche il movimento in diagonale
+   (verso una tab a destra) resta dentro l'area hover e il menu non si chiude.
+   Attivo solo col dock visibile (eredita pointer-events dal .dock). */
+.dock::after { content: ""; position: absolute; left: -.5rem; right: -.5rem; top: calc(100% - 6px); height: 2.6rem; }
 .dock-wrap:hover .dock, .dock-wrap:focus-within .dock, .dock-wrap.open .dock {
   opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1);
   transition: opacity .24s ease, transform .3s cubic-bezier(.2,.7,.3,1);
