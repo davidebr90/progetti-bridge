@@ -216,6 +216,10 @@ main { position: relative; }
 .chest-stage {
   --hover: 0.06; --default: 0.012; --limit: 0.92;
   --height: 26; --width: 18; --depth: 13; --frame: 1;
+  /* Unità base del modello 3D: come 1vmin ma CAPPATA, così su schermi grandi la
+     cassettiera non cresce all'infinito sforando fuori dal contenitore e coprendo
+     titolo/sottotitolo. */
+  --vu: min(1vmin, 8.4px);
   --transition: 0.34s;
   --unit-one: color-mix(in srgb, var(--ink) 74%, var(--surface));
   --unit-two: color-mix(in srgb, var(--ink) 60%, var(--surface));
@@ -226,61 +230,61 @@ main { position: relative; }
   --drawer-three: color-mix(in srgb, var(--ink) 9%, var(--surface));
   --handle: color-mix(in srgb, var(--ink) 34%, var(--surface));
   display: grid; place-items: center;
-  height: clamp(206px, 32vmin, 300px);
-  margin: .2rem 0 clamp(2.4rem, 6vmin, 3.6rem);
+  height: clamp(200px, 30vmin, 262px);
+  margin: .2rem 0 clamp(2rem, 5vmin, 3rem);
   animation: rise .9s .1s cubic-bezier(.2,.7,.3,1) both;
   touch-action: none;      /* il drag ruota la scena, non scrolla la pagina */
   cursor: grab; user-select: none;
 }
 .chest-stage.grabbing { cursor: grabbing; }
 .chest-stage, .chest-stage *, .chest-stage *::before, .chest-stage *::after { transform-style: preserve-3d; box-sizing: border-box; }
-.chest-stage .chest { position: relative; height: calc(var(--height) * 1vmin); width: calc(var(--width) * 1vmin); transform: rotateX(var(--rx, -30deg)) rotateY(var(--ry, 38deg)); color: var(--ink); will-change: transform; }
+.chest-stage .chest { position: relative; height: calc(var(--height) * var(--vu)); width: calc(var(--width) * var(--vu)); transform: rotateX(var(--rx, -30deg)) rotateY(var(--ry, 38deg)); color: var(--ink); will-change: transform; }
 .chest-stage .chest__panel { position: absolute; }
 .chest-stage .chest__panel--back { background: var(--unit-two); }
 .chest-stage .chest__panel--back, .chest-stage .chest__panel--front { height: 100%; width: 100%; transform: translate3d(0, 0, calc(var(--depth) * var(--coefficient))); }
-.chest-stage .chest__panel--front-frame { height: 100%; width: 100%; border: calc(var(--frame) * 1vmin) solid var(--unit-one); border-bottom-width: calc(var(--frame) * 2vmin); transform: translate3d(0, 0, 0); }
-.chest-stage .chest__panel--front-frame::after, .chest-stage .chest__panel--front-frame::before { content: ''; background: var(--unit-one); height: calc(var(--frame) * 1.5vmin); width: calc(var(--width) * 1vmin); position: absolute; transform: translate(-50%, -50%); left: 50%; }
+.chest-stage .chest__panel--front-frame { height: 100%; width: 100%; border: calc(var(--frame) * var(--vu)) solid var(--unit-one); border-bottom-width: calc(var(--frame) * 2 * var(--vu)); transform: translate3d(0, 0, 0); }
+.chest-stage .chest__panel--front-frame::after, .chest-stage .chest__panel--front-frame::before { content: ''; background: var(--unit-one); height: calc(var(--frame) * 1.5 * var(--vu)); width: calc(var(--width) * var(--vu)); position: absolute; transform: translate(-50%, -50%); left: 50%; }
 .chest-stage .chest__panel--front-frame::after { top: calc(100 / 3 * 1.01%); }
 .chest-stage .chest__panel--front-frame::before { top: calc(100 / 3 * 2.01%); }
-.chest-stage .chest__panel--front { --coefficient: 0.5vmin; }
-.chest-stage .chest__panel--back { --coefficient: -0.5vmin; }
-.chest-stage .chest__panel--left, .chest-stage .chest__panel--right { height: 100%; left: 50%; width: calc(var(--depth) * 1vmin); background: var(--unit-three); transform: translate(-50%, 0) rotateY(90deg) translate3d(0, 0, calc(var(--width) * var(--coefficient))); }
-.chest-stage .chest__panel--right { width: calc((var(--depth) * 1vmin) + 2px); --coefficient: 0.5vmin; }
-.chest-stage .chest__panel--left { --coefficient: -0.5vmin; }
-.chest-stage .chest__panel--top, .chest-stage .chest__panel--bottom { height: calc(var(--depth) * 1vmin); width: calc(var(--width) * 1vmin); background: var(--unit-two); }
-.chest-stage .chest__panel--top { top: 0; width: calc((var(--width) * 1vmin) + 0.1vmin); height: calc((var(--depth) * 1vmin) + 0.1vmin); left: 50%; transform: translate(-50%, -50%) rotateX(-90deg); }
+.chest-stage .chest__panel--front { --coefficient: calc(0.5 * var(--vu)); }
+.chest-stage .chest__panel--back { --coefficient: calc(-0.5 * var(--vu)); }
+.chest-stage .chest__panel--left, .chest-stage .chest__panel--right { height: 100%; left: 50%; width: calc(var(--depth) * var(--vu)); background: var(--unit-three); transform: translate(-50%, 0) rotateY(90deg) translate3d(0, 0, calc(var(--width) * var(--coefficient))); }
+.chest-stage .chest__panel--right { width: calc((var(--depth) * var(--vu)) + 2px); --coefficient: calc(0.5 * var(--vu)); }
+.chest-stage .chest__panel--left { --coefficient: calc(-0.5 * var(--vu)); }
+.chest-stage .chest__panel--top, .chest-stage .chest__panel--bottom { height: calc(var(--depth) * var(--vu)); width: calc(var(--width) * var(--vu)); background: var(--unit-two); }
+.chest-stage .chest__panel--top { top: 0; width: calc((var(--width) + 0.1) * var(--vu)); height: calc((var(--depth) + 0.1) * var(--vu)); left: 50%; transform: translate(-50%, -50%) rotateX(-90deg); }
 .chest-stage .chest__panel--bottom { bottom: 0; transform: translate(0, 50%) rotateX(-90deg); }
-.chest-stage .chest__drawer { --drawer-height: calc((var(--height) - (5 * var(--frame))) / 3); position: absolute; top: var(--top, 0); left: 50%; height: calc(var(--drawer-height) * 1vmin); width: calc((var(--width) - (2 * var(--frame))) * 1vmin); transform: translate3d(-50%, 0, calc((var(--depth) * 0.5vmin) + 0.01vmin)); }
-.chest-stage .chest__drawer[data-position="1"] { --top: calc(var(--frame) * 1vmin); }
-.chest-stage .chest__drawer[data-position="2"] { --top: calc(((2 * var(--frame)) + var(--drawer-height)) * 1vmin); }
-.chest-stage .chest__drawer[data-position="3"] { --top: calc(((3 * var(--frame)) + (2 * var(--drawer-height))) * 1vmin); }
+.chest-stage .chest__drawer { --drawer-height: calc((var(--height) - (5 * var(--frame))) / 3); position: absolute; top: var(--top, 0); left: 50%; height: calc(var(--drawer-height) * var(--vu)); width: calc((var(--width) - (2 * var(--frame))) * var(--vu)); transform: translate3d(-50%, 0, calc((var(--depth) * 0.5 + 0.01) * var(--vu))); }
+.chest-stage .chest__drawer[data-position="1"] { --top: calc(var(--frame) * var(--vu)); }
+.chest-stage .chest__drawer[data-position="2"] { --top: calc(((2 * var(--frame)) + var(--drawer-height)) * var(--vu)); }
+.chest-stage .chest__drawer[data-position="3"] { --top: calc(((3 * var(--frame)) + (2 * var(--drawer-height))) * var(--vu)); }
 .chest-stage .drawer__structure { height: 100%; width: 100%; position: absolute; top: 0; left: 0; }
 .chest-stage .drawer__panel { position: absolute; }
-.chest-stage .drawer__panel--left, .chest-stage .drawer__panel--right { width: calc(var(--depth) * 1vmin); height: 65%; background: var(--drawer-two); bottom: 1%; }
+.chest-stage .drawer__panel--left, .chest-stage .drawer__panel--right { width: calc(var(--depth) * var(--vu)); height: 65%; background: var(--drawer-two); bottom: 1%; }
 .chest-stage .drawer__panel--left { left: 0; transform-origin: 0 50%; transform: rotateY(90deg); }
 .chest-stage .drawer__panel--right { right: 0; transform-origin: 100% 50%; transform: rotateY(-90deg); }
-.chest-stage .drawer__panel--front { height: calc((var(--drawer-height) + (0.6 * var(--frame))) * 1vmin); width: calc((var(--width) - (0.6 * var(--frame))) * 1vmin); top: 50%; left: 50%; transform: translate3d(-50%, -50%, 1px); background: var(--unit-four); border-radius: .4vmin; }
+.chest-stage .drawer__panel--front { height: calc((var(--drawer-height) + (0.6 * var(--frame))) * var(--vu)); width: calc((var(--width) - (0.6 * var(--frame))) * var(--vu)); top: 50%; left: 50%; transform: translate3d(-50%, -50%, 1px); background: var(--unit-four); border-radius: calc(0.4 * var(--vu)); }
 .chest-stage .drawer__panel--bottom, .chest-stage .drawer__panel--back { width: 100%; }
-.chest-stage .drawer__panel--bottom { height: calc(var(--depth) * 1vmin); background: var(--drawer-three); bottom: 5%; left: 50%; transform-origin: 50% 100%; transform: translate(-50%, 0) rotateX(90deg); }
-.chest-stage .drawer__panel--back { height: 65%; background: var(--drawer-one); bottom: 1%; left: 50%; transform: translate3d(-50%, 0, calc(var(--depth) * -1vmin)); text-align: center; line-height: calc(var(--drawer-height) * 0.65vmin); font-family: var(--font-display, serif); font-weight: 600; font-size: 1.95vmin; letter-spacing: -.01em; color: var(--accent, var(--brand)); white-space: nowrap; overflow: visible; }
+.chest-stage .drawer__panel--bottom { height: calc(var(--depth) * var(--vu)); background: var(--drawer-three); bottom: 5%; left: 50%; transform-origin: 50% 100%; transform: translate(-50%, 0) rotateX(90deg); }
+.chest-stage .drawer__panel--back { height: 65%; background: var(--drawer-one); bottom: 1%; left: 50%; transform: translate3d(-50%, 0, calc(var(--depth) * -1 * var(--vu))); text-align: center; line-height: calc(var(--drawer-height) * 0.65 * var(--vu)); font-family: var(--font-display, serif); font-weight: 600; font-size: calc(1.95 * var(--vu)); letter-spacing: -.01em; color: var(--accent, var(--brand)); white-space: nowrap; overflow: visible; }
 .chest-stage details { position: absolute; height: 100%; width: 100%; top: 0; left: 0; cursor: pointer; outline: transparent; }
 .chest-stage details:hover:not([open]), .chest-stage details:hover:not([open]) + .drawer__structure { --open: var(--hover); }
-.chest-stage details, .chest-stage .drawer__structure { transition: transform var(--transition) cubic-bezier(.2,.7,.3,1); transform: translate3d(0, 0, calc((var(--open, var(--default)) * var(--depth)) * 1vmin)); }
+.chest-stage details, .chest-stage .drawer__structure { transition: transform var(--transition) cubic-bezier(.2,.7,.3,1); transform: translate3d(0, 0, calc((var(--open, var(--default)) * var(--depth)) * var(--vu))); }
 .chest-stage details[open], .chest-stage details[open] + .drawer__structure { --open: var(--limit); }
 .chest-stage summary { outline: transparent; height: 100%; width: 100%; list-style: none; }
 .chest-stage summary::-webkit-details-marker { display: none; }
-.chest-stage summary::after { content: ''; position: absolute; background: linear-gradient(var(--handle), var(--handle)) 50% 15%/40% 8% no-repeat, transparent; height: 110%; width: 110%; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0.5vmin); }
+.chest-stage summary::after { content: ''; position: absolute; background: linear-gradient(var(--handle), var(--handle)) 50% 15%/40% 8% no-repeat, transparent; height: 110%; width: 110%; top: 50%; left: 50%; transform: translate3d(-50%, -50%, calc(0.5 * var(--vu))); }
 
 /* Oggetti DENTRO al cassetto: appoggiati sul fondo, visibili quando lo apri. */
 /* Oggetti illustrati (SVG) dentro al cassetto: "billboard" — restano sempre
    frontali quando la scena ruota, quindi sempre leggibili. Centrati e alzati a
    metà cassetto così non li copre la parete frontale. */
 .chest-stage .chest-obj {
-  position: absolute; left: 50%; bottom: 14%; width: 4.8vmin; height: 4.8vmin;
+  position: absolute; left: 50%; bottom: 14%; width: calc(4.8 * var(--vu)); height: calc(4.8 * var(--vu));
   /* Appoggiati sul FONDO del cassetto (non sospesi), verso la parete posteriore
      dove il pavimento è visibile, con la posa naturale di ciascun oggetto (--tilt).
      Niente billboard: la geometria 3D li occlude; da dietro spariscono. */
-  transform: translate(-50%, 0) translateZ(calc(var(--depth) * -0.58vmin)) rotate(var(--tilt, 0deg));
+  transform: translate(-50%, 0) translateZ(calc(var(--depth) * -0.58 * var(--vu))) rotate(var(--tilt, 0deg));
   transform-origin: center bottom;
   opacity: 1;
 }
@@ -294,13 +298,13 @@ main { position: relative; }
 
 /* ===== Veri cubi 3D (dado, regalo, cassa): 6 facce, occlusi come solidi ===== */
 .chest-stage .obj-box { --tilt: 0deg; }
-.chest-stage .cf { position: absolute; width: 3.6vmin; height: 3.6vmin; left: 50%; top: 50%; box-sizing: border-box; backface-visibility: hidden; }
-.chest-stage .cf-front  { transform: translate(-50%, -50%) translateZ(1.8vmin); }
-.chest-stage .cf-back   { transform: translate(-50%, -50%) rotateY(180deg) translateZ(1.8vmin); }
-.chest-stage .cf-right  { transform: translate(-50%, -50%) rotateY(90deg) translateZ(1.8vmin); }
-.chest-stage .cf-left   { transform: translate(-50%, -50%) rotateY(-90deg) translateZ(1.8vmin); }
-.chest-stage .cf-top    { transform: translate(-50%, -50%) rotateX(90deg) translateZ(1.8vmin); }
-.chest-stage .cf-bottom { transform: translate(-50%, -50%) rotateX(-90deg) translateZ(1.8vmin); }
+.chest-stage .cf { position: absolute; width: calc(3.6 * var(--vu)); height: calc(3.6 * var(--vu)); left: 50%; top: 50%; box-sizing: border-box; backface-visibility: hidden; }
+.chest-stage .cf-front  { transform: translate(-50%, -50%) translateZ(calc(1.8 * var(--vu))); }
+.chest-stage .cf-back   { transform: translate(-50%, -50%) rotateY(180deg) translateZ(calc(1.8 * var(--vu))); }
+.chest-stage .cf-right  { transform: translate(-50%, -50%) rotateY(90deg) translateZ(calc(1.8 * var(--vu))); }
+.chest-stage .cf-left   { transform: translate(-50%, -50%) rotateY(-90deg) translateZ(calc(1.8 * var(--vu))); }
+.chest-stage .cf-top    { transform: translate(-50%, -50%) rotateX(90deg) translateZ(calc(1.8 * var(--vu))); }
+.chest-stage .cf-bottom { transform: translate(-50%, -50%) rotateX(-90deg) translateZ(calc(1.8 * var(--vu))); }
 /* Ombreggiatura per faccia (luce dall'alto). */
 .chest-stage .obj-box .cf-top { filter: brightness(1.12); }
 .chest-stage .obj-box .cf-right { filter: brightness(.9); }
@@ -364,7 +368,7 @@ html.fp-active #main { margin: 0; }
    logo e chest così tutto l'hero (logo compreso) sta nel viewport con respiro
    sopra e sotto, evitando che il logo resti incollato al bordo superiore. */
 html.fp-active .hero-logo { width: min(288px, 52vw); margin-bottom: clamp(.8rem, 2.4vw, 1.4rem); }
-html.fp-active .chest-stage { height: clamp(158px, 23vmin, 216px); margin: 0 0 clamp(1.3rem, 3.6vmin, 2rem); }
+html.fp-active .chest-stage { height: clamp(180px, 26vmin, 238px); margin: 0 0 clamp(1.2rem, 3.4vmin, 1.9rem); }
 /* Anti-FOUC: nasconde il contenuto finché i dati reali non sostituiscono i
    placeholder statici (evita il flash "I miei progetti" → "Ah, sei qui?"). */
 #main { opacity: 0; }
