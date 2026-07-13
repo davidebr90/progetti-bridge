@@ -555,6 +555,13 @@ body.reader-open { overflow: hidden; }
   opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1);
   transition: opacity .24s ease, transform .3s cubic-bezier(.2,.7,.3,1);
 }
+/* Chiusura esplicita (click sul trigger aperto o su uno stile): sovrascrive
+   hover/focus-within (stessa specificità, regola successiva → vince) finché il
+   mouse non lascia la dock (mouseleave rimuove .closing via JS). */
+.dock-wrap.closing .dock {
+  opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(12px) scale(.96);
+  transition: opacity .2s ease, transform .24s cubic-bezier(.2,.7,.3,1), visibility 0s .2s;
+}
 .dock-brand { font-family: var(--font-display); font-weight: 600; font-size: .95rem; letter-spacing: -.01em; white-space: nowrap; padding-right: .2rem; }
 .dock-switch { display: flex; gap: 2px; padding: 3px; background: var(--surface-2); border-radius: 999px; }
 .dock-tab { display: inline-flex; align-items: center; gap: .4rem; border: none; background: transparent; cursor: pointer; color: var(--ink-faint); border-radius: 999px; padding: .35rem .7rem; font-family: inherit; font-size: .82rem; font-weight: 600; transition: background .18s, color .18s; }

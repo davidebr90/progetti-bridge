@@ -1309,23 +1309,38 @@ async function main() {
   const dockWrap = document.getElementById("dock-wrap");
   const dockTrigger = document.getElementById("dock-trigger");
   if (dockWrap && dockTrigger) {
+    // Chiude la dock in modo "esplicito": .closing batte hover/focus-within (CSS)
+    // finché il mouse non lascia la dock. blur() rilascia il focus-within.
+    const closeDock = () => {
+      dockWrap.classList.remove("open");
+      dockWrap.classList.add("closing");
+      dockTrigger.setAttribute("aria-expanded", "false");
+      const focused = dockWrap.querySelector(":focus");
+      if (focused) focused.blur();
+    };
+    const openDock = () => {
+      dockWrap.classList.remove("closing");
+      dockWrap.classList.add("open");
+      dockTrigger.setAttribute("aria-expanded", "true");
+    };
     dockTrigger.addEventListener("click", (e) => {
       e.stopPropagation();
-      const open = dockWrap.classList.toggle("open");
-      dockTrigger.setAttribute("aria-expanded", open ? "true" : "false");
+      // Se è già visibile (per .open o per hover su desktop), il click la chiude.
+      const visible = dockWrap.classList.contains("open") ||
+        (!dockWrap.classList.contains("closing") && dockWrap.matches(":hover"));
+      if (visible) closeDock();
+      else openDock();
     });
+    // Uscito dalla dock col mouse: azzera lo stato di chiusura, così l'hover
+    // torna a poter riaprire la dock su desktop.
+    dockWrap.addEventListener("mouseleave", () => dockWrap.classList.remove("closing"));
     document.addEventListener("click", (e) => {
-      if (dockWrap.classList.contains("open") && !dockWrap.contains(e.target)) {
-        dockWrap.classList.remove("open");
-        dockTrigger.setAttribute("aria-expanded", "false");
-      }
+      if (dockWrap.contains(e.target)) return;
+      if (dockWrap.classList.contains("open")) closeDock();
     });
-    // Selezionata un'interfaccia dal dock → richiudi (utile su mobile).
+    // Selezionata un'interfaccia dal dock → chiudi (anche se il mouse resta sopra).
     document.getElementById("dock-switch").addEventListener("click", (e) => {
-      if (e.target.closest(".dock-tab")) {
-        dockWrap.classList.remove("open");
-        dockTrigger.setAttribute("aria-expanded", "false");
-      }
+      if (e.target.closest(".dock-tab")) closeDock();
     });
   }
 
