@@ -346,6 +346,10 @@ html[data-ui="cinema"]:not(.fp-active) { scroll-snap-type: y mandatory; }
 html.fp-active #nav-arrows { display: none; }
 html.fp-active #fullpage .section { padding-top: 0; padding-bottom: 0; }
 html.fp-active #main { margin: 0; }
+/* Anti-FOUC: nasconde il contenuto finché i dati reali non sostituiscono i
+   placeholder statici (evita il flash "I miei progetti" → "Ah, sei qui?"). */
+#main { opacity: 0; }
+html.app-ready #main { opacity: 1; transition: opacity 0.28s ease; }
 [data-ui="cinema"] .hero, [data-ui="cinema"] .snap, [data-ui="cinema"] .bio {
   scroll-snap-align: center; scroll-snap-stop: always;
 }

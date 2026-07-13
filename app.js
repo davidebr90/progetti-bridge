@@ -640,6 +640,7 @@ function mountFullpage() {
     navigation: true,
     navigationPosition: "right",
     fitToSection: true,
+    verticalCentered: false, // NIENTE .fp-tableCell: le sezioni mantengono il layout flex nativo (no shift)
     responsiveWidth: 768, // sotto 768px: autoScrolling OFF → scroll normale (mobile)
     afterLoad: function (anchorLink, index) {
       revealOf(document.querySelectorAll("#fullpage .section")[index - 1]);
@@ -1336,6 +1337,8 @@ async function main() {
   applyLangToStatic();
   renderMenu();
   applyUI(getUI());
+  // Dati reali applicati: mostra il contenuto (evita il FOUC dei placeholder statici).
+  document.documentElement.classList.add("app-ready");
 }
 
 main();
