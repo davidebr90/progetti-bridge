@@ -404,30 +404,6 @@ function currentSectionIndex(secs) {
   });
   return best;
 }
-let fpLock = false;
-let fpWatchdog = 0;
-let fpRAF = 0;
-// Durata della transizione animata (frecce, tasti, un passo di rotella): lenta e morbida.
-const FP_NAV_DUR = 1050;
-// Gate "un gesto = una slide" per rotella/trackpad. Punto chiave: il lock ha un TETTO
-// massimo (hard cap) e si rilascia SEMPRE entro quel tempo, anche se il momentum del
-// trackpad continua a inviare eventi — così non può mai "piantarsi".
-let wheelLock = false;
-let lastWheelTs = 0;
-let wheelReleaseTimer = 0;
-function armWheelRelease(minDur) {
-  clearTimeout(wheelReleaseTimer);
-  const startedAt = performance.now();
-  const HARD_CAP = 1500; // garanzia anti-freeze: oltre questo si sblocca comunque
-  const tick = () => {
-    const now = performance.now();
-    const elapsed = now - startedAt;
-    const quiet = now - lastWheelTs >= 130; // trackpad "fermo" da un attimo
-    if ((elapsed >= minDur && quiet) || elapsed >= HARD_CAP) wheelLock = false;
-    else wheelReleaseTimer = setTimeout(tick, 60);
-  };
-  wheelReleaseTimer = setTimeout(tick, minDur);
-}
 // Easing morbide (le stesse "curve" degli esempi di scroll-animation vanilla):
 // easeInOutCubic = partenza/arrivo dolci; easeOutQuint = arrivo super morbido.
 const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -452,37 +428,14 @@ function animateScroll({ get, set, target, dur = 800, ease = easeInOutCubic, onE
   return () => cancelAnimationFrame(raf);
 }
 
-// Sblocca SEMPRE lo stato full-page (watchdog): se per qualunque motivo
-// l'animazione non completa (tab in background, eccezione…), il sito non deve
-// mai restare "congelato"/non scrollabile.
-function fpUnlock() {
-  fpLock = false;
-  document.documentElement.classList.remove("fp-animating");
-  clearTimeout(fpWatchdog);
-}
-// Scroll VERTICALE morbido alla sezione (transizione animata, magnetica).
-function fpAnimateTo(targetY, dur = 820) {
-  const target = Math.round(targetY);
+// Scroll VERTICALE alla sezione: scroll NATIVO `smooth`. Nessun lock, nessuna
+// animazione JS che possa "piantarsi"; lo snap CSS aggancia la sezione a fine
+// gesto. Il parametro dur è ignorato (compatibilità con i chiamanti esistenti).
+function fpAnimateTo(targetY) {
+  const target = Math.max(0, Math.round(targetY));
   if (Math.abs(target - window.scrollY) < 2) return;
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduce) { window.scrollTo(0, target); return; }
-  fpLock = true;
-  document.documentElement.classList.add("fp-animating"); // niente snap-fight durante l'animazione
-  clearTimeout(fpWatchdog);
-  fpWatchdog = setTimeout(fpUnlock, dur + 900);
-  if (fpRAF) fpRAF();
-  fpRAF = animateScroll({
-    get: () => window.scrollY,
-    set: (v) => window.scrollTo(0, v),
-    target,
-    dur,
-    ease: easeInOutCubic,
-    onEnd: () => {
-      document.documentElement.classList.remove("fp-animating");
-      clearTimeout(fpWatchdog);
-      setTimeout(() => { fpLock = false; }, 130);
-    },
-  });
+  window.scrollTo({ top: target, behavior: reduce ? "auto" : "smooth" });
 }
 // Posizione Y a cui portare una sezione perché il suo CONTENUTO risulti centrato
 // nel viewport. Se la sezione sta in una pagina (altezza ≤ viewport) allineiamo il
@@ -503,7 +456,7 @@ function fpGo(dir) {
   const cur = currentSectionIndex(secs);
   const next = Math.min(secs.length - 1, Math.max(0, cur + dir));
   if (next === cur) return;
-  fpAnimateTo(sectionTargetY(secs[next]), FP_NAV_DUR);
+  fpAnimateTo(sectionTargetY(secs[next]));
 }
 // Scroll ORIZZONTALE morbido di UNA card: interpola scrollLeft con easing (niente
 // più `scrollBy` nativo brusco) e disattiva lo scroll-snap x DURANTE l'animazione
@@ -517,25 +470,8 @@ function deckGo(deck, dir) {
   const max = deck.scrollWidth - deck.clientWidth;
   const target = Math.max(0, Math.min(max, deck.scrollLeft + dir * step));
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduce) { deck.scrollLeft = target; return true; }
-  fpLock = true;
-  clearTimeout(fpWatchdog);
-  fpWatchdog = setTimeout(() => { deck.style.scrollSnapType = ""; fpUnlock(); }, 1600);
-  const prevSnap = deck.style.scrollSnapType;
-  deck.style.scrollSnapType = "none";
-  if (fpRAF) fpRAF();
-  fpRAF = animateScroll({
-    get: () => deck.scrollLeft,
-    set: (v) => { deck.scrollLeft = v; },
-    target,
-    dur: 900,
-    ease: easeOutQuint, // arrivo particolarmente morbido sulla card
-    onEnd: () => {
-      deck.style.scrollSnapType = prevSnap || "x mandatory";
-      clearTimeout(fpWatchdog);
-      setTimeout(() => { fpLock = false; }, 110);
-    },
-  });
+  // Scroll NATIVO: lo snap-x del deck aggancia la card a fine gesto.
+  deck.scrollTo({ left: target, behavior: reduce ? "auto" : "smooth" });
   return true;
 }
 // Drag-to-scroll del deck (clicca e trascina, come su touch): il desktop non
@@ -609,50 +545,9 @@ function snapDeckToNearest(deck, prevSnap) {
     onEnd: () => { deck.style.scrollSnapType = prevSnap || "x mandatory"; },
   });
 }
-// Rotella: nel carosello, quando la sezione corrente è il deck → avanza le card
-// in ORIZZONTALE (una per gesto); al bordo prosegue in verticale. Altrove (e in
-// cinema) → avanzamento full-page di UNA sezione con transizione animata.
-// Rotella/trackpad: UNA slide per gesto, con transizione lenta e morbida. Lo snap
-// CSS puro non basta (un fling "salta" più sezioni), quindi intercettiamo qui — ma
-// con un lock a tetto massimo (armWheelRelease) che si sblocca SEMPRE, così il
-// momentum del trackpad non può mai piantare la pagina. Gli swipe ORIZZONTALI (deck
-// del carosello) restano nativi. Griglia/rivista/cinetica: scroll nativo.
-function onWheelFp(e) {
-  if (document.body.classList.contains("menu-open")) return;
-  const reader = document.getElementById("reader");
-  if (reader && !reader.hidden) return;
-  const ui = document.documentElement.getAttribute("data-ui");
-  if (ui !== "cinema" && ui !== "carosello") return; // altre interfacce: nativo
-  if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // swipe orizzontale: nativo (deck)
-
-  e.preventDefault();
-  lastWheelTs = performance.now();
-  if (wheelLock) return;             // gesto/animazione in corso: inghiotti la coda
-  if (Math.abs(e.deltaY) < 4) return;
-  const dir = e.deltaY > 0 ? 1 : -1;
-
-  // Carosello: sopra al deck e non al bordo → avanza UNA card in orizzontale.
-  if (ui === "carosello") {
-    const deck = document.getElementById("deck");
-    if (deck) {
-      const r = deck.getBoundingClientRect();
-      const overDeck = r.height > 0 && e.clientY >= r.top && e.clientY <= r.bottom;
-      const atEnd = deck.scrollLeft + deck.clientWidth >= deck.scrollWidth - 4;
-      const atStart = deck.scrollLeft <= 4;
-      if (overDeck && !((dir > 0 && atEnd) || (dir < 0 && atStart))) {
-        wheelLock = true;
-        deckGo(deck, dir);
-        armWheelRelease(950); // durata anim. deck
-        return;
-      }
-    }
-  }
-
-  // Sezione verticale: transizione lenta con atterraggio morbido.
-  wheelLock = true;
-  fpGo(dir);
-  armWheelRelease(FP_NAV_DUR);
-}
+// La rotella/trackpad NON viene più intercettata: lo scroll verticale è nativo e
+// lo snap CSS (mandatory) aggancia la sezione a fine gesto, come nel riferimento
+// Webflow. Restano attivi solo tastiera (onKeyFp) e frecce a schermo (navigate).
 function onKeyFp(e) {
   if (!fpActive()) return;
   if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName || "")) return;
@@ -669,7 +564,6 @@ function onKeyFp(e) {
 // Frecce laterali: nel carosello, se siamo sul deck scorrono le card (fino al
 // bordo) poi la sezione; altrove avanzano di una sezione full-page.
 function navigate(dir) {
-  if (fpLock) return;
   const ui = document.documentElement.getAttribute("data-ui");
   if (ui === "carosello") {
     const secs = fpSections();
@@ -1276,9 +1170,10 @@ async function main() {
   const heroScroll = document.getElementById("hero-scroll");
   if (heroScroll) heroScroll.addEventListener("click", () => scrollToTarget('[data-proj="0"]'));
 
-  // Full-page scroll (desktop): rotella + tastiera → una sezione per gesto,
-  // transizione animata e magnetica. Attivo solo in cinema/carosello.
-  window.addEventListener("wheel", onWheelFp, { passive: false });
+  // Scroll a sezioni in stile Webflow: lo snap è 100% NATIVO (CSS scroll-snap),
+  // così mouse/trackpad/touch scorrono fluidi senza hijack della rotella (che
+  // causava gli inceppamenti). La tastiera e le frecce a schermo usano lo scroll
+  // nativo `smooth` verso la sezione adiacente.
   window.addEventListener("keydown", onKeyFp);
 
   // Lettore articolo: chiusura (Esc / click sul bordo) + barra di progresso.
