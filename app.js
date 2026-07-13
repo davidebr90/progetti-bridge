@@ -14,6 +14,8 @@ const ICONS = {
   instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
   facebook: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12z"/></svg>',
   arrowR: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  arrowL: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>',
+  zoom: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>',
   close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
 };
 
@@ -39,6 +41,7 @@ const T = {
     chooseStyle: "Scegli stile",
     blogNav: "Blog & Filosofia", minRead: "min di lettura", backBlog: "← Torna al blog",
     portfolio: "Progetti / Portfolio",
+    openGallery: "Apri galleria", closeGallery: "Chiudi", prevImg: "Immagine precedente", nextImg: "Immagine successiva",
     heroEyebrow: "Portfolio",
     seoTitle: "Davide Pica · Progetti, Blog & Filosofia",
     seoDesc: "Portfolio di Davide Pica: progetti software (self-hosted, WhatsApp, Rust, WordPress) con demo live e codice, e articoli su tecnologia, energia, demografia, AI e capitale umano.",
@@ -52,6 +55,7 @@ const T = {
     chooseStyle: "Choose style",
     blogNav: "Blog & Philosophy", minRead: "min read", backBlog: "← Back to the blog",
     portfolio: "Projects / Portfolio",
+    openGallery: "Open gallery", closeGallery: "Close", prevImg: "Previous image", nextImg: "Next image",
     heroEyebrow: "Portfolio",
     seoTitle: "Davide Pica · Projects, Blog & Philosophy",
     seoDesc: "Davide Pica's portfolio: self-hosted, custom software (WhatsApp, Rust, WordPress) with live demos and code, plus a series of essays on technology, energy, demographics, AI and human capital.",
@@ -139,6 +143,29 @@ function visualInner(p) {
   if (p.screenshots && p.screenshots[0]) return `<img class="p-shot" src="${esc(p.screenshots[0])}" alt="${esc(p.title)}" loading="lazy" decoding="async" />`;
   if (p.logo) return `<img class="p-logo-img" src="${esc(p.logo)}" alt="${esc(p.title)}" loading="lazy" decoding="async" />`;
   return `<span class="p-mono">${monogram(p.title)}</span>`;
+}
+// Elenco immagini apribili nel lightbox per un progetto (screenshots o logo).
+function galleryOf(p) {
+  const imgs = [];
+  if (Array.isArray(p.screenshots)) imgs.push(...p.screenshots.filter(Boolean));
+  else if (p.screenshots) imgs.push(p.screenshots);
+  if (!imgs.length && p.logo) imgs.push(p.logo);
+  return imgs;
+}
+function hasGallery(p) {
+  return galleryOf(p).length > 0;
+}
+// Card visiva riusabile: box grafico + (se ci sono immagini) badge zoom e aggancio
+// al lightbox via classe .js-zoom + data-proj. Con solo placeholder (monogramma)
+// non e cliccabile finche non ci sono immagini reali.
+function visualCard(p, i, extraCls) {
+  const zoom = hasGallery(p);
+  const cls = `mag-visual${extraCls ? " " + extraCls : ""}${zoom ? " js-zoom is-zoomable" : ""}`;
+  const attrs = zoom
+    ? ` data-proj="${i}" role="button" tabindex="0" aria-label="${esc(t("openGallery") || "Apri galleria")}: ${esc(p.title)}"`
+    : "";
+  const badge = zoom ? `<span class="mag-visual-zoom" aria-hidden="true">${ICONS.zoom}</span>` : "";
+  return `<div class="${cls}" style="--accent:${esc(p.accent || "var(--brand)")}"${attrs}>${visualInner(p)}<span class="p-status-float">${pill(p)}</span>${badge}</div>`;
 }
 function actionsHTML(p) {
   const demo = demoUrl(p);
@@ -235,10 +262,13 @@ const RENDER = {
             <span class="mag-meta">${pill(p)}<span class="mag-chevron">${ICONS.arrowR}</span></span>
           </button>
           <div class="mag-panel"><div class="mag-panel-in">
-            <p class="p-desc">${esc(loc(p, "description") || "")}</p>
-            ${highlightsHTML(p) ? `<ul class="p-highlights">${highlightsHTML(p)}</ul>` : ""}
-            <div class="p-tags">${tagsHTML(p)}</div>
-            <div class="p-actions">${actionsHTML(p)}</div>
+            ${visualCard(p, i)}
+            <div class="mag-text">
+              <p class="p-desc">${esc(loc(p, "description") || "")}</p>
+              ${highlightsHTML(p) ? `<ul class="p-highlights">${highlightsHTML(p)}</ul>` : ""}
+              <div class="p-tags">${tagsHTML(p)}</div>
+              <div class="p-actions">${actionsHTML(p)}</div>
+            </div>
           </div></div>
         </article>`,
       )
@@ -686,6 +716,97 @@ function unmountFullpage() {
   }
   if (stage) stage.style.display = "";
   main.removeChild(fp); // i progetti spostati vengono scartati (rirenderizzati dopo)
+}
+
+/* ---------- Lightbox / galleria immagini ----------
+   Immagine singola o galleria con frecce ai margini, contatore, tastiera (←/→/Esc)
+   e click sullo sfondo per chiudere. Alimentato da galleryOf(progetto). */
+const LB = { imgs: [], idx: 0, title: "", lastFocus: null };
+function lbEl(id) {
+  return document.getElementById(id);
+}
+function lbShow(i) {
+  const box = lbEl("lightbox");
+  const img = lbEl("lb-img");
+  const n = LB.imgs.length;
+  LB.idx = (i + n) % n;
+  const src = LB.imgs[LB.idx];
+  img.src = src;
+  img.alt = n > 1 ? `${LB.title} — ${LB.idx + 1}/${n}` : LB.title;
+  const multi = n > 1;
+  lbEl("lb-prev").hidden = !multi;
+  lbEl("lb-next").hidden = !multi;
+  const counter = lbEl("lb-counter");
+  counter.hidden = !multi;
+  counter.textContent = multi ? `${LB.idx + 1} / ${n}` : "";
+  lbEl("lb-cap").textContent = LB.title || "";
+  box.classList.toggle("is-gallery", multi);
+}
+function openLightbox(images, startIdx, title) {
+  if (!images || !images.length) return;
+  LB.imgs = images;
+  LB.title = title || "";
+  LB.lastFocus = document.activeElement;
+  const box = lbEl("lightbox");
+  box.hidden = false;
+  document.body.classList.add("lb-open");
+  lbShow(startIdx || 0);
+  lbEl("lb-close").focus();
+}
+function closeLightbox() {
+  const box = lbEl("lightbox");
+  if (box.hidden) return;
+  box.hidden = true;
+  document.body.classList.remove("lb-open");
+  lbEl("lb-img").src = "";
+  if (LB.lastFocus && LB.lastFocus.focus) LB.lastFocus.focus();
+}
+function lbNext(dir) {
+  if (LB.imgs.length > 1) lbShow(LB.idx + dir);
+}
+// Apre il lightbox per l'elemento .js-zoom cliccato (usa data-proj → PROJECTS).
+function openZoomFrom(el) {
+  const i = Number(el.getAttribute("data-proj"));
+  const p = PROJECTS[i];
+  if (!p) return;
+  const imgs = galleryOf(p);
+  if (imgs.length) openLightbox(imgs, 0, p.title);
+}
+function setupLightbox() {
+  const box = lbEl("lightbox");
+  if (!box) return;
+  lbEl("lb-close").innerHTML = ICONS.close;
+  lbEl("lb-prev").innerHTML = ICONS.arrowL;
+  lbEl("lb-next").innerHTML = ICONS.arrowR;
+  lbEl("lb-close").addEventListener("click", closeLightbox);
+  lbEl("lb-prev").addEventListener("click", () => lbNext(-1));
+  lbEl("lb-next").addEventListener("click", () => lbNext(1));
+  // Click sullo sfondo (non sull'immagine o sui controlli) → chiudi.
+  box.addEventListener("click", (e) => {
+    if (e.target === box || e.target.classList.contains("lb-figure")) closeLightbox();
+  });
+  // Delega globale: qualsiasi .js-zoom apre il lightbox (rivista e future interfacce).
+  document.addEventListener("click", (e) => {
+    const z = e.target.closest(".js-zoom");
+    if (z) {
+      e.preventDefault();
+      e.stopPropagation();
+      openZoomFrom(z);
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    // Attivazione da tastiera sulla card (Invio/Spazio).
+    if ((e.key === "Enter" || e.key === " ") && document.activeElement?.classList.contains("js-zoom")) {
+      e.preventDefault();
+      openZoomFrom(document.activeElement);
+      return;
+    }
+    if (box.hidden) return;
+    // Con il lightbox aperto, i tasti pilotano la galleria (non lo scroll/fullPage).
+    if (e.key === "Escape") { e.preventDefault(); closeLightbox(); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); e.stopPropagation(); lbNext(1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); e.stopPropagation(); lbNext(-1); }
+  }, true); // capture: intercetta prima dei gestori di navigazione (fullPage/native)
 }
 
 function setUI(key) {
@@ -1304,6 +1425,9 @@ async function main() {
   });
   reader.addEventListener("click", (e) => { if (e.target === reader) closeReader(); });
   readerArt.addEventListener("scroll", updateReaderProgress, { passive: true });
+
+  // Lightbox galleria (rivista e future interfacce con immagini reali).
+  setupLightbox();
 
   // Dock a comparsa: hover su desktop (CSS); tap sul trigger su mobile (JS).
   const dockWrap = document.getElementById("dock-wrap");

@@ -40,7 +40,7 @@
     <!-- fullPage.js 2.9.7 (MIT, nessuna licenseKey). CSS PRIMA del nostro così i
          nostri stili possono sovrascriverlo. -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.9.7/jquery.fullpage.min.css" />
-    <link rel="stylesheet" href="./styles.css?v=45" />
+    <link rel="stylesheet" href="./styles.css?v=46" />
     <script>
       // Tema + interfaccia PRIMA del paint: niente flash.
       (function () {
@@ -179,6 +179,18 @@
       <article class="reader-article" id="reader-article"></article>
     </div>
 
+    <!-- Lightbox galleria: immagine singola o galleria con frecce ai margini. -->
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Galleria immagini" hidden>
+      <button class="lb-close" id="lb-close" type="button" aria-label="Chiudi"></button>
+      <button class="lb-nav lb-prev" id="lb-prev" type="button" aria-label="Immagine precedente"></button>
+      <figure class="lb-figure">
+        <img class="lb-img" id="lb-img" alt="" />
+        <figcaption class="lb-cap" id="lb-cap"></figcaption>
+      </figure>
+      <button class="lb-nav lb-next" id="lb-next" type="button" aria-label="Immagine successiva"></button>
+      <span class="lb-counter" id="lb-counter" aria-hidden="true"></span>
+    </div>
+
     <!-- jQuery (richiesto da fullPage.js 2.x) + fullPage.js 2.9.7. Caricati come
          script CLASSICI (globali) PRIMA del modulo app.js, che li usa via window.jQuery. -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -191,6 +203,6 @@
         console.error("[fullPage] libreria non caricata: verifica il CDN fullPage 2.9.7.");
       }
     </script>
-    <script type="module" src="./app.js?v=45"></script>
+    <script type="module" src="./app.js?v=46"></script>
   </body>
 </html>
