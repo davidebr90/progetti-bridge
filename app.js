@@ -598,11 +598,20 @@ function getUI() {
 function isFullpageOn() {
   return !!(window.jQuery && document.documentElement.classList.contains("fp-active"));
 }
+function isMobileViewport() {
+  return !!(window.matchMedia && window.matchMedia("(max-width: 768px)").matches);
+}
 function mountFullpage() {
   const jq = window.jQuery;
   if (!jq || !jq.fn || typeof jq.fn.fullpage !== "function") {
     console.error("[fullPage] jQuery/fullpage non disponibili: resto sullo scroll nativo.");
     return; // degrada: la cinema nativa (scroll-snap) resta attiva
+  }
+  // Mobile (<=768px): niente fullPage. L'autoScrolling e scomodo al touch e il
+  // controllo responsive nativo di fullPage (basato su outerWidth) e inaffidabile;
+  // la cinema nativa con scroll-snap e gia perfettamente responsive.
+  if (isMobileViewport()) {
+    return; // hero/stage restano in #main, fp-active non viene aggiunto → scroll nativo
   }
   const main = document.getElementById("main");
   const hero = document.getElementById("hero");
@@ -1337,6 +1346,14 @@ async function main() {
   applyLangToStatic();
   renderMenu();
   applyUI(getUI());
+  // Al superamento del breakpoint 768px (rotazione/resize) in cinema, ri-applica
+  // l'interfaccia: monta fullPage su desktop, torna allo scroll nativo su mobile.
+  if (window.matchMedia) {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const onBpChange = () => { if (getUI() === "cinema") applyUI("cinema"); };
+    if (mq.addEventListener) mq.addEventListener("change", onBpChange);
+    else if (mq.addListener) mq.addListener(onBpChange); // Safari legacy
+  }
   // Dati reali applicati: mostra il contenuto (evita il FOUC dei placeholder statici).
   document.documentElement.classList.add("app-ready");
 }
