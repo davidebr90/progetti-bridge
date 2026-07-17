@@ -188,10 +188,10 @@ main { position: relative; }
 
 /* ---- HERO ---- */
 .hero { min-height: 100svh; display: grid; place-items: center; text-align: center; padding: clamp(4rem,10vw,7rem) clamp(1.1rem,4vw,2rem) clamp(3rem,6vw,4rem); }
-.hero-inner { max-width: min(92vw, 780px); display: flex; flex-direction: column; align-items: center; }
+.hero-inner { max-width: min(94vw, 900px); display: flex; flex-direction: column; align-items: center; }
 /* Logo firma in cima all'intro: due varianti (inchiostro/bianco) in crossfade
    automatico sul tema chiaro/scuro. */
-.hero-logo { position: relative; width: min(360px, 66vw); aspect-ratio: 1688 / 427; margin: 0 0 clamp(1.5rem, 4vw, 2.4rem); animation: rise .8s cubic-bezier(.2,.7,.3,1) both; }
+.hero-logo { position: relative; width: min(560px, 84vw); aspect-ratio: 1688 / 427; margin: 0 0 clamp(2rem, 5vw, 3.2rem); animation: rise .8s cubic-bezier(.2,.7,.3,1) both; }
 .hero-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity .55s ease; }
 .logo-ink { opacity: 1; }
 .logo-light { opacity: 0; }
