@@ -208,8 +208,8 @@
       "id": "vvf-quiz",
       "title": "VVF Quiz",
       "tagline": "Quiz idoneità tecnica antincendio",
-      "description": "Piattaforma di quiz per l'idoneità tecnica antincendio dei Vigili del Fuoco: banca dati completa dei quesiti ufficiali (DM 2/9/2021 + vecchio banco DM 10/3/98), pronta per la web app.",
-      "status": "wip",
+      "description": "Simulatore online gratuito (non ufficiale) per l'idoneità tecnica antincendio dei Vigili del Fuoco: banca dati completa dei quesiti ufficiali (DM 2/9/2021 + vecchio banco DM 10/3/98).",
+      "status": "live",
       "accent": "#d24a3a",
       "logo": "",
       "tags": [
@@ -218,7 +218,8 @@
         "Dataset"
       ],
       "demoKey": "",
-      "repo": "",
+      "demoUrl": "https://davidebr90.github.io/test-teorici-vvf/",
+      "repo": "https://github.com/davidebr90/test-teorici-vvf",
       "screenshots": [],
       "highlights": [
         "639 quesiti ufficiali FOR2/FOR3 (DM 2/9/2021)",
