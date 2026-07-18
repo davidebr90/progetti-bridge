@@ -141,6 +141,40 @@
       }
     },
     {
+      "id": "carpe-manuale",
+      "title": "Manuale Ca.R.Pe.",
+      "tagline": "Documentazione INPS restaurata",
+      "description": "Ipertesto statico e offline che restaura e modernizza la documentazione INPS storica del software Ca.R.Pe. (calcolo della retribuzione media pensionabile) e della previdenza dei lavoratori marittimi. Ricerca offline, tema chiaro/scuro, viewer PDF integrato e uno strumento per consultare il proprio estratto, tutto senza server. Progetto informativo non ufficiale.",
+      "status": "live",
+      "accent": "#2a6f97",
+      "logo": "",
+      "tags": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "PDF.js",
+        "GitHub Pages"
+      ],
+      "demoKey": "",
+      "demoUrl": "https://davidebr90.github.io/carpe-manuale-restaurato/",
+      "repo": "https://github.com/davidebr90/carpe-manuale-restaurato",
+      "screenshots": [],
+      "highlights": [
+        "Manuali INPS Ca.R.Pe. e previdenza marittima, navigabili e ricercabili",
+        "Ricerca offline, tema chiaro/scuro e viewer PDF integrato",
+        "Strumento file E1/EC interamente nel browser, nessun dato inviato"
+      ],
+      "en": {
+        "tagline": "Restored INPS documentation",
+        "description": "A static, offline hypertext that restores and modernizes the historical INPS documentation for the Ca.R.Pe. software (average pensionable pay calculation) and for seafarers' social security. Offline search, light/dark theme, a built-in PDF viewer and a tool to inspect your own statement, all with no server. Unofficial, informational project.",
+        "highlights": [
+          "INPS Ca.R.Pe. and maritime pension manuals, navigable and searchable",
+          "Offline search, light/dark theme and built-in PDF viewer",
+          "In-browser E1/EC file tool, no data ever sent"
+        ]
+      }
+    },
+    {
       "id": "symbinux",
       "title": "Symbinux",
       "tagline": "GUI cross-platform in Rust (gtk4)",
