@@ -1041,6 +1041,10 @@ function fmtArticleDate(iso) {
 function mdToHtml(md) {
   const inline = (s) =>
     esc(s)
+      .replace(
+        /\[([^\]]+)\]\(([^)\s]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener">$1</a>',
+      )
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/\*(.+?)\*/g, "<em>$1</em>");
   return (md || "")
@@ -1049,6 +1053,11 @@ function mdToHtml(md) {
       const b = block.trim();
       if (!b) return "";
       if (b === "---" || b === "***") return "<hr />";
+      const h = b.match(/^(#{1,3})\s+([\s\S]+)$/);
+      if (h) {
+        const tag = h[1].length >= 3 ? "h3" : "h2";
+        return `<${tag} class="ra-${tag}">${inline(h[2].trim())}</${tag}>`;
+      }
       return `<p>${inline(b).replace(/\n/g, "<br />")}</p>`;
     })
     .join("");

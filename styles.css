@@ -577,6 +577,11 @@ body.lb-open { overflow: hidden; }
 .ra-body p strong { color: var(--ink); font-weight: 600; }
 .ra-body em { font-style: italic; }
 .ra-body hr { border: none; height: 1px; background: var(--border); margin: 2.2rem auto; max-width: 8rem; }
+.ra-body h2, .ra-body h3 { font-family: var(--font-display); font-weight: 500; color: var(--ink); letter-spacing: -.01em; text-wrap: balance; }
+.ra-body h2 { font-size: clamp(1.5rem, 3.2vw, 2.05rem); line-height: 1.12; margin: 2.6rem 0 1rem; padding-top: .4rem; border-top: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border)); }
+.ra-body h3 { font-size: clamp(1.25rem, 2.4vw, 1.55rem); line-height: 1.15; margin: 2rem 0 .8rem; }
+.ra-body a { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 42%, transparent); text-underline-offset: 3px; text-decoration-thickness: 1px; transition: text-decoration-color .2s ease; }
+.ra-body a:hover { text-decoration-color: var(--accent); }
 .ra-foot { max-width: 68ch; margin: 2.5rem auto 0; }
 .ra-back { border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: .6rem 1.2rem; font-family: inherit; font-weight: 600; font-size: .9rem; cursor: pointer; transition: border-color .16s, background .16s; }
 .ra-back:hover { border-color: var(--accent, var(--brand)); }
