@@ -1103,7 +1103,7 @@ function mdToHtml(md) {
     .join("");
 }
 function articleCardHTML(a) {
-  return `<button class="art-card reveal" type="button" data-id="${esc(a.id)}" style="--accent:${esc(a.accent || "var(--brand)")}">
+  return `<button class="art-card" type="button" data-id="${esc(a.id)}" style="--accent:${esc(a.accent || "var(--brand)")}">
     <span class="art-meta"><span class="art-cat">${esc(loc(a, "category") || "")}</span><span class="art-date">${esc(fmtArticleDate(a.date))}</span></span>
     <span class="art-title">${esc(loc(a, "title"))}</span>
     <span class="art-excerpt">${esc(loc(a, "excerpt") || "")}</span>
@@ -1122,7 +1122,59 @@ function renderBlog() {
   listEl.querySelectorAll(".art-card").forEach((c) =>
     c.addEventListener("click", () => openArticle(c.dataset.id)),
   );
-  observeReveal();
+  requestAnimationFrame(updateBlogNav);
+}
+// Carosello orizzontale del blog: frecce, drag col mouse, scorrimento nativo
+// (trackpad/touch). Attacca i listener una volta sola su elementi stabili.
+function setupBlogCarousel() {
+  const list = document.getElementById("blog-list");
+  if (!list) return;
+  const prev = document.querySelector(".blog-prev");
+  const next = document.querySelector(".blog-next");
+  const stepBy = () => {
+    const card = list.querySelector(".art-card");
+    const gap = parseFloat(getComputedStyle(list).columnGap || getComputedStyle(list).gap || "16") || 16;
+    return card ? card.offsetWidth + gap : Math.round(list.clientWidth * 0.85);
+  };
+  if (prev) prev.addEventListener("click", () => list.scrollBy({ left: -stepBy(), behavior: "smooth" }));
+  if (next) next.addEventListener("click", () => list.scrollBy({ left: stepBy(), behavior: "smooth" }));
+  list.addEventListener("scroll", updateBlogNav, { passive: true });
+  window.addEventListener("resize", updateBlogNav);
+  // Drag col mouse (il touch usa lo scroll nativo). Se ho trascinato, sopprimo
+  // il click sulla card così non apre per sbaglio l'articolo.
+  let down = false, startX = 0, startScroll = 0, moved = false;
+  list.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "touch") return;
+    down = true; moved = false; startX = e.clientX; startScroll = list.scrollLeft;
+    list.classList.add("dragging");
+  });
+  window.addEventListener("pointermove", (e) => {
+    if (!down) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 4) moved = true;
+    list.scrollLeft = startScroll - dx;
+  });
+  const endDrag = () => { if (down) { down = false; list.classList.remove("dragging"); } };
+  window.addEventListener("pointerup", endDrag);
+  window.addEventListener("pointercancel", endDrag);
+  list.addEventListener("click", (e) => {
+    if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
+  }, true);
+  // Lo stato iniziale delle frecce va calcolato DOPO che il layout (fullPage,
+  // font, immagini) si è assestato: alcuni giri ritardati lo rendono affidabile.
+  [0, 200, 600, 1200].forEach((d) => setTimeout(updateBlogNav, d));
+}
+function updateBlogNav() {
+  const list = document.getElementById("blog-list");
+  const prev = document.querySelector(".blog-prev");
+  const next = document.querySelector(".blog-next");
+  if (!list || !prev || !next) return;
+  // Tolleranza di pochi px: allo start lo scroll può assestarsi a 1-3px (snap /
+  // fullPage) senza essere "davvero" scrollato.
+  const TOL = 8;
+  const max = list.scrollWidth - list.clientWidth;
+  prev.disabled = list.scrollLeft <= TOL;
+  next.disabled = max <= TOL || list.scrollLeft >= max - TOL;
 }
 function openArticle(id) {
   const a = ARTICLES.find((x) => x.id === id);
@@ -1592,6 +1644,9 @@ async function main() {
 
   // Lightbox galleria (rivista e future interfacce con immagini reali).
   setupLightbox();
+
+  // Carosello del blog: frecce + drag + scroll nativo (elementi statici stabili).
+  setupBlogCarousel();
 
   // Dock a comparsa: hover su desktop (CSS); tap sul trigger su mobile (JS).
   const dockWrap = document.getElementById("dock-wrap");
