@@ -1168,7 +1168,6 @@ function setupBlogCarousel() {
   if (!list) return;
   const prev = document.querySelector(".blog-prev");
   const next = document.querySelector(".blog-next");
-  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const SPEED = 0.35; // px per frame (~21px/s): lento e discreto
   let pos = 0;            // posizione "logica" del marquee (float)
   let hover = false, dragging = false, manualUntil = 0;
@@ -1226,7 +1225,7 @@ function setupBlogCarousel() {
       // durante la spinta smooth delle frecce lasciamo fare al browser
       pos = wrap(list.scrollLeft);
     } else {
-      const idle = !reduce && !hover && !dragging && !document.hidden && !document.body.classList.contains("reader-open");
+      const idle = !hover && !dragging && !document.hidden && !document.body.classList.contains("reader-open");
       if (idle && blogSetWidth > 0) {
         pos = wrap(pos + SPEED);
         list.scrollLeft = pos;

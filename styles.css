@@ -526,11 +526,11 @@ html[data-ui="carosello"] { scroll-snap-type: y mandatory; }
 /* Blog: carosello orizzontale di card (una riga, sempre; niente "muro" che
    trabocca la sezione full-page). Frecce + drag + scroll nativo. */
 .blog-carousel { position: relative; }
-.blog-list { display: flex; gap: clamp(1rem,2vw,1.4rem); overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; padding: .6rem .2rem 1.2rem; cursor: grab; scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+.blog-list { display: flex; gap: clamp(1rem,2vw,1.4rem); overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; padding: .6rem .2rem 1.2rem; cursor: grab; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
 .blog-list.dragging { cursor: grabbing; scroll-behavior: auto; user-select: none; }
-.blog-list::-webkit-scrollbar { height: 8px; }
-.blog-list::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; }
-.blog-list::-webkit-scrollbar-track { background: transparent; }
+/* Scrollbar nascosta: il loop duplica le card (raddoppierebbe la barra) e lo
+   scorrimento avviene con auto-scroll, drag, rotella e tap. */
+.blog-list::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .art-card { flex: 0 0 clamp(258px, 80vw, 328px); scroll-snap-align: start; }
 /* Titolo sezione + bottone Condividi affiancati. */
 .blog-head { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin: 0 0 1rem; }
@@ -553,7 +553,7 @@ html[data-ui="carosello"] { scroll-snap-type: y mandatory; }
 .art-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent, var(--brand)); opacity: .0; transition: opacity .28s; }
 .art-card:hover { transform: translateY(-4px); border-color: var(--border-strong); box-shadow: var(--shadow-lg); }
 .art-card:hover::before { opacity: 1; }
-.art-meta { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; font-size: .74rem; }
+.art-meta { display: flex; flex-direction: column; align-items: flex-start; gap: .25rem; font-size: .74rem; }
 .art-cat { color: var(--accent-ink); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
 .art-date { color: var(--ink-faint); font-variant-numeric: tabular-nums; }
 .art-title { font-family: var(--font-display); font-weight: 600; font-size: 1.42rem; line-height: 1.08; letter-spacing: -.01em; }
