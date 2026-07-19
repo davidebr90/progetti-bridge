@@ -1120,8 +1120,7 @@ function renderBlog() {
   document.getElementById("blog-title").textContent = loc(BLOGMETA, "title") || "";
   document.getElementById("blog-lead").textContent = loc(BLOGMETA, "lead") || "";
   const listEl = document.getElementById("blog-list");
-  listEl.innerHTML = ARTICLES.map(articleCardHTML).join("");
-  listEl.querySelectorAll(".art-card").forEach((c) => {
+  const wireCard = (c) => {
     // Click sulla card apre l'articolo, TRANNE quando parte dal bottone Condividi.
     c.addEventListener("click", (e) => {
       if (e.target.closest(".js-share")) return;
@@ -1134,8 +1133,33 @@ function renderBlog() {
         openArticle(c.dataset.id);
       }
     });
+  };
+  listEl.innerHTML = ARTICLES.map(articleCardHTML).join("");
+  const originals = Array.from(listEl.children);
+  originals.forEach(wireCard);
+  // Loop infinito: duplico il set di card. Quando lo scorrimento raggiunge la
+  // larghezza di UN set, torna indietro di quella stessa larghezza: il salto è
+  // invisibile perché il secondo set è identico al primo. I cloni sono nascosti
+  // agli screen reader e fuori dall'ordine di tabulazione.
+  originals.forEach((c) => {
+    const clone = c.cloneNode(true);
+    clone.classList.add("is-clone");
+    clone.setAttribute("aria-hidden", "true");
+    clone.tabIndex = -1;
+    clone.querySelectorAll("button, a, [tabindex]").forEach((x) => x.setAttribute("tabindex", "-1"));
+    wireCard(clone);
+    listEl.appendChild(clone);
   });
-  requestAnimationFrame(updateBlogNav);
+  requestAnimationFrame(() => { measureBlogSet(); updateBlogNav(); });
+}
+let blogSetWidth = 0;
+// Larghezza di un set di card (incluso il gap), usata come modulo del loop.
+function measureBlogSet() {
+  const list = document.getElementById("blog-list");
+  if (!list) return;
+  const first = list.querySelector(".art-card:not(.is-clone)");
+  const clone = list.querySelector(".art-card.is-clone");
+  blogSetWidth = first && clone ? clone.offsetLeft - first.offsetLeft : 0;
 }
 // Carosello orizzontale del blog: frecce, drag col mouse, scorrimento nativo
 // (trackpad/touch). Attacca i listener una volta sola su elementi stabili.
@@ -1144,21 +1168,41 @@ function setupBlogCarousel() {
   if (!list) return;
   const prev = document.querySelector(".blog-prev");
   const next = document.querySelector(".blog-next");
-  const stepBy = () => {
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const SPEED = 0.35; // px per frame (~21px/s): lento e discreto
+  let pos = 0;            // posizione "logica" del marquee (float)
+  let hover = false, dragging = false, manualUntil = 0;
+  const wrap = (v) => {
+    if (blogSetWidth <= 0) return v;
+    v %= blogSetWidth;
+    return v < 0 ? v + blogSetWidth : v;
+  };
+  const sync = () => { pos = wrap(list.scrollLeft); };
+  const step = () => {
     const card = list.querySelector(".art-card");
     const gap = parseFloat(getComputedStyle(list).columnGap || getComputedStyle(list).gap || "16") || 16;
     return card ? card.offsetWidth + gap : Math.round(list.clientWidth * 0.85);
   };
-  if (prev) prev.addEventListener("click", () => list.scrollBy({ left: -stepBy(), behavior: "smooth" }));
-  if (next) next.addEventListener("click", () => list.scrollBy({ left: stepBy(), behavior: "smooth" }));
-  list.addEventListener("scroll", updateBlogNav, { passive: true });
-  window.addEventListener("resize", updateBlogNav);
-  // Drag col mouse (il touch usa lo scroll nativo). Se ho trascinato, sopprimo
-  // il click sulla card così non apre per sbaglio l'articolo.
+  // Le frecce spingono il marquee di una card e sospendono l'auto-scroll per un
+  // attimo (l'animazione smooth deve poter finire senza essere sovrascritta).
+  const nudge = (d) => { manualUntil = performance.now() + 520; list.scrollBy({ left: d * step(), behavior: "smooth" }); };
+  if (prev) prev.addEventListener("click", () => nudge(-1));
+  if (next) next.addEventListener("click", () => nudge(1));
+  window.addEventListener("resize", () => { measureBlogSet(); });
+
+  // Pausa su hover / focus / tab nascosta / lettore aperto.
+  list.addEventListener("pointerenter", () => { hover = true; });
+  list.addEventListener("pointerleave", () => { hover = false; sync(); });
+  list.addEventListener("focusin", () => { hover = true; });
+  list.addEventListener("focusout", () => { hover = false; sync(); });
+  list.addEventListener("touchstart", () => { hover = true; }, { passive: true });
+
+  // Drag col mouse (il touch usa lo scroll nativo). Se trascino, sopprimo il
+  // click sulla card così non apre per sbaglio l'articolo.
   let down = false, startX = 0, startScroll = 0, moved = false;
   list.addEventListener("pointerdown", (e) => {
     if (e.pointerType === "touch") return;
-    down = true; moved = false; startX = e.clientX; startScroll = list.scrollLeft;
+    down = true; dragging = true; moved = false; startX = e.clientX; startScroll = list.scrollLeft;
     list.classList.add("dragging");
   });
   window.addEventListener("pointermove", (e) => {
@@ -1167,56 +1211,38 @@ function setupBlogCarousel() {
     if (Math.abs(dx) > 4) moved = true;
     list.scrollLeft = startScroll - dx;
   });
-  const endDrag = () => { if (down) { down = false; list.classList.remove("dragging"); } };
+  const endDrag = () => { if (down) { down = false; dragging = false; list.classList.remove("dragging"); sync(); } };
   window.addEventListener("pointerup", endDrag);
   window.addEventListener("pointercancel", endDrag);
   list.addEventListener("click", (e) => {
     if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
   }, true);
-  // Lo stato iniziale delle frecce va calcolato DOPO che il layout (fullPage,
-  // font, immagini) si è assestato: alcuni giri ritardati lo rendono affidabile.
-  [0, 200, 600, 1200].forEach((d) => setTimeout(updateBlogNav, d));
 
-  // Scorrimento automatico lento (marquee "avanti e indietro"), che si mette in
-  // pausa appena l'utente interagisce e rispetta prefers-reduced-motion.
-  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!reduce) {
-    const SPEED = 0.35; // px per frame (~21px/s): lento e discreto
-    let dir = 1, pos = list.scrollLeft, paused = false, hover = false, dragging = false;
-    const sync = () => { pos = list.scrollLeft; };
-    const setHover = (v) => { hover = v; if (!v) sync(); };
-    list.addEventListener("pointerenter", () => setHover(true));
-    list.addEventListener("pointerleave", () => setHover(false));
-    list.addEventListener("focusin", () => setHover(true));
-    list.addEventListener("focusout", () => setHover(false));
-    list.addEventListener("touchstart", () => setHover(true), { passive: true });
-    list.addEventListener("pointerdown", () => { dragging = true; });
-    window.addEventListener("pointerup", () => { if (dragging) { dragging = false; sync(); } });
-    const frame = () => {
-      const idle = !hover && !dragging && !document.hidden && !document.body.classList.contains("reader-open");
-      const max = list.scrollWidth - list.clientWidth;
-      if (idle && max > 4) {
-        pos += SPEED * dir;
-        if (pos >= max) { pos = max; dir = -1; }
-        else if (pos <= 0) { pos = 0; dir = 1; }
+  // Loop del marquee: avanza pos e la fa "girare" sul modulo di un set.
+  const frame = () => {
+    if (blogSetWidth <= 0) measureBlogSet(); // finché il layout non è pronto
+    const manual = performance.now() < manualUntil;
+    if (manual) {
+      // durante la spinta smooth delle frecce lasciamo fare al browser
+      pos = wrap(list.scrollLeft);
+    } else {
+      const idle = !reduce && !hover && !dragging && !document.hidden && !document.body.classList.contains("reader-open");
+      if (idle && blogSetWidth > 0) {
+        pos = wrap(pos + SPEED);
         list.scrollLeft = pos;
       }
-      requestAnimationFrame(frame);
-    };
+    }
     requestAnimationFrame(frame);
-  }
+  };
+  requestAnimationFrame(frame);
+  [0, 250, 700, 1400].forEach((d) => setTimeout(() => { measureBlogSet(); updateBlogNav(); }, d));
 }
+// Loop infinito: le frecce restano sempre attive (non c'è un vero inizio/fine).
 function updateBlogNav() {
-  const list = document.getElementById("blog-list");
   const prev = document.querySelector(".blog-prev");
   const next = document.querySelector(".blog-next");
-  if (!list || !prev || !next) return;
-  // Tolleranza di pochi px: allo start lo scroll può assestarsi a 1-3px (snap /
-  // fullPage) senza essere "davvero" scrollato.
-  const TOL = 8;
-  const max = list.scrollWidth - list.clientWidth;
-  prev.disabled = list.scrollLeft <= TOL;
-  next.disabled = max <= TOL || list.scrollLeft >= max - TOL;
+  if (prev) prev.disabled = false;
+  if (next) next.disabled = false;
 }
 function openArticle(id) {
   const a = ARTICLES.find((x) => x.id === id);
