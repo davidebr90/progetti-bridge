@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Booking Engine">
+  <defs>
+    <linearGradient id="bk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d6a338"/>
+      <stop offset="1" stop-color="#a2761f"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="224" height="224" rx="56" fill="url(#bk)"/>
+  <rect x="50" y="64" width="140" height="124" rx="18" fill="#fff"/>
+  <path d="M50 82a18 18 0 0 1 18-18h104a18 18 0 0 1 18 18v14H50z" fill="#a2761f"/>
+  <rect x="80" y="48" width="13" height="30" rx="6.5" fill="#fff"/>
+  <rect x="147" y="48" width="13" height="30" rx="6.5" fill="#fff"/>
+  <path d="M88 138l19 19 40-46" fill="none" stroke="#a2761f" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

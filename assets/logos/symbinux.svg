@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Symbinux">
+  <defs>
+    <linearGradient id="sy" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9670e0"/>
+      <stop offset="1" stop-color="#6c48b0"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="224" height="224" rx="56" fill="url(#sy)"/>
+  <rect x="50" y="58" width="140" height="120" rx="18" fill="#fff"/>
+  <circle cx="70" cy="78" r="5.5" fill="#6c48b0"/>
+  <circle cx="88" cy="78" r="5.5" fill="#6c48b0"/>
+  <circle cx="106" cy="78" r="5.5" fill="#6c48b0"/>
+  <path d="M50 96h140" stroke="#e6ddf7" stroke-width="4"/>
+  <path d="M120 108v56M120 108l22 17-34 15M120 164l22-17-34-15" fill="none" stroke="#6c48b0" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

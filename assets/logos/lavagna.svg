@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Lavagna Tattica">
+  <defs>
+    <linearGradient id="lv" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eb9a2e"/>
+      <stop offset="1" stop-color="#c06f12"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="224" height="224" rx="56" fill="url(#lv)"/>
+  <rect x="52" y="52" width="136" height="120" rx="16" fill="#fff"/>
+  <path d="M78 150C96 108 126 108 132 128S162 96 170 82" fill="none" stroke="#c06f12" stroke-width="8" stroke-linecap="round" stroke-dasharray="0.5 15"/>
+  <circle cx="78" cy="150" r="9" fill="#c06f12"/>
+  <path d="M174 78l-18 3 8 15z" fill="#c06f12"/>
+</svg>

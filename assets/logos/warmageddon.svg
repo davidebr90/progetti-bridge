@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="wArmageddon">
+  <defs>
+    <linearGradient id="wa" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#14a06e"/>
+      <stop offset="1" stop-color="#0b6b49"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="224" height="224" rx="56" fill="url(#wa)"/>
+  <path fill="#fff" d="M80 60h80a26 26 0 0 1 26 26v40a26 26 0 0 1-26 26h-46l-32 26a4 4 0 0 1-6-3v-23h4a26 26 0 0 1-26-26V86a26 26 0 0 1 26-26z"/>
+  <path fill="#0b6b49" d="M128 80l-30 42h20l-8 30 34-46h-20z"/>
+</svg>

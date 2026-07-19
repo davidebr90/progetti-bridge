@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="VVF Quiz">
+  <defs>
+    <linearGradient id="vv" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#de5540"/>
+      <stop offset="1" stop-color="#ad3421"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="224" height="224" rx="56" fill="url(#vv)"/>
+  <path d="M124 50c6 26 34 34 34 68a38 38 0 0 1-76 0c0-19 11-28 20-38 3 11 11 12 15 5 5-9-5-22 7-35z" fill="#fff"/>
+  <path d="M104 116l12 13 22-26" fill="none" stroke="#ad3421" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

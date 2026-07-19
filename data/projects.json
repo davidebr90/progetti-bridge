@@ -45,7 +45,7 @@
       "description": "Gestisci il tuo account WhatsApp (chat, media, gruppi, stati) da un'interfaccia web, via API REST e da un server MCP per gli assistenti AI. Si collega come dispositivo companion tramite Baileys, con risponditore automatico opzionale. Tutti i dati restano sul tuo server.",
       "status": "beta",
       "accent": "#0f8a5f",
-      "logo": "",
+      "logo": "./assets/logos/warmageddon.svg",
       "tags": [
         "TypeScript",
         "Baileys",
@@ -55,7 +55,7 @@
         "Postgres"
       ],
       "demoKey": "warmageddon",
-      "repo": "",
+      "repo": "https://github.com/davidebr90/warmageddon",
       "screenshots": [],
       "highlights": [
         "WebUI stile WhatsApp Desktop + API REST + server MCP",
@@ -79,7 +79,7 @@
       "description": "Web app per disegnare schemi e giocate di pallacanestro, con animazione dei movimenti, salvataggio e riproduzione. Costruita in React + Konva, gira self-hosted su VPS.",
       "status": "live",
       "accent": "#e08a1e",
-      "logo": "",
+      "logo": "./assets/logos/lavagna.svg",
       "tags": [
         "React",
         "Konva",
@@ -111,7 +111,7 @@
       "description": "Sistema di prenotazione su plugin WordPress custom, creato per soddisfare le esigenze di un'azienda di catering. Sincronizzazione con Google Calendar, pagamenti con PayPal, Stripe e carte, e un sistema di notifiche email per cliente e amministratore, con auto-approvazione della prenotazione oppure messa in lista d'attesa fino alla conferma del gestore.",
       "status": "live",
       "accent": "#c9962e",
-      "logo": "",
+      "logo": "./assets/logos/booking-engine.svg",
       "tags": [
         "WordPress",
         "PHP",
@@ -147,7 +147,7 @@
       "description": "Ipertesto statico e offline che restaura e modernizza la documentazione INPS storica del software Ca.R.Pe. (calcolo della retribuzione media pensionabile) e della previdenza dei lavoratori marittimi. Ricerca offline, tema chiaro/scuro, viewer PDF integrato e uno strumento per consultare il proprio estratto, tutto senza server. Progetto informativo non ufficiale.",
       "status": "live",
       "accent": "#2a6f97",
-      "logo": "",
+      "logo": "./assets/logos/carpe-manuale.svg",
       "tags": [
         "HTML",
         "CSS",
@@ -181,7 +181,7 @@
       "description": "Fork moderno di Nokinux, progetto che lanciai nel lontano 2008, e di cui mi ritrovai a gestire il team di sviluppo per alcuni anni; interfaccia grafica cross-platform in Rust con gtk4, gestione wireless via BLE reale, installer Windows. Verificato e compilato su Linux e Windows, pensato per essere compatibile anche con MacOS (da compilare).",
       "status": "wip",
       "accent": "#8a63d2",
-      "logo": "",
+      "logo": "./assets/logos/symbinux.svg",
       "tags": [
         "Rust",
         "gtk4",
@@ -213,7 +213,7 @@
       "description": "App che blocca automaticamente il PC quando ti allontani, rilevando la prossimità del telefono via Bluetooth Low Energy. Testata dal vivo su Windows 11.",
       "status": "wip",
       "accent": "#2f9bd2",
-      "logo": "",
+      "logo": "./assets/logos/stavau.svg",
       "tags": [
         "BLE",
         "Windows",
@@ -245,7 +245,7 @@
       "description": "Simulatore online gratuito (non ufficiale) per l'idoneità tecnica antincendio dei Vigili del Fuoco: banca dati completa dei quesiti ufficiali (DM 2/9/2021 + vecchio banco DM 10/3/98).",
       "status": "live",
       "accent": "#d24a3a",
-      "logo": "",
+      "logo": "./assets/logos/vvf-quiz.svg",
       "tags": [
         "Quiz",
         "Web app",
