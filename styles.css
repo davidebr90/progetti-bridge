@@ -775,3 +775,7 @@ input:focus, textarea:focus, select:focus {
   display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;
   border-top: 1px solid var(--border); background: linear-gradient(to top, var(--surface) 70%, transparent);
 }
+
+/* Ancore SEO/deep-link: offset per non far finire il blocco sotto la barra in
+   alto quando si arriva via #warmageddon / #profilo / #blog ecc. */
+.project[id], .deck-card[id], #hero, #blog, .bio, #stage { scroll-margin-top: 84px; }

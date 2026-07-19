@@ -205,7 +205,7 @@ const RENDER = {
   cinema(stage, projects) {
     stage.innerHTML = projects
       .map(
-        (p, i) => `<section class="snap project reveal" data-proj="${i}" style="--accent:${esc(p.accent || "var(--brand)")}">
+        (p, i) => `<section class="snap project reveal" id="${esc(p.id)}" data-proj="${i}" style="--accent:${esc(p.accent || "var(--brand)")}">
           <div class="project-inner">
             <div class="project-visual reveal"><span class="p-status-float">${pill(p)}</span>${visualInner(p)}</div>
             <div class="project-body">${bodyHTML(p)}</div>
@@ -218,7 +218,7 @@ const RENDER = {
   carosello(stage, projects) {
     stage.innerHTML = `<div class="deck" id="deck">${projects
       .map(
-        (p, i) => `<article class="deck-card reveal" data-proj="${i}" style="--accent:${esc(p.accent || "var(--brand)")}">
+        (p, i) => `<article class="deck-card reveal" id="${esc(p.id)}" data-proj="${i}" style="--accent:${esc(p.accent || "var(--brand)")}">
           <div class="deck-visual">${visualInner(p)}<span class="p-status-float">${pill(p)}</span></div>
           <div class="deck-body">
             <p class="p-eyebrow">${esc(loc(p, "tagline") || "")}</p>
@@ -893,6 +893,16 @@ function openMenu() {
 function scrollToTarget(sel) {
   const el = document.querySelector(sel);
   if (!el) return;
+  // Rifletti la posizione nell'URL come ancora #slug (condivisibile / deep-link /
+  // "jump to" nei risultati di ricerca), senza aggiungere voci alla history né
+  // innescare un altro scroll (replaceState non emette 'hashchange').
+  if (el.id) {
+    try {
+      history.replaceState(null, "", "#" + (FRIENDLY_SLUG[el.id] || el.id));
+    } catch (_e) {
+      /* file:// o contesti senza history: ignora */
+    }
+  }
   if (isFullpageOn()) {
     // fullPage attivo (cinema): vai alla sezione con la sua API moveTo(index).
     const secs = Array.from(document.querySelectorAll("#fullpage .section"));
@@ -910,6 +920,24 @@ function scrollToTarget(sel) {
     el.scrollIntoView({ behavior: "smooth", block: sel === "#hero" ? "start" : "center", inline: "center" });
   }
 }
+// Deep-link SEO: aprire l'URL con #warmageddon / #profilo / #blog ecc. porta
+// direttamente al blocco corrispondente (i card progetto hanno un id-slug stabile).
+// Seguiamo anche i cambi di hash successivi. Alias per le sezioni "storiche".
+// Ancora "amichevole" -> id dell'ELEMENTO reale (i card usano già l'id = slug).
+const HASH_ALIASES = { home: "hero", intro: "hero", profilo: "bio", progetti: "stage", portfolio: "stage" };
+// id dell'elemento -> ancora "amichevole" da mostrare nell'URL (es. #profilo).
+const FRIENDLY_SLUG = { bio: "profilo" };
+function navigateFromHash() {
+  const raw = decodeURIComponent((location.hash || "").replace(/^#/, "")).trim();
+  if (!raw) return;
+  const slug = HASH_ALIASES[raw] || raw;
+  if (!document.getElementById(slug)) return;
+  const sel = "#" + (window.CSS && CSS.escape ? CSS.escape(slug) : slug);
+  scrollToTarget(sel);
+}
+window.addEventListener("hashchange", navigateFromHash);
+// All'avvio: se l'URL porta un'ancora, vai lì una volta che i blocchi sono resi.
+window.addEventListener("load", () => setTimeout(navigateFromHash, 500));
 function renderMenu() {
   // Etichette
   document.getElementById("menu-sections-label").textContent = t("sections");
@@ -921,7 +949,8 @@ function renderMenu() {
   nodes.push({ label: t("intro"), sel: "#hero" });
   nodes.push({
     label: t("portfolio"),
-    children: PROJECTS.map((p, i) => ({ label: p.title, sel: `[data-proj="${i}"]` })),
+    // Ancore SEO/deeplink: ogni progetto ha un id-slug stabile (#warmageddon…).
+    children: PROJECTS.map((p) => ({ label: p.title, sel: `#${p.id}` })),
   });
   nodes.push({ label: t("profile"), sel: "#bio" });
   if (ARTICLES.length) {
