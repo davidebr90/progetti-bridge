@@ -526,12 +526,22 @@ html[data-ui="carosello"] { scroll-snap-type: y mandatory; }
 /* Blog: carosello orizzontale di card (una riga, sempre; niente "muro" che
    trabocca la sezione full-page). Frecce + drag + scroll nativo. */
 .blog-carousel { position: relative; }
-.blog-list { display: flex; gap: clamp(1rem,2vw,1.4rem); overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; scroll-behavior: smooth; padding: .6rem .2rem 1.2rem; cursor: grab; scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
-.blog-list.dragging { cursor: grabbing; scroll-behavior: auto; scroll-snap-type: none; user-select: none; }
+.blog-list { display: flex; gap: clamp(1rem,2vw,1.4rem); overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; padding: .6rem .2rem 1.2rem; cursor: grab; scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+.blog-list.dragging { cursor: grabbing; scroll-behavior: auto; user-select: none; }
 .blog-list::-webkit-scrollbar { height: 8px; }
 .blog-list::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; }
 .blog-list::-webkit-scrollbar-track { background: transparent; }
 .art-card { flex: 0 0 clamp(258px, 80vw, 328px); scroll-snap-align: start; }
+/* Titolo sezione + bottone Condividi affiancati. */
+.blog-head { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin: 0 0 1rem; }
+.blog-head .blog-title { margin: 0; }
+.blog-head .section-share { margin-top: 0; }
+/* Bottone Condividi su ogni card, in alto a destra. */
+.art-share { position: absolute; top: .7rem; right: .7rem; z-index: 3; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: var(--ink-soft); border: 1px solid var(--border); background: color-mix(in srgb, var(--surface) 78%, transparent); backdrop-filter: blur(6px); transition: color .16s, border-color .16s, background .16s, transform .12s; }
+.art-share:hover { color: var(--ink); border-color: var(--border-strong); background: var(--surface); }
+.art-share:active { transform: scale(.92); }
+.art-share svg { width: 15px; height: 15px; }
+.art-meta { padding-right: 2.4rem; }
 .blog-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 4; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: var(--ink); border: 1px solid var(--border-strong); background: color-mix(in srgb, var(--surface) 86%, transparent); backdrop-filter: blur(8px); box-shadow: var(--shadow-lg); transition: opacity .2s, background .16s, transform .12s, border-color .16s; }
 .blog-prev { left: clamp(-4px, -1vw, -18px); }
 .blog-next { right: clamp(-4px, -1vw, -18px); }

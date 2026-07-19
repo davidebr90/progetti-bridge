@@ -40,7 +40,7 @@
     <!-- fullPage.js 2.9.7 (MIT, nessuna licenseKey). CSS PRIMA del nostro così i
          nostri stili possono sovrascriverlo. -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.9.7/jquery.fullpage.min.css" />
-    <link rel="stylesheet" href="./styles.css?v=57" />
+    <link rel="stylesheet" href="./styles.css?v=58" />
     <script>
       // Tema + interfaccia PRIMA del paint: niente flash.
       (function () {
@@ -142,12 +142,14 @@
       <section class="blog" id="blog" hidden>
         <div class="blog-inner">
           <p class="blog-eyebrow" id="blog-eyebrow">Blog &amp; Filosofia</p>
-          <h2 class="blog-title" id="blog-title">Filosofia &amp; Tech</h2>
+          <div class="blog-head">
+            <h2 class="blog-title" id="blog-title">Filosofia &amp; Tech</h2>
+            <button class="section-share js-share" type="button" data-share-slug="blog" aria-label="Condividi questa sezione" title="Condividi">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+              <span class="ss-label">Condividi</span>
+            </button>
+          </div>
           <p class="blog-lead" id="blog-lead"></p>
-          <button class="section-share js-share" type="button" data-share-slug="blog" aria-label="Condividi questa sezione" title="Condividi">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
-            <span class="ss-label">Condividi</span>
-          </button>
           <div class="blog-carousel">
             <button class="blog-nav blog-prev" type="button" aria-label="Articoli precedenti" aria-controls="blog-list">
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -230,6 +232,6 @@
         console.error("[fullPage] libreria non caricata: verifica il CDN fullPage 2.9.7.");
       }
     </script>
-    <script type="module" src="./app.js?v=57"></script>
+    <script type="module" src="./app.js?v=58"></script>
   </body>
 </html>

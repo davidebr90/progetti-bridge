@@ -1103,12 +1103,14 @@ function mdToHtml(md) {
     .join("");
 }
 function articleCardHTML(a) {
-  return `<button class="art-card" type="button" data-id="${esc(a.id)}" style="--accent:${esc(a.accent || "var(--brand)")}">
+  const title = loc(a, "title") || "";
+  return `<article class="art-card" role="button" tabindex="0" data-id="${esc(a.id)}" aria-label="${esc(title)}" style="--accent:${esc(a.accent || "var(--brand)")}">
+    <button type="button" class="art-share js-share" data-share-slug="${esc(a.id)}" data-share-title="${esc(title)}" title="${esc(t("share"))}" aria-label="${esc(t("share"))}: ${esc(title)}">${ICONS.share}</button>
     <span class="art-meta"><span class="art-cat">${esc(loc(a, "category") || "")}</span><span class="art-date">${esc(fmtArticleDate(a.date))}</span></span>
-    <span class="art-title">${esc(loc(a, "title"))}</span>
+    <span class="art-title">${esc(title)}</span>
     <span class="art-excerpt">${esc(loc(a, "excerpt") || "")}</span>
     <span class="art-read">${a.minutes ? `${a.minutes} ${t("minRead")}` : ""} <span class="art-arrow">→</span></span>
-  </button>`;
+  </article>`;
 }
 function renderBlog() {
   if (!ARTICLES.length) return;
@@ -1119,9 +1121,20 @@ function renderBlog() {
   document.getElementById("blog-lead").textContent = loc(BLOGMETA, "lead") || "";
   const listEl = document.getElementById("blog-list");
   listEl.innerHTML = ARTICLES.map(articleCardHTML).join("");
-  listEl.querySelectorAll(".art-card").forEach((c) =>
-    c.addEventListener("click", () => openArticle(c.dataset.id)),
-  );
+  listEl.querySelectorAll(".art-card").forEach((c) => {
+    // Click sulla card apre l'articolo, TRANNE quando parte dal bottone Condividi.
+    c.addEventListener("click", (e) => {
+      if (e.target.closest(".js-share")) return;
+      openArticle(c.dataset.id);
+    });
+    // La card è role="button": Invio/Spazio la attivano (accessibilità).
+    c.addEventListener("keydown", (e) => {
+      if ((e.key === "Enter" || e.key === " ") && !e.target.closest(".js-share")) {
+        e.preventDefault();
+        openArticle(c.dataset.id);
+      }
+    });
+  });
   requestAnimationFrame(updateBlogNav);
 }
 // Carosello orizzontale del blog: frecce, drag col mouse, scorrimento nativo
@@ -1163,6 +1176,35 @@ function setupBlogCarousel() {
   // Lo stato iniziale delle frecce va calcolato DOPO che il layout (fullPage,
   // font, immagini) si è assestato: alcuni giri ritardati lo rendono affidabile.
   [0, 200, 600, 1200].forEach((d) => setTimeout(updateBlogNav, d));
+
+  // Scorrimento automatico lento (marquee "avanti e indietro"), che si mette in
+  // pausa appena l'utente interagisce e rispetta prefers-reduced-motion.
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce) {
+    const SPEED = 0.35; // px per frame (~21px/s): lento e discreto
+    let dir = 1, pos = list.scrollLeft, paused = false, hover = false, dragging = false;
+    const sync = () => { pos = list.scrollLeft; };
+    const setHover = (v) => { hover = v; if (!v) sync(); };
+    list.addEventListener("pointerenter", () => setHover(true));
+    list.addEventListener("pointerleave", () => setHover(false));
+    list.addEventListener("focusin", () => setHover(true));
+    list.addEventListener("focusout", () => setHover(false));
+    list.addEventListener("touchstart", () => setHover(true), { passive: true });
+    list.addEventListener("pointerdown", () => { dragging = true; });
+    window.addEventListener("pointerup", () => { if (dragging) { dragging = false; sync(); } });
+    const frame = () => {
+      const idle = !hover && !dragging && !document.hidden && !document.body.classList.contains("reader-open");
+      const max = list.scrollWidth - list.clientWidth;
+      if (idle && max > 4) {
+        pos += SPEED * dir;
+        if (pos >= max) { pos = max; dir = -1; }
+        else if (pos <= 0) { pos = 0; dir = 1; }
+        list.scrollLeft = pos;
+      }
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  }
 }
 function updateBlogNav() {
   const list = document.getElementById("blog-list");
