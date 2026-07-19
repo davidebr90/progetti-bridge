@@ -17,6 +17,7 @@ const ICONS = {
   arrowL: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>',
   zoom: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>',
   close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>',
 };
 
 // Bandiere (SVG, niente emoji: su Windows le flag-emoji non si vedono).
@@ -42,6 +43,8 @@ const T = {
     blogNav: "Blog & Filosofia", minRead: "min di lettura", backBlog: "← Torna al blog",
     portfolio: "Progetti / Portfolio",
     openGallery: "Apri galleria", closeGallery: "Chiudi", prevImg: "Immagine precedente", nextImg: "Immagine successiva",
+    share: "Condividi", shareArticle: "Condividi l'articolo", shareSection: "Condividi questa sezione",
+    shareCopied: "Link copiato negli appunti",
     heroEyebrow: "Portfolio",
     seoTitle: "Davide Pica · Progetti, Blog & Filosofia",
     seoDesc: "Portfolio di Davide Pica: progetti software (self-hosted, WhatsApp, Rust, WordPress) con demo live e codice, e articoli su tecnologia, energia, demografia, AI e capitale umano.",
@@ -56,6 +59,8 @@ const T = {
     blogNav: "Blog & Philosophy", minRead: "min read", backBlog: "← Back to the blog",
     portfolio: "Projects / Portfolio",
     openGallery: "Open gallery", closeGallery: "Close", prevImg: "Previous image", nextImg: "Next image",
+    share: "Share", shareArticle: "Share the article", shareSection: "Share this section",
+    shareCopied: "Link copied to clipboard",
     heroEyebrow: "Portfolio",
     seoTitle: "Davide Pica · Projects, Blog & Philosophy",
     seoDesc: "Davide Pica's portfolio: self-hosted, custom software (WhatsApp, Rust, WordPress) with live demos and code, plus a series of essays on technology, energy, demographics, AI and human capital.",
@@ -175,7 +180,9 @@ function actionsHTML(p) {
       ? `<span class="btn" aria-disabled="true">${ICONS.ext} ${t("demoOff")}</span>`
       : "";
   const repoBtn = p.repo ? `<a class="btn" href="${esc(p.repo)}" target="_blank" rel="noopener">${ICONS.code} ${t("codeBtn")}</a>` : "";
-  return demoBtn + repoBtn;
+  const slug = FRIENDLY_SLUG[p.id] || p.id;
+  const shareBtn = `<button type="button" class="btn js-share" data-share-slug="${esc(slug)}" data-share-title="${esc(p.title)}" title="${esc(t("share"))}" aria-label="${esc(t("share"))}: ${esc(p.title)}">${ICONS.share} ${t("share")}</button>`;
+  return demoBtn + repoBtn + shareBtn;
 }
 function highlightsHTML(p) {
   return (loc(p, "highlights") || []).map((h) => `<li>${esc(h)}</li>`).join("");
@@ -931,9 +938,13 @@ function navigateFromHash() {
   const raw = decodeURIComponent((location.hash || "").replace(/^#/, "")).trim();
   if (!raw) return;
   const slug = HASH_ALIASES[raw] || raw;
-  if (!document.getElementById(slug)) return;
-  const sel = "#" + (window.CSS && CSS.escape ? CSS.escape(slug) : slug);
-  scrollToTarget(sel);
+  if (document.getElementById(slug)) {
+    const sel = "#" + (window.CSS && CSS.escape ? CSS.escape(slug) : slug);
+    scrollToTarget(sel);
+    return;
+  }
+  // Non è una sezione: se l'ancora è l'id di un articolo, apri il lettore.
+  if (Array.isArray(ARTICLES) && ARTICLES.some((a) => a.id === raw)) openArticle(raw);
 }
 window.addEventListener("hashchange", navigateFromHash);
 // All'avvio: se l'URL porta un'ancora, vai lì una volta che i blocchi sono resi.
@@ -1129,6 +1140,11 @@ function openArticle(id) {
   requestAnimationFrame(() => reader.classList.add("show"));
   art.scrollTop = 0;
   updateReaderProgress();
+  // Deep-link condivisibile dell'articolo: aggiorna l'URL senza navigare
+  // (replaceState non emette hashchange) e prepara il bottone Condividi.
+  try { history.replaceState(null, "", "#" + a.id); } catch (_e) { /* file:// */ }
+  const rs = document.getElementById("reader-share");
+  if (rs) { rs.dataset.shareSlug = a.id; rs.dataset.shareTitle = loc(a, "title") || ""; }
   const back = document.getElementById("ra-back");
   if (back) back.addEventListener("click", closeReader);
 }
@@ -1137,6 +1153,10 @@ function closeReader() {
   reader.classList.remove("show");
   document.body.classList.remove("reader-open");
   setTimeout(() => { reader.hidden = true; }, 320);
+  // Ripulisce l'ancora dell'articolo dall'URL (senza scatenare navigazione).
+  try {
+    if ((location.hash || "").length > 1) history.replaceState(null, "", location.pathname + location.search);
+  } catch (_e) { /* file:// */ }
 }
 function updateReaderProgress() {
   const art = document.getElementById("reader-article");
@@ -1146,6 +1166,87 @@ function updateReaderProgress() {
   const p = max > 0 ? Math.min(100, Math.max(0, (art.scrollTop / max) * 100)) : 0;
   bar.style.setProperty("--p", `${p}%`);
 }
+
+/* ---------- Condividi (Web Share API + fallback copia link) ----------
+ * Ogni blocco condivisibile ha un'ancora stabile (#slug). Il bottone usa la
+ * Web Share API nativa dove c'è (foglio di condivisione del sistema, ideale su
+ * mobile); altrimenti copia il link negli appunti e mostra un toast. */
+function shareUrlFor(slug) {
+  const base = location.origin + location.pathname + location.search;
+  return slug ? base + "#" + slug : base;
+}
+async function copyText(text) {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (_e) { /* passa al fallback */ }
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand("copy");
+    ta.remove();
+    return ok;
+  } catch (_e) {
+    return false;
+  }
+}
+async function shareEntity(url, title) {
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: title || document.title, url });
+      return;
+    } catch (e) {
+      if (e && e.name === "AbortError") return; // l'utente ha annullato
+      /* condivisione non riuscita: ripiega sulla copia */
+    }
+  }
+  const ok = await copyText(url);
+  toast(ok ? t("shareCopied") : url);
+}
+let toastTimer = null;
+function toast(msg) {
+  let el = document.getElementById("toast");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "toast";
+    el.className = "toast";
+    el.setAttribute("role", "status");
+    el.setAttribute("aria-live", "polite");
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add("show");
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2400);
+}
+// Etichette localizzate dei bottoni condividi statici (reader + sezioni).
+function applyShareI18n() {
+  const ra = document.getElementById("reader-share");
+  if (ra) ra.setAttribute("aria-label", t("shareArticle"));
+  document.querySelectorAll(".section-share").forEach((b) => {
+    b.setAttribute("aria-label", t("shareSection"));
+    b.setAttribute("title", t("share"));
+    const lab = b.querySelector(".ss-label");
+    if (lab) lab.textContent = t("share");
+  });
+}
+// Un solo listener delegato: vale per i bottoni dei progetti (ricreati a ogni
+// cambio interfaccia), del reader e delle sezioni.
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".js-share");
+  if (!btn) return;
+  e.preventDefault();
+  const slug = btn.getAttribute("data-share-slug") || "";
+  const title = btn.getAttribute("data-share-title") || document.title;
+  shareEntity(shareUrlFor(slug), title);
+});
 
 /* ---------- Stringhe statiche (hero, etichetta dock) ---------- */
 function applyLangToStatic() {
@@ -1163,6 +1264,7 @@ function applyLangToStatic() {
   applySeoMeta();
   renderBio();
   renderBlog();
+  applyShareI18n();
 }
 
 /* ---------- SEO: <title>, meta e dati strutturati per lingua ---------- */
@@ -1557,6 +1659,10 @@ async function main() {
   }
   // Dati reali applicati: mostra il contenuto (evita il FOUC dei placeholder statici).
   document.documentElement.classList.add("app-ready");
+
+  // Deep-link all'avvio: ora che progetti e articoli sono resi, risolvi l'ancora
+  // (sezione, card progetto o articolo) se l'URL ne porta una.
+  navigateFromHash();
 }
 
 main();
