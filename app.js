@@ -419,10 +419,11 @@ function setupKinetic(stage, projects) {
 function fpSections() {
   const ui = document.documentElement.getAttribute("data-ui");
   const list = [document.getElementById("hero")];
-  if (ui === "cinema") list.push(...document.querySelectorAll("#stage .snap"));
-  else list.push(document.getElementById("stage"));
+  // Ordine: Intro → Blog → Progetti → Profilo.
   const blog = document.getElementById("blog");
   if (blog && !blog.hidden) list.push(blog);
+  if (ui === "cinema") list.push(...document.querySelectorAll("#stage .snap"));
+  else list.push(document.getElementById("stage"));
   const bio = document.getElementById("bio");
   if (bio && !bio.hidden) list.push(bio);
   return list.filter(Boolean);
@@ -683,17 +684,17 @@ function mountFullpage() {
   }
   fp.innerHTML = "";
   main.appendChild(fp);
-  // Sezioni verticali, in ordine: hero → progetti → blog(se visibile) → bio(se visibile).
+  // Sezioni verticali, in ordine: hero → blog(se visibile) → progetti → bio(se visibile).
   hero.classList.add("section");
   fp.appendChild(hero);
-  stage.querySelectorAll(".project").forEach((pr) => {
-    pr.classList.add("section");
-    fp.appendChild(pr);
-  });
   if (blog && !blog.hidden) {
     blog.classList.add("section");
     fp.appendChild(blog);
   }
+  stage.querySelectorAll(".project").forEach((pr) => {
+    pr.classList.add("section");
+    fp.appendChild(pr);
+  });
   if (bio && !bio.hidden) {
     bio.classList.add("section");
     fp.appendChild(bio);
@@ -729,14 +730,14 @@ function unmountFullpage() {
   const stage = document.getElementById("stage");
   const blog = document.getElementById("blog");
   const bio = document.getElementById("bio");
-  // Ripristina in #main l'ordine originale: hero, stage, blog, bio.
+  // Ripristina in #main l'ordine: hero, blog, stage, bio (= ordine di index.html).
   if (hero) {
     hero.classList.remove("section");
     main.insertBefore(hero, stage);
   }
   if (blog) {
     blog.classList.remove("section");
-    main.insertBefore(blog, fp);
+    main.insertBefore(blog, stage);
   }
   if (bio) {
     bio.classList.remove("section");
@@ -955,21 +956,21 @@ function renderMenu() {
   document.getElementById("menu-lang-label").textContent = t("language");
   document.getElementById("menu-theme-label").textContent = t("theme");
 
-  // Struttura ad ALBERO: Intro · Progetti (sub) · Profilo · Blog (sub).
+  // Struttura ad ALBERO: Intro · Blog (sub) · Progetti (sub) · Profilo.
   const nodes = [];
   nodes.push({ label: t("intro"), sel: "#hero" });
-  nodes.push({
-    label: t("portfolio"),
-    // Ancore SEO/deeplink: ogni progetto ha un id-slug stabile (#warmageddon…).
-    children: PROJECTS.map((p) => ({ label: p.title, sel: `#${p.id}` })),
-  });
-  nodes.push({ label: t("profile"), sel: "#bio" });
   if (ARTICLES.length) {
     nodes.push({
       label: t("blogNav"),
       children: ARTICLES.map((a) => ({ label: loc(a, "title"), meta: fmtArticleDate(a.date), article: a.id })),
     });
   }
+  nodes.push({
+    label: t("portfolio"),
+    // Ancore SEO/deeplink: ogni progetto ha un id-slug stabile (#warmageddon…).
+    children: PROJECTS.map((p) => ({ label: p.title, sel: `#${p.id}` })),
+  });
+  nodes.push({ label: t("profile"), sel: "#bio" });
   const list = document.getElementById("menu-list");
   list.innerHTML = nodes
     .map((n, i) => {
@@ -1384,6 +1385,9 @@ function applyLangToStatic() {
   renderBio();
   renderBlog();
   applyShareI18n();
+  // Blog e Profilo sono stati mostrati: (ri)registra l'observer così le loro
+  // dissolvenze in/out su scroll (classe .reveal) si attivano come per i progetti.
+  observeReveal();
 }
 
 /* ---------- SEO: <title>, meta e dati strutturati per lingua ---------- */

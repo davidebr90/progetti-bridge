@@ -40,7 +40,7 @@
     <!-- fullPage.js 2.9.7 (MIT, nessuna licenseKey). CSS PRIMA del nostro così i
          nostri stili possono sovrascriverlo. -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.9.7/jquery.fullpage.min.css" />
-    <link rel="stylesheet" href="./styles.css?v=60" />
+    <link rel="stylesheet" href="./styles.css?v=61" />
     <script>
       // Tema + interfaccia PRIMA del paint: niente flash.
       (function () {
@@ -61,15 +61,6 @@
       <div style="max-width:820px;margin:0 auto;padding:2rem 1.2rem;font-family:Georgia,serif;line-height:1.6">
         <h1>Davide Pica · Progetti, Blog &amp; Filosofia</h1>
         <p>Organizzatore di eventi in Puglia e sviluppatore. Progetti software self-hosted, su misura, e una serie di articoli su tecnologia e società.</p>
-        <h2>Progetti</h2>
-        <ul>
-          <li><strong>wArmageddon</strong>: demone WhatsApp self-hosted (TypeScript, Baileys, MCP).</li>
-          <li><strong>Lavagna Tattica</strong>: lavagna per allenatori di basket (React, Konva). <a href="https://freeware-roster-seems-undertake.trycloudflare.com">Demo</a></li>
-          <li><strong>Custom Booking Engine WordPress</strong>: motore di prenotazione per catering. <a href="https://apuliancatering.it/booking/">Demo</a></li>
-          <li><strong>Symbinux</strong>: GUI cross-platform in Rust (gtk4). <a href="https://github.com/davidebr90/symbinux">Codice</a></li>
-          <li><strong>stavau</strong>: blocco PC via prossimità BLE. <a href="https://github.com/davidebr90/stavau">Codice</a></li>
-          <li><strong>VVF Quiz</strong>: quiz idoneità tecnica antincendio.</li>
-        </ul>
         <h2>Blog &amp; Filosofia</h2>
         <ul>
           <li>A cosa serviamo? (Automazione &amp; senso), 20 maggio 2026</li>
@@ -78,6 +69,15 @@
           <li>Chi accende? (Energia, produttività &amp; welfare), 24 febbraio 2026</li>
           <li>Sapere basta? (Competenze &amp; laurea), 15 gennaio 2026</li>
           <li>Chi è il capitale? (Capitale umano vs materiale), 10 giugno 2025</li>
+        </ul>
+        <h2>Progetti</h2>
+        <ul>
+          <li><strong>wArmageddon</strong>: demone WhatsApp self-hosted (TypeScript, Baileys, MCP).</li>
+          <li><strong>Lavagna Tattica</strong>: lavagna per allenatori di basket (React, Konva). <a href="https://freeware-roster-seems-undertake.trycloudflare.com">Demo</a></li>
+          <li><strong>Custom Booking Engine WordPress</strong>: motore di prenotazione per catering. <a href="https://apuliancatering.it/booking/">Demo</a></li>
+          <li><strong>Symbinux</strong>: GUI cross-platform in Rust (gtk4). <a href="https://github.com/davidebr90/symbinux">Codice</a></li>
+          <li><strong>stavau</strong>: blocco PC via prossimità BLE. <a href="https://github.com/davidebr90/stavau">Codice</a></li>
+          <li><strong>VVF Quiz</strong>: quiz idoneità tecnica antincendio.</li>
         </ul>
         <p>Contatti: <a href="https://github.com/davidebr90">GitHub</a> · <a href="https://www.linkedin.com/in/davide-pica-7724a22a4/">LinkedIn</a> · <a href="https://www.instagram.com/davidebr90/">Instagram</a> · <a href="https://www.facebook.com/davidebr90">Facebook</a></p>
       </div>
@@ -118,7 +118,7 @@
       <section class="hero" id="hero">
         <div class="hero-inner">
           <div class="hero-logo" aria-label="Davide Pica — mente in produzione">
-            <img class="logo-ink" src="./assets/logo-ink.png" alt="Davide Pica — mente in produzione" width="1688" height="427" decoding="async" />
+            <img class="logo-ink" src="./assets/logo-ink.png" alt="Davide Pica — mente in produzione" width="1688" height="427" decoding="async" fetchpriority="high" />
             <img class="logo-light" src="./assets/logo-light.png" alt="" aria-hidden="true" width="1688" height="427" decoding="async" />
           </div>
           <!-- Rimossi su richiesta: eyebrow "Portfolio", cassettiera 3D
@@ -137,10 +137,8 @@
         </div>
       </section>
 
-      <div id="stage" class="stage"></div>
-
       <section class="blog" id="blog" hidden>
-        <div class="blog-inner">
+        <div class="blog-inner reveal">
           <p class="blog-eyebrow" id="blog-eyebrow">Blog &amp; Filosofia</p>
           <div class="blog-head">
             <h2 class="blog-title" id="blog-title">Filosofia &amp; Tech</h2>
@@ -162,10 +160,12 @@
         </div>
       </section>
 
+      <div id="stage" class="stage"></div>
+
       <section class="bio" id="bio" hidden>
         <div class="bio-inner">
           <div class="bio-photo" id="bio-photo"></div>
-          <div class="bio-content">
+          <div class="bio-content reveal">
             <p class="bio-eyebrow" id="bio-eyebrow"></p>
             <h2 class="bio-name" id="bio-name"></h2>
             <p class="bio-role" id="bio-role"></p>
@@ -232,6 +232,6 @@
         console.error("[fullPage] libreria non caricata: verifica il CDN fullPage 2.9.7.");
       }
     </script>
-    <script type="module" src="./app.js?v=60"></script>
+    <script type="module" src="./app.js?v=61"></script>
   </body>
 </html>
