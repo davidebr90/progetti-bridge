@@ -41,6 +41,7 @@ const T = {
     menuOpen: "Apri il menu", menuClose: "Chiudi il menu",
     chooseStyle: "Scegli stile",
     blogNav: "Blog & Filosofia", minRead: "min di lettura", backBlog: "← Torna al blog",
+    sources: "Fonti e riferimenti",
     portfolio: "Progetti / Portfolio",
     openGallery: "Apri galleria", closeGallery: "Chiudi", prevImg: "Immagine precedente", nextImg: "Immagine successiva",
     share: "Condividi", shareArticle: "Condividi l'articolo", shareSection: "Condividi questa sezione",
@@ -57,6 +58,7 @@ const T = {
     menuOpen: "Open the menu", menuClose: "Close the menu",
     chooseStyle: "Choose style",
     blogNav: "Blog & Philosophy", minRead: "min read", backBlog: "← Back to the blog",
+    sources: "Sources & references",
     portfolio: "Projects / Portfolio",
     openGallery: "Open gallery", closeGallery: "Close", prevImg: "Previous image", nextImg: "Next image",
     share: "Share", shareArticle: "Share the article", shareSection: "Share this section",
@@ -1103,6 +1105,45 @@ function mdToHtml(md) {
     })
     .join("");
 }
+
+/**
+ * Come mdToHtml, ma i link inline [Etichetta](url) diventano CITAZIONI numerate:
+ * nel testo resta solo un piccolo rimando [1] (apice) che porta alla sezione
+ * "Fonti e riferimenti" generata in fondo all'articolo, dove ogni voce è il
+ * link cliccabile con etichetta e dominio. Stessa URL citata più volte = stesso
+ * numero. Se l'articolo non ha link, l'output è identico a mdToHtml.
+ */
+function mdToHtmlWithCitations(md) {
+  const cites = []; // { url, label } in ordine di prima apparizione
+  const byUrl = new Map(); // url -> numero (1-based)
+  // Sostituisce i link con un placeholder che sopravvive all'escaping di mdToHtml.
+  const pre = (md || "").replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, (_, label, url) => {
+    let n = byUrl.get(url);
+    if (!n) {
+      n = cites.length + 1;
+      byUrl.set(url, n);
+      cites.push({ url, label });
+    }
+    return `@@CITE${n}@@`;
+  });
+  let html = mdToHtml(pre).replace(
+    // Il placeholder può restare attaccato alla parola precedente: il rimando è
+    // un apice compatto, con aria-label per gli screen reader.
+    /\s*@@CITE(\d+)@@/g,
+    (_, n) => `<sup class="cite-ref"><a href="#fonte-${n}" aria-label="fonte ${n}">[${n}]</a></sup>`,
+  );
+  if (cites.length) {
+    const items = cites
+      .map((c, i) => {
+        let host = "";
+        try { host = new URL(c.url).hostname.replace(/^www\./, ""); } catch {}
+        return `<li id="fonte-${i + 1}"><a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.label)}</a>${host ? ` <span class="cite-host">(${esc(host)})</span>` : ""}</li>`;
+      })
+      .join("");
+    html += `<hr /><section class="cite-list"><h3 class="ra-h3">${esc(t("sources"))}</h3><ol>${items}</ol></section>`;
+  }
+  return html;
+}
 function articleCardHTML(a) {
   const title = loc(a, "title") || "";
   return `<article class="art-card" role="button" tabindex="0" data-id="${esc(a.id)}" aria-label="${esc(title)}" style="--accent:${esc(a.accent || "var(--brand)")}">
@@ -1253,7 +1294,7 @@ function openArticle(id) {
   art.innerHTML = `
     <p class="ra-meta"><span class="ra-cat">${esc(loc(a, "category") || "")}</span> · <span>${esc(fmtArticleDate(a.date))}</span>${a.minutes ? ` · <span>${a.minutes} ${esc(t("minRead"))}</span>` : ""}</p>
     <h1 class="ra-title">${esc(loc(a, "title"))}</h1>
-    <div class="ra-body">${mdToHtml(loc(a, "body"))}</div>
+    <div class="ra-body">${mdToHtmlWithCitations(loc(a, "body"))}</div>
     <div class="ra-foot"><button type="button" class="ra-back" id="ra-back">${esc(t("backBlog"))}</button></div>`;
   reader.hidden = false;
   document.body.classList.add("reader-open");

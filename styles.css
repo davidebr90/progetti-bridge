@@ -611,6 +611,19 @@ body.lb-open { overflow: hidden; }
 .ra-cat { color: var(--accent, var(--brand)); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
 .ra-title { max-width: 20ch; margin: 0 auto clamp(1.6rem,4vw,2.4rem); font-family: var(--font-display); font-weight: 500; font-size: clamp(2.2rem,6vw,4rem); line-height: 1.02; letter-spacing: -.02em; text-wrap: balance; }
 .ra-body { max-width: 68ch; margin: 0 auto; }
+/* Citazioni-fonte: rimando numerato piccolo in apice + elenco Fonti in fondo. */
+.cite-ref { font-size: 0.68em; line-height: 0; vertical-align: super; margin-left: 0.12em; }
+.cite-ref a { color: var(--brand); text-decoration: none; font-weight: 600; }
+.cite-ref a:hover { text-decoration: underline; }
+.cite-list { margin-top: 1.6rem; }
+.cite-list h3 { font-size: 0.95rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); }
+.cite-list ol { margin: 0.6rem 0 0; padding-left: 1.4rem; }
+.cite-list li { font-size: 0.92rem; line-height: 1.7; color: var(--ink-soft); scroll-margin-top: 5rem; }
+.cite-list li:target { color: var(--ink); }
+.cite-list li:target a { text-decoration: underline; }
+.cite-list a { color: var(--brand); text-decoration: none; word-break: break-word; }
+.cite-list a:hover { text-decoration: underline; }
+.cite-host { color: var(--ink-soft); opacity: 0.75; font-size: 0.85em; }
 .ra-body p { font-size: clamp(1.06rem,1.5vw,1.2rem); line-height: 1.75; color: var(--ink-soft); margin: 0 0 1.3rem; }
 .ra-body p strong { color: var(--ink); font-weight: 600; }
 .ra-body em { font-style: italic; }
