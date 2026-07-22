@@ -581,21 +581,26 @@ body.reader-open { overflow: hidden; }
 .reader-navbtn:active:not(:disabled) { transform: translateY(1px); }
 .reader-navbtn:disabled { opacity: 0.32; cursor: default; }
 
-/* Prospettiva sul contenitore: la pagina ruota nello spazio come in un libro.
-   La pagina corrente si volta sul bordo (origin al "dorso"), la nuova entra
-   dal lato opposto. Successivo = sfoglia verso sinistra; precedente = verso destra. */
-.reader { perspective: 1800px; }
-.reader-article { will-change: transform; }
-.page-out-next { animation: pageOutNext .3s cubic-bezier(.55,.06,.68,.19) both; transform-origin: left center; }
-.page-in-next  { animation: pageInNext  .38s cubic-bezier(.22,.61,.36,1) both; transform-origin: right center; }
-.page-out-prev { animation: pageOutPrev .3s cubic-bezier(.55,.06,.68,.19) both; transform-origin: right center; }
-.page-in-prev  { animation: pageInPrev  .38s cubic-bezier(.22,.61,.36,1) both; transform-origin: left center; }
-@keyframes pageOutNext { from { transform: none; opacity: 1; } to { transform: rotateY(-62deg) translateX(-4%); opacity: 0; } }
-@keyframes pageInNext  { from { transform: rotateY(48deg) translateX(4%); opacity: 0; } to { transform: none; opacity: 1; } }
-@keyframes pageOutPrev { from { transform: none; opacity: 1; } to { transform: rotateY(62deg) translateX(4%); opacity: 0; } }
-@keyframes pageInPrev  { from { transform: rotateY(-48deg) translateX(-4%); opacity: 0; } to { transform: none; opacity: 1; } }
+/* Effetto voltalibro (flip 3D): una PAGINA overlay a due facce ruota di 180°
+   sul dorso sinistro sopra il contenuto, come sfogliando un libro vero.
+   - .page-flip-layer: copre l'area articolo (top impostato via JS = altezza barra)
+     e dà la prospettiva;
+   - .page-flip: la pagina (preserve-3d, perno sul dorso = bordo sinistro);
+   - .page-face-front: il contenuto dell'articolo (snapshot);
+   - .page-face-back: il RETRO della pagina, "carta" con gradiente, pre-ruotato
+     di 180° così appare a metà voltata (backface-visibility nasconde l'altra). */
+.page-flip-layer { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; perspective: 2400px; pointer-events: none; overflow: hidden; }
+.page-flip { position: absolute; inset: 0; transform-style: preserve-3d; transform-origin: left center; will-change: transform; }
+.page-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; background: var(--bg); }
+.page-face-front { box-shadow: 12px 0 34px rgba(0,0,0,0.28); }
+.page-face .page-snapshot { position: absolute; inset: 0; overflow: hidden; }
+.page-face-back { transform: rotateY(180deg); background: linear-gradient(105deg, color-mix(in srgb, var(--ink) 10%, var(--bg)) 0%, var(--bg) 30%, color-mix(in srgb, var(--ink) 4%, var(--bg)) 100%); box-shadow: -12px 0 34px rgba(0,0,0,0.22); }
+.page-flip.turn-next { animation: flipNext 0.8s cubic-bezier(0.45, 0.05, 0.30, 0.95) both; }
+.page-flip.turn-prev { animation: flipPrev 0.8s cubic-bezier(0.45, 0.05, 0.30, 0.95) both; }
+@keyframes flipNext { from { transform: rotateY(0deg); } to { transform: rotateY(-180deg); } }
+@keyframes flipPrev { from { transform: rotateY(-180deg); } to { transform: rotateY(0deg); } }
 @media (prefers-reduced-motion: reduce) {
-  .page-out-next, .page-in-next, .page-out-prev, .page-in-prev { animation: none; }
+  .page-flip.turn-next, .page-flip.turn-prev { animation: none; }
 }
 
 /* ---- Condividi (bottone reader + sezioni + toast) ---- */

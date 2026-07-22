@@ -1288,6 +1288,17 @@ function updateBlogNav() {
 // Articolo attualmente aperto nel lettore (per le frecce precedente/successivo).
 let READER_ARTICLE_ID = null;
 
+// Markup interno di un articolo (usato dal lettore E dallo "snapshot" di pagina
+// dell'effetto voltalibro, che deve poter renderizzare l'articolo di arrivo
+// prima che diventi quello reale).
+function buildArticleHTML(a) {
+  return `
+    <p class="ra-meta"><span class="ra-cat">${esc(loc(a, "category") || "")}</span> · <span>${esc(fmtArticleDate(a.date))}</span>${a.minutes ? ` · <span>${a.minutes} ${esc(t("minRead"))}</span>` : ""}</p>
+    <h1 class="ra-title">${esc(loc(a, "title"))}</h1>
+    <div class="ra-body">${mdToHtmlWithCitations(loc(a, "body"))}</div>
+    <div class="ra-foot"><button type="button" class="ra-back" id="ra-back">${esc(t("backBlog"))}</button></div>`;
+}
+
 function openArticle(id) {
   const a = ARTICLES.find((x) => x.id === id);
   if (!a) return;
@@ -1295,11 +1306,7 @@ function openArticle(id) {
   const reader = document.getElementById("reader");
   const art = document.getElementById("reader-article");
   art.style.setProperty("--accent", a.accent || "var(--brand)");
-  art.innerHTML = `
-    <p class="ra-meta"><span class="ra-cat">${esc(loc(a, "category") || "")}</span> · <span>${esc(fmtArticleDate(a.date))}</span>${a.minutes ? ` · <span>${a.minutes} ${esc(t("minRead"))}</span>` : ""}</p>
-    <h1 class="ra-title">${esc(loc(a, "title"))}</h1>
-    <div class="ra-body">${mdToHtmlWithCitations(loc(a, "body"))}</div>
-    <div class="ra-foot"><button type="button" class="ra-back" id="ra-back">${esc(t("backBlog"))}</button></div>`;
+  art.innerHTML = buildArticleHTML(a);
   reader.hidden = false;
   document.body.classList.add("reader-open");
   requestAnimationFrame(() => reader.classList.add("show"));
@@ -1328,37 +1335,69 @@ function updateReaderNav() {
   if (bn) { bn.disabled = !next; bn.title = next ? loc(next, "title") || "" : ""; }
 }
 
-// Cambia articolo con l'effetto "pagina di libro": la pagina corrente si volta
-// (rotazione 3D sul bordo, come sfogliando), poi la nuova entra dal lato
-// opposto. dir = +1 successivo, -1 precedente. Con prefers-reduced-motion il
-// cambio è istantaneo. Il lock evita doppi click durante l'animazione.
+// Cambia articolo con l'effetto "pagina di libro" (stile flip 3D classico):
+// una PAGINA overlay a due facce — davanti il contenuto, dietro il retro-carta —
+// ruota di 180° sul dorso sinistro, con prospettiva e ombra. Andando AVANTI la
+// pagina che si volta è l'articolo corrente (sotto c'è già il nuovo); tornando
+// INDIETRO la pagina rientra da sinistra portando l'articolo precedente e
+// "atterra" sopra il corrente. dir = +1 successivo, -1 precedente.
+// Con prefers-reduced-motion il cambio è istantaneo. Lock anti doppio-click.
 let pageTurnBusy = false;
 function turnToArticle(dir) {
   if (pageTurnBusy) return;
   const idx = ARTICLES.findIndex((x) => x.id === READER_ARTICLE_ID);
   const target = idx >= 0 ? ARTICLES[idx + dir] : null;
   if (!target) return;
+  const reader = document.getElementById("reader");
   const art = document.getElementById("reader-article");
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches || !art) {
+  if (!reader || !art || matchMedia("(prefers-reduced-motion: reduce)").matches) {
     openArticle(target.id);
     return;
   }
   pageTurnBusy = true;
-  const outCls = dir > 0 ? "page-out-next" : "page-out-prev";
-  const inCls = dir > 0 ? "page-in-next" : "page-in-prev";
+  const bar = reader.querySelector(".reader-bar");
+  const layer = document.createElement("div");
+  layer.className = "page-flip-layer";
+  layer.style.top = `${bar ? bar.offsetHeight : 58}px`;
+  const page = document.createElement("div");
+  page.className = "page-flip";
+  const front = document.createElement("div");
+  front.className = "page-face page-face-front";
+  const back = document.createElement("div");
+  back.className = "page-face page-face-back";
+  page.append(front, back);
+  layer.append(page);
+
+  const snapshot = document.createElement("div");
+  snapshot.className = "reader-article page-snapshot";
+  const scroll = art.scrollTop;
+  if (dir > 0) {
+    // La pagina che si volta È l'articolo corrente (stessa posizione di lettura).
+    snapshot.style.cssText = art.style.cssText;
+    snapshot.innerHTML = art.innerHTML;
+    front.append(snapshot);
+    reader.append(layer);
+    snapshot.scrollTop = scroll;
+    openArticle(target.id); // sotto la pagina c'è già il nuovo articolo
+    page.classList.add("turn-next");
+  } else {
+    // La pagina che rientra porta l'articolo di DESTINAZIONE; sotto resta il
+    // corrente finché la pagina non atterra.
+    snapshot.style.setProperty("--accent", target.accent || "var(--brand)");
+    snapshot.innerHTML = buildArticleHTML(target);
+    front.append(snapshot);
+    reader.append(layer);
+    page.classList.add("turn-prev");
+  }
   // once(): animationend e il timeout di sicurezza possono scattare entrambi.
   const once = (fn) => { let did = false; return () => { if (did) return; did = true; fn(); }; };
-  const phaseIn = once(() => {
-    art.classList.remove(outCls);
-    openArticle(target.id);
-    art.classList.add(inCls);
-    const done = once(() => { art.classList.remove(inCls); pageTurnBusy = false; });
-    art.addEventListener("animationend", (e) => { if (e.target === art) done(); }, { once: true });
-    setTimeout(done, 520);
+  const done = once(() => {
+    if (dir < 0) openArticle(target.id); // swap istantaneo, pixel identici alla pagina atterrata
+    layer.remove();
+    pageTurnBusy = false;
   });
-  art.classList.add(outCls);
-  art.addEventListener("animationend", (e) => { if (e.target === art) phaseIn(); }, { once: true });
-  setTimeout(phaseIn, 420);
+  page.addEventListener("animationend", (e) => { if (e.target === page) done(); }, { once: true });
+  setTimeout(done, 1000);
 }
 function closeReader() {
   const reader = document.getElementById("reader");
