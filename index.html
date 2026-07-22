@@ -40,7 +40,7 @@
     <!-- fullPage.js 2.9.7 (MIT, nessuna licenseKey). CSS PRIMA del nostro così i
          nostri stili possono sovrascriverlo. -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.9.7/jquery.fullpage.min.css" />
-    <link rel="stylesheet" href="./styles.css?v=62" />
+    <link rel="stylesheet" href="./styles.css?v=63" />
     <script>
       // Tema + interfaccia PRIMA del paint: niente flash.
       (function () {
@@ -200,6 +200,15 @@
         <button class="reader-close" id="reader-close" type="button" aria-label="Chiudi">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
+        <!-- Frecce articolo precedente/successivo (effetto voltapagina) -->
+        <div class="reader-nav" role="group" aria-label="Naviga tra gli articoli">
+          <button class="reader-navbtn" id="reader-prev" type="button" aria-label="Articolo precedente">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button class="reader-navbtn" id="reader-next" type="button" aria-label="Articolo successivo">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+        </div>
         <button class="reader-share js-share" id="reader-share" type="button" aria-label="Condividi l'articolo">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
         </button>
@@ -232,6 +241,6 @@
         console.error("[fullPage] libreria non caricata: verifica il CDN fullPage 2.9.7.");
       }
     </script>
-    <script type="module" src="./app.js?v=62"></script>
+    <script type="module" src="./app.js?v=63"></script>
   </body>
 </html>

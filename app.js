@@ -1285,9 +1285,13 @@ function updateBlogNav() {
   if (prev) prev.disabled = false;
   if (next) next.disabled = false;
 }
+// Articolo attualmente aperto nel lettore (per le frecce precedente/successivo).
+let READER_ARTICLE_ID = null;
+
 function openArticle(id) {
   const a = ARTICLES.find((x) => x.id === id);
   if (!a) return;
+  READER_ARTICLE_ID = a.id;
   const reader = document.getElementById("reader");
   const art = document.getElementById("reader-article");
   art.style.setProperty("--accent", a.accent || "var(--brand)");
@@ -1308,6 +1312,53 @@ function openArticle(id) {
   if (rs) { rs.dataset.shareSlug = a.id; rs.dataset.shareTitle = loc(a, "title") || ""; }
   const back = document.getElementById("ra-back");
   if (back) back.addEventListener("click", closeReader);
+  updateReaderNav();
+}
+
+/* ---------- Frecce precedente/successivo + effetto voltapagina ---------- */
+// Abilita/disabilita le frecce ai bordi della lista e mette il titolo
+// dell'articolo adiacente come tooltip.
+function updateReaderNav() {
+  const idx = ARTICLES.findIndex((x) => x.id === READER_ARTICLE_ID);
+  const prev = idx > 0 ? ARTICLES[idx - 1] : null;
+  const next = idx >= 0 && idx < ARTICLES.length - 1 ? ARTICLES[idx + 1] : null;
+  const bp = document.getElementById("reader-prev");
+  const bn = document.getElementById("reader-next");
+  if (bp) { bp.disabled = !prev; bp.title = prev ? loc(prev, "title") || "" : ""; }
+  if (bn) { bn.disabled = !next; bn.title = next ? loc(next, "title") || "" : ""; }
+}
+
+// Cambia articolo con l'effetto "pagina di libro": la pagina corrente si volta
+// (rotazione 3D sul bordo, come sfogliando), poi la nuova entra dal lato
+// opposto. dir = +1 successivo, -1 precedente. Con prefers-reduced-motion il
+// cambio è istantaneo. Il lock evita doppi click durante l'animazione.
+let pageTurnBusy = false;
+function turnToArticle(dir) {
+  if (pageTurnBusy) return;
+  const idx = ARTICLES.findIndex((x) => x.id === READER_ARTICLE_ID);
+  const target = idx >= 0 ? ARTICLES[idx + dir] : null;
+  if (!target) return;
+  const art = document.getElementById("reader-article");
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches || !art) {
+    openArticle(target.id);
+    return;
+  }
+  pageTurnBusy = true;
+  const outCls = dir > 0 ? "page-out-next" : "page-out-prev";
+  const inCls = dir > 0 ? "page-in-next" : "page-in-prev";
+  // once(): animationend e il timeout di sicurezza possono scattare entrambi.
+  const once = (fn) => { let did = false; return () => { if (did) return; did = true; fn(); }; };
+  const phaseIn = once(() => {
+    art.classList.remove(outCls);
+    openArticle(target.id);
+    art.classList.add(inCls);
+    const done = once(() => { art.classList.remove(inCls); pageTurnBusy = false; });
+    art.addEventListener("animationend", (e) => { if (e.target === art) done(); }, { once: true });
+    setTimeout(done, 520);
+  });
+  art.classList.add(outCls);
+  art.addEventListener("animationend", (e) => { if (e.target === art) phaseIn(); }, { once: true });
+  setTimeout(phaseIn, 420);
 }
 function closeReader() {
   const reader = document.getElementById("reader");
@@ -1748,6 +1799,20 @@ async function main() {
   const reader = document.getElementById("reader");
   const readerArt = document.getElementById("reader-article");
   document.getElementById("reader-close").addEventListener("click", closeReader);
+  // Frecce precedente/successivo nel lettore (effetto voltapagina) + tastiera
+  // ←/→ quando il lettore è aperto (e il lightbox chiuso, che usa le stesse frecce).
+  const rPrev = document.getElementById("reader-prev");
+  const rNext = document.getElementById("reader-next");
+  if (rPrev) rPrev.addEventListener("click", () => turnToArticle(-1));
+  if (rNext) rNext.addEventListener("click", () => turnToArticle(1));
+  window.addEventListener("keydown", (e) => {
+    const reader = document.getElementById("reader");
+    const lb = document.getElementById("lightbox");
+    if (!reader || reader.hidden) return;
+    if (lb && !lb.hidden) return;
+    if (e.key === "ArrowLeft") { e.preventDefault(); turnToArticle(-1); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); turnToArticle(1); }
+  });
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !reader.hidden) closeReader();
   });

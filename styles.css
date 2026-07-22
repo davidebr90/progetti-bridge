@@ -574,6 +574,30 @@ body.reader-open { overflow: hidden; }
 .reader-article { flex: 1; overflow-y: auto; scroll-behavior: smooth; padding: clamp(2.5rem,6vw,5rem) clamp(1.2rem,5vw,2rem) 6rem; }
 .reader-article { --accent: var(--brand); }
 
+/* ---- Frecce articolo precedente/successivo + effetto voltapagina ---- */
+.reader-nav { margin: 0 auto; display: flex; gap: 0.55rem; }
+.reader-navbtn { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; border: 1px solid var(--border); background: var(--surface-2); color: var(--ink-soft); transition: color .16s, border-color .16s, opacity .16s, transform .12s; }
+.reader-navbtn:hover:not(:disabled) { color: var(--ink); border-color: var(--border-strong); }
+.reader-navbtn:active:not(:disabled) { transform: translateY(1px); }
+.reader-navbtn:disabled { opacity: 0.32; cursor: default; }
+
+/* Prospettiva sul contenitore: la pagina ruota nello spazio come in un libro.
+   La pagina corrente si volta sul bordo (origin al "dorso"), la nuova entra
+   dal lato opposto. Successivo = sfoglia verso sinistra; precedente = verso destra. */
+.reader { perspective: 1800px; }
+.reader-article { will-change: transform; }
+.page-out-next { animation: pageOutNext .3s cubic-bezier(.55,.06,.68,.19) both; transform-origin: left center; }
+.page-in-next  { animation: pageInNext  .38s cubic-bezier(.22,.61,.36,1) both; transform-origin: right center; }
+.page-out-prev { animation: pageOutPrev .3s cubic-bezier(.55,.06,.68,.19) both; transform-origin: right center; }
+.page-in-prev  { animation: pageInPrev  .38s cubic-bezier(.22,.61,.36,1) both; transform-origin: left center; }
+@keyframes pageOutNext { from { transform: none; opacity: 1; } to { transform: rotateY(-62deg) translateX(-4%); opacity: 0; } }
+@keyframes pageInNext  { from { transform: rotateY(48deg) translateX(4%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes pageOutPrev { from { transform: none; opacity: 1; } to { transform: rotateY(62deg) translateX(4%); opacity: 0; } }
+@keyframes pageInPrev  { from { transform: rotateY(-48deg) translateX(-4%); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .page-out-next, .page-in-next, .page-out-prev, .page-in-prev { animation: none; }
+}
+
 /* ---- Condividi (bottone reader + sezioni + toast) ---- */
 .reader-share { margin-left: auto; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; border: 1px solid var(--border); background: var(--surface-2); color: var(--ink-soft); transition: color .16s, border-color .16s, transform .12s; }
 .reader-share:hover { color: var(--ink); border-color: var(--border-strong); }
