@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<!-- Articoli: pagine statiche /blog/<slug>/ generate da scripts/build-blog-pages.mjs -->
   <url>
     <loc>https://davidebr90.github.io/progetti-bridge/</loc>
     <lastmod>2026-07-22</lastmod>
@@ -10,60 +11,85 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://davidebr90.github.io/progetti-bridge/?lang=en" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/" />
   </url>
-  <!-- Articoli del blog: URL SEO dedicati (?art=slug), gli stessi di canonical,
-       JSON-LD, bottone Condividi e link nel noscript. -->
   <url>
-    <loc>https://davidebr90.github.io/progetti-bridge/?art=attrito-e-otium</loc>
+    <loc>https://davidebr90.github.io/progetti-bridge/blog/attrito-e-otium/</loc>
     <lastmod>2026-07-22</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/blog/attrito-e-otium/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://davidebr90.github.io/progetti-bridge/blog/attrito-e-otium/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/blog/attrito-e-otium/" />
   </url>
   <url>
-    <loc>https://davidebr90.github.io/progetti-bridge/?art=il-calzolaio-aveva-ragione</loc>
+    <loc>https://davidebr90.github.io/progetti-bridge/blog/il-calzolaio-aveva-ragione/</loc>
     <lastmod>2026-07-19</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/blog/il-calzolaio-aveva-ragione/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://davidebr90.github.io/progetti-bridge/blog/il-calzolaio-aveva-ragione/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/blog/il-calzolaio-aveva-ragione/" />
   </url>
   <url>
-    <loc>https://davidebr90.github.io/progetti-bridge/?art=numero-del-freezer</loc>
-    <lastmod>2026-07-22</lastmod>
+    <loc>https://davidebr90.github.io/progetti-bridge/blog/numero-del-freezer/</loc>
+    <lastmod>2026-07-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/blog/numero-del-freezer/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://davidebr90.github.io/progetti-bridge/blog/numero-del-freezer/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/blog/numero-del-freezer/" />
   </url>
   <url>
-    <loc>https://davidebr90.github.io/progetti-bridge/?art=a-cosa-serviamo</loc>
+    <loc>https://davidebr90.github.io/progetti-bridge/blog/a-cosa-serviamo/</loc>
     <lastmod>2026-05-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/blog/a-cosa-serviamo/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://davidebr90.github.io/progetti-bridge/blog/a-cosa-serviamo/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/blog/a-cosa-serviamo/" />
   </url>
   <url>
-    <loc>https://davidebr90.github.io/progetti-bridge/?art=dove-crescono</loc>
+    <loc>https://davidebr90.github.io/progetti-bridge/blog/dove-crescono/</loc>
     <lastmod>2026-04-08</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/blog/dove-crescono/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://davidebr90.github.io/progetti-bridge/blog/dove-crescono/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/blog/dove-crescono/" />
   </url>
   <url>
-    <loc>https://davidebr90.github.io/progetti-bridge/?art=chi-nascera</loc>
+    <loc>https://davidebr90.github.io/progetti-bridge/blog/chi-nascera/</loc>
     <lastmod>2026-03-25</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/blog/chi-nascera/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://davidebr90.github.io/progetti-bridge/blog/chi-nascera/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/blog/chi-nascera/" />
   </url>
   <url>
-    <loc>https://davidebr90.github.io/progetti-bridge/?art=chi-accende</loc>
+    <loc>https://davidebr90.github.io/progetti-bridge/blog/chi-accende/</loc>
     <lastmod>2026-02-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/blog/chi-accende/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://davidebr90.github.io/progetti-bridge/blog/chi-accende/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/blog/chi-accende/" />
   </url>
   <url>
-    <loc>https://davidebr90.github.io/progetti-bridge/?art=sapere-basta</loc>
+    <loc>https://davidebr90.github.io/progetti-bridge/blog/sapere-basta/</loc>
     <lastmod>2026-01-15</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/blog/sapere-basta/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://davidebr90.github.io/progetti-bridge/blog/sapere-basta/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/blog/sapere-basta/" />
   </url>
   <url>
-    <loc>https://davidebr90.github.io/progetti-bridge/?art=chi-e-il-capitale</loc>
+    <loc>https://davidebr90.github.io/progetti-bridge/blog/chi-e-il-capitale/</loc>
     <lastmod>2025-06-10</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/blog/chi-e-il-capitale/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://davidebr90.github.io/progetti-bridge/blog/chi-e-il-capitale/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/blog/chi-e-il-capitale/" />
   </url>
 </urlset>

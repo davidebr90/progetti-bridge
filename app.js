@@ -1322,9 +1322,14 @@ function openArticle(id) {
   requestAnimationFrame(() => reader.classList.add("show"));
   art.scrollTop = 0;
   updateReaderProgress();
-  // URL SEO dell'articolo (?art=slug) al posto dell'ancora: condivisibile,
-  // indicizzabile e coerente con sitemap/noscript. replaceState non naviga.
-  try { history.replaceState(null, "", articleUrlFor(a.id).replace(location.origin, "")); } catch (_e) { /* file:// */ }
+  // Barra dell'indirizzo: deep-link INTERNO della SPA (?art=slug), così un
+  // reload riapre il lettore qui. L'URL SEO (/blog/slug/) va invece nel
+  // canonical qui sotto e nel bottone Condividi. replaceState non naviga.
+  try {
+    const params = new URLSearchParams(location.search);
+    params.set("art", a.id);
+    history.replaceState(null, "", location.pathname + "?" + params.toString());
+  } catch (_e) { /* file:// */ }
   // SEO per-articolo: titolo, description e canonical della pagina diventano
   // quelli dell'articolo finché il lettore è aperto (closeReader ripristina).
   const artTitle = `${loc(a, "title")} · Davide Pica`;
@@ -1453,15 +1458,14 @@ function updateReaderProgress() {
  * Ogni blocco condivisibile ha un'ancora stabile (#slug). Il bottone usa la
  * Web Share API nativa dove c'è (foglio di condivisione del sistema, ideale su
  * mobile); altrimenti copia il link negli appunti e mostra un toast. */
-// URL SEO dell'ARTICOLO: query `?art=<slug>` (non l'hash: i motori trattano i
-// frammenti come la stessa pagina, mentre le query sono URL distinti e
-// indicizzabili — sono anche in sitemap.xml e nei link del noscript). Conserva
-// l'eventuale ?lang=en.
+// URL SEO dell'ARTICOLO: pagina statica a percorso `/blog/<slug>/` (standard
+// moderno: URL puliti con contenuto pre-renderizzato nell'HTML, generati da
+// scripts/build-blog-pages.mjs). È l'URL usato da Condividi, canonical,
+// JSON-LD, sitemap e noscript. La query `?art=` resta solo come deep-link
+// interno della SPA (e retro-compatibilità).
 function articleUrlFor(id) {
-  const params = new URLSearchParams();
-  if (LANG === "en") params.set("lang", "en");
-  params.set("art", id);
-  return location.origin + location.pathname + "?" + params.toString();
+  const root = location.pathname.replace(/index\.html$/, "").replace(/blog\/.*$/, "");
+  return location.origin + root + "blog/" + encodeURIComponent(id) + "/" + (LANG === "en" ? "en/" : "");
 }
 function shareUrlFor(slug) {
   // Gli articoli condividono il loro URL SEO dedicato; le sezioni restano ancore.
@@ -1624,10 +1628,10 @@ function injectJsonLd() {
       description: loc(a, "excerpt") || undefined,
       inLanguage: LANG === "en" ? "en" : "it",
       author: { "@id": base + "#person" },
-      // URL SEO dedicato dell'articolo (?art=slug): stesso link di sitemap,
-      // noscript e bottone Condividi — un solo URL canonico per articolo.
-      url: `${base}?art=${encodeURIComponent(a.id)}`,
-      mainEntityOfPage: `${base}?art=${encodeURIComponent(a.id)}`,
+      // URL SEO dedicato dell'articolo (/blog/slug/, pagina statica): stesso
+      // link di sitemap, noscript e bottone Condividi — un solo URL canonico.
+      url: `${base}blog/${encodeURIComponent(a.id)}/`,
+      mainEntityOfPage: `${base}blog/${encodeURIComponent(a.id)}/`,
     })),
   };
   const projectList = {
