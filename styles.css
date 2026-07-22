@@ -529,7 +529,11 @@ html[data-ui="carosello"] { scroll-snap-type: y mandatory; }
 /* Blog: carosello orizzontale di card (una riga, sempre; niente "muro" che
    trabocca la sezione full-page). Frecce + drag + scroll nativo. */
 .blog-carousel { position: relative; }
-.blog-list { display: flex; gap: clamp(1rem,2vw,1.4rem); overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; padding: .6rem .2rem 1.2rem; cursor: grab; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+.blog-list { display: flex; gap: clamp(1rem,2vw,1.4rem); overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; padding: .6rem .2rem 1.2rem; cursor: grab; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
+  /* i bordi del nastro svaniscono gradualmente invece di tagliare le card
+     (il loop è infinito: c'è sempre contenuto da entrambi i lati) */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 clamp(28px, 5vw, 64px), #000 calc(100% - clamp(28px, 5vw, 64px)), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 clamp(28px, 5vw, 64px), #000 calc(100% - clamp(28px, 5vw, 64px)), transparent 100%); }
 .blog-list.dragging { cursor: grabbing; scroll-behavior: auto; user-select: none; }
 /* Scrollbar nascosta: il loop duplica le card (raddoppierebbe la barra) e lo
    scorrimento avviene con auto-scroll, drag, rotella e tap. */
@@ -546,8 +550,13 @@ html[data-ui="carosello"] { scroll-snap-type: y mandatory; }
 .art-share svg { width: 15px; height: 15px; }
 .art-meta { padding-right: 2.4rem; }
 .blog-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 4; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: var(--ink); border: 1px solid var(--border-strong); background: color-mix(in srgb, var(--surface) 86%, transparent); backdrop-filter: blur(8px); box-shadow: var(--shadow-lg); transition: opacity .2s, background .16s, transform .12s, border-color .16s; }
-.blog-prev { left: clamp(-4px, -1vw, -18px); }
-.blog-next { right: clamp(-4px, -1vw, -18px); }
+.blog-prev { left: -12px; }
+.blog-next { right: -12px; }
+/* con margini laterali sufficienti le frecce escono del tutto dal nastro */
+@media (min-width: 1280px) {
+  .blog-prev { left: -62px; }
+  .blog-next { right: -62px; }
+}
 .blog-nav:hover { background: var(--surface); border-color: var(--ink-faint); }
 .blog-nav:active { transform: translateY(-50%) scale(.93); }
 .blog-nav[disabled] { opacity: 0; pointer-events: none; }
