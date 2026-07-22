@@ -39,6 +39,42 @@
   },
   "projects": [
     {
+      "id": "concorsi-bridge",
+      "title": "Concorsi Italia",
+      "tagline": "Mappa dei concorsi pubblici, h24",
+      "description": "Portale bridge sui bandi aperti di inPA: mappa d'Italia cliccabile (regioni → province), ~1.800 concorsi in ordine di scadenza, filtri per titolo di studio, località, prove e requisiti, card riscritte in linguaggio semplice dall'AI. Ogni ricerca è un URL condivisibile e ogni card rimanda al bando ufficiale. Statico + PHP, self-hostabile su hosting condiviso.",
+      "status": "live",
+      "accent": "#a4161a",
+      "logo": "./assets/logos/concorsi-bridge.svg",
+      "tags": [
+        "JavaScript",
+        "PHP",
+        "SVG",
+        "Dati pubblici",
+        "Self-hosted"
+      ],
+      "demoKey": "",
+      "demoUrl": "https://davidebr90.github.io/concorsi-bridge/",
+      "repo": "https://github.com/davidebr90/concorsi-bridge",
+      "screenshots": [],
+      "highlights": [
+        "Mappa interattiva regioni → province con conteggi in tempo reale",
+        "Filtri per titolo di studio, località, prove e requisiti, tutti nell'URL",
+        "Semplificazione AI delle card con chiavi mai esposte (server-side)",
+        "Gira su qualsiasi hosting condiviso: statico + un solo script PHP"
+      ],
+      "en": {
+        "tagline": "Italy's public job openings, mapped h24",
+        "description": "A bridge portal over inPA's open competitions: a clickable map of Italy (regions → provinces), ~1,800 openings sorted by deadline, filters by education level, location, exam type and requirements, cards rewritten in plain language by AI. Every search is a shareable URL and every card links to the official notice. Static + PHP, self-hostable on shared hosting.",
+        "highlights": [
+          "Interactive regions → provinces map with live counts",
+          "Filters by education, location, exams and requirements, all in the URL",
+          "AI card simplification with keys never exposed (server-side)",
+          "Runs on any shared hosting: static + a single PHP script"
+        ]
+      }
+    },
+    {
       "id": "warmageddon",
       "title": "wArmageddon",
       "tagline": "Demone WhatsApp self-hosted",
