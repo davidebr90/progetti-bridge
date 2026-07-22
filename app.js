@@ -950,8 +950,18 @@ function navigateFromHash() {
   if (Array.isArray(ARTICLES) && ARTICLES.some((a) => a.id === raw)) openArticle(raw);
 }
 window.addEventListener("hashchange", navigateFromHash);
-// All'avvio: se l'URL porta un'ancora, vai lì una volta che i blocchi sono resi.
-window.addEventListener("load", () => setTimeout(navigateFromHash, 500));
+// All'avvio: prima il link SEO `?art=<slug>` (apre direttamente l'articolo),
+// altrimenti l'eventuale ancora #slug, una volta che i blocchi sono resi.
+window.addEventListener("load", () =>
+  setTimeout(() => {
+    const art = new URLSearchParams(location.search).get("art");
+    if (art && Array.isArray(ARTICLES) && ARTICLES.some((a) => a.id === art)) {
+      openArticle(art);
+      return;
+    }
+    navigateFromHash();
+  }, 500),
+);
 function renderMenu() {
   // Etichette
   document.getElementById("menu-sections-label").textContent = t("sections");
@@ -1312,9 +1322,22 @@ function openArticle(id) {
   requestAnimationFrame(() => reader.classList.add("show"));
   art.scrollTop = 0;
   updateReaderProgress();
-  // Deep-link condivisibile dell'articolo: aggiorna l'URL senza navigare
-  // (replaceState non emette hashchange) e prepara il bottone Condividi.
-  try { history.replaceState(null, "", "#" + a.id); } catch (_e) { /* file:// */ }
+  // URL SEO dell'articolo (?art=slug) al posto dell'ancora: condivisibile,
+  // indicizzabile e coerente con sitemap/noscript. replaceState non naviga.
+  try { history.replaceState(null, "", articleUrlFor(a.id).replace(location.origin, "")); } catch (_e) { /* file:// */ }
+  // SEO per-articolo: titolo, description e canonical della pagina diventano
+  // quelli dell'articolo finché il lettore è aperto (closeReader ripristina).
+  const artTitle = `${loc(a, "title")} · Davide Pica`;
+  const artDesc = loc(a, "excerpt") || t("seoDesc");
+  document.title = artTitle;
+  setMeta("name", "description", artDesc);
+  setMeta("property", "og:title", artTitle);
+  setMeta("property", "og:description", artDesc);
+  setMeta("property", "og:type", "article");
+  setMeta("name", "twitter:title", artTitle);
+  setMeta("name", "twitter:description", artDesc);
+  const canon = document.head.querySelector('link[rel="canonical"]');
+  if (canon) canon.setAttribute("href", articleUrlFor(a.id));
   const rs = document.getElementById("reader-share");
   if (rs) { rs.dataset.shareSlug = a.id; rs.dataset.shareTitle = loc(a, "title") || ""; }
   const back = document.getElementById("ra-back");
@@ -1404,10 +1427,18 @@ function closeReader() {
   reader.classList.remove("show");
   document.body.classList.remove("reader-open");
   setTimeout(() => { reader.hidden = true; }, 320);
-  // Ripulisce l'ancora dell'articolo dall'URL (senza scatenare navigazione).
+  // Ripulisce ancora e `?art=` dall'URL (senza navigare), conservando ?lang=en.
   try {
-    if ((location.hash || "").length > 1) history.replaceState(null, "", location.pathname + location.search);
+    const params = new URLSearchParams(location.search);
+    params.delete("art");
+    const qs = params.toString();
+    history.replaceState(null, "", location.pathname + (qs ? "?" + qs : ""));
   } catch (_e) { /* file:// */ }
+  // Ripristina i meta di pagina (titolo/description/canonical/og:type) del sito.
+  applySeoMeta();
+  setMeta("property", "og:type", "website");
+  const canon = document.head.querySelector('link[rel="canonical"]');
+  if (canon) canon.setAttribute("href", location.origin + location.pathname);
 }
 function updateReaderProgress() {
   const art = document.getElementById("reader-article");
@@ -1422,7 +1453,19 @@ function updateReaderProgress() {
  * Ogni blocco condivisibile ha un'ancora stabile (#slug). Il bottone usa la
  * Web Share API nativa dove c'è (foglio di condivisione del sistema, ideale su
  * mobile); altrimenti copia il link negli appunti e mostra un toast. */
+// URL SEO dell'ARTICOLO: query `?art=<slug>` (non l'hash: i motori trattano i
+// frammenti come la stessa pagina, mentre le query sono URL distinti e
+// indicizzabili — sono anche in sitemap.xml e nei link del noscript). Conserva
+// l'eventuale ?lang=en.
+function articleUrlFor(id) {
+  const params = new URLSearchParams();
+  if (LANG === "en") params.set("lang", "en");
+  params.set("art", id);
+  return location.origin + location.pathname + "?" + params.toString();
+}
 function shareUrlFor(slug) {
+  // Gli articoli condividono il loro URL SEO dedicato; le sezioni restano ancore.
+  if (Array.isArray(ARTICLES) && ARTICLES.some((a) => a.id === slug)) return articleUrlFor(slug);
   const base = location.origin + location.pathname + location.search;
   return slug ? base + "#" + slug : base;
 }
@@ -1581,7 +1624,10 @@ function injectJsonLd() {
       description: loc(a, "excerpt") || undefined,
       inLanguage: LANG === "en" ? "en" : "it",
       author: { "@id": base + "#person" },
-      mainEntityOfPage: base,
+      // URL SEO dedicato dell'articolo (?art=slug): stesso link di sitemap,
+      // noscript e bottone Condividi — un solo URL canonico per articolo.
+      url: `${base}?art=${encodeURIComponent(a.id)}`,
+      mainEntityOfPage: `${base}?art=${encodeURIComponent(a.id)}`,
     })),
   };
   const projectList = {

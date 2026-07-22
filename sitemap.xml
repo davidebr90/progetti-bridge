@@ -3,11 +3,67 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://davidebr90.github.io/progetti-bridge/</loc>
-    <lastmod>2026-07-12</lastmod>
+    <lastmod>2026-07-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/" />
     <xhtml:link rel="alternate" hreflang="en" href="https://davidebr90.github.io/progetti-bridge/?lang=en" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/" />
+  </url>
+  <!-- Articoli del blog: URL SEO dedicati (?art=slug), gli stessi di canonical,
+       JSON-LD, bottone Condividi e link nel noscript. -->
+  <url>
+    <loc>https://davidebr90.github.io/progetti-bridge/?art=attrito-e-otium</loc>
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://davidebr90.github.io/progetti-bridge/?art=il-calzolaio-aveva-ragione</loc>
+    <lastmod>2026-07-19</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://davidebr90.github.io/progetti-bridge/?art=numero-del-freezer</loc>
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://davidebr90.github.io/progetti-bridge/?art=a-cosa-serviamo</loc>
+    <lastmod>2026-05-20</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://davidebr90.github.io/progetti-bridge/?art=dove-crescono</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://davidebr90.github.io/progetti-bridge/?art=chi-nascera</loc>
+    <lastmod>2026-03-25</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://davidebr90.github.io/progetti-bridge/?art=chi-accende</loc>
+    <lastmod>2026-02-24</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://davidebr90.github.io/progetti-bridge/?art=sapere-basta</loc>
+    <lastmod>2026-01-15</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://davidebr90.github.io/progetti-bridge/?art=chi-e-il-capitale</loc>
+    <lastmod>2025-06-10</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>
