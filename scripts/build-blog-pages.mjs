@@ -27,13 +27,48 @@ const esc = (s) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
+/* Blocco codice "CodeCanvas" (speculare ad app.js): righe numerate + Copia. */
+function codeCanvasHTML(lang, code) {
+  const lines = code
+    .replace(/\n$/, "")
+    .split("\n")
+    .map((l) => `<span class="cc-line">${esc(l) || " "}</span>`)
+    .join("\n");
+  return `<figure class="code-canvas"><figcaption class="cc-bar"><span class="cc-lang">${esc(lang || "codice")}</span><button type="button" class="cc-copy" aria-label="Copia codice">Copia</button></figcaption><pre class="cc-pre"><code class="cc-code">${lines}</code></pre></figure>`;
+}
+
+/* Estrae codice ``` e formule LaTeX ($$/\[..\] display, \(..\) inline) in
+   placeholder, speculare a extractRawSegments di app.js. */
+function extractRawSegments(md) {
+  const store = [];
+  const put = (html) => {
+    store.push(html);
+    return `@@RAW${store.length - 1}@@`;
+  };
+  let text = String(md || "");
+  text = text.replace(/```([a-zA-Z0-9#+-]*)\n([\s\S]*?)```/g, (_, lang, code) => put(codeCanvasHTML(lang, code)));
+  const display = (_, tex) => {
+    const t = tex.trim();
+    return put(`<div class="math-display math-tex" data-tex="${esc(t)}">${esc(t)}</div>`);
+  };
+  text = text.replace(/\$\$([\s\S]+?)\$\$/g, display);
+  text = text.replace(/\\\[([\s\S]+?)\\\]/g, display);
+  text = text.replace(/\\\((.+?)\\\)/g, (_, tex) => {
+    const t = tex.trim();
+    return put(`<span class="math-inline math-tex" data-tex="${esc(t)}">${esc(t)}</span>`);
+  });
+  return { text, restore: (html) => html.replace(/@@RAW(\d+)@@/g, (_, i) => store[Number(i)] ?? "") };
+}
+
 /* Mini-renderer markdown, SPECULARE a mdToHtmlWithCitations di app.js:
-   paragrafi, **grassetto**, *corsivo*, ## titoli, --- separatore, e i link
-   [Etichetta](url) come citazioni numerate [n] con sezione Fonti in coda. */
+   paragrafi, **grassetto**, *corsivo*, ## titoli, --- separatore, tabelle,
+   codice ```, formule LaTeX, e i link [Etichetta](url) come citazioni numerate
+   [n] con sezione Fonti in coda. */
 function mdToHtml(md, sourcesLabel) {
+  const seg = extractRawSegments(md);
   const cites = [];
   const byUrl = new Map();
-  const pre = String(md || "").replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, (_, label, url) => {
+  const pre = seg.text.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, (_, label, url) => {
     let n = byUrl.get(url);
     if (!n) {
       n = cites.length + 1;
@@ -46,12 +81,20 @@ function mdToHtml(md, sourcesLabel) {
     esc(s)
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/\*(.+?)\*/g, "<em>$1</em>");
+  const cells = (row) => row.replace(/^\s*\|/, "").replace(/\|\s*$/, "").split("|").map((c) => c.trim());
   let html = pre
     .split(/\n{2,}/)
     .map((block) => {
       const b = block.trim();
       if (!b) return "";
       if (b === "---" || b === "***") return "<hr />";
+      if (/^@@RAW\d+@@$/.test(b)) return b;
+      const lines = b.split("\n");
+      if (lines.length >= 2 && /^\s*\|.+\|\s*$/.test(lines[0]) && /^\s*\|[\s:|-]+\|\s*$/.test(lines[1])) {
+        const th = cells(lines[0]).map((c) => `<th>${inline(c)}</th>`).join("");
+        const trs = lines.slice(2).map((r) => `<tr>${cells(r).map((c) => `<td>${inline(c)}</td>`).join("")}</tr>`).join("");
+        return `<div class="md-table"><table><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table></div>`;
+      }
       const h = b.match(/^(#{1,3})\s+([\s\S]+)$/);
       if (h) {
         const tag = h[1].length >= 3 ? "h3" : "h2";
@@ -76,7 +119,7 @@ function mdToHtml(md, sourcesLabel) {
       .join("");
     html += `\n<hr />\n<section class="cite-list"><h3 class="ra-h3">${esc(sourcesLabel)}</h3><ol>${items}</ol></section>`;
   }
-  return html;
+  return seg.restore(html);
 }
 
 function fmtDate(iso, lang) {
@@ -91,6 +134,35 @@ function fmtDate(iso, lang) {
 function pageHTML(a, lang, depth) {
   const en = a.en || {};
   const L = (field) => (lang === "en" && en[field] != null ? en[field] : a[field]);
+  const bodyHtml = mdToHtml(L("body"), lang === "en" ? "Sources & references" : "Fonti e riferimenti");
+  // Asset extra SOLO se servono: KaTeX (CDN jsDelivr, MIT) per le formule e lo
+  // script Copia per i CodeCanvas. Le pagine senza math/codice restano leggere.
+  const hasMath = bodyHtml.includes("math-tex");
+  const hasCode = bodyHtml.includes("code-canvas");
+  const extraHead = hasMath
+    ? `\n    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />\n    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>`
+    : "";
+  const extraScript = hasMath || hasCode
+    ? `\n    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        if (window.katex) {
+          document.querySelectorAll(".math-tex").forEach(function (el) {
+            try { window.katex.render(el.dataset.tex || el.textContent, el, { displayMode: el.classList.contains("math-display"), throwOnError: false }); } catch (e) {}
+          });
+        }
+        document.addEventListener("click", async function (e) {
+          var btn = e.target.closest(".cc-copy");
+          if (!btn) return;
+          var code = btn.closest(".code-canvas");
+          code = code && code.querySelector(".cc-code");
+          if (!code) return;
+          try { await navigator.clipboard.writeText(code.textContent || ""); btn.textContent = "Copiato"; }
+          catch (err) { btn.textContent = "Errore"; }
+          setTimeout(function () { btn.textContent = "Copia"; }, 2000);
+        });
+      });
+    </script>`
+    : "";
   const rel = "../".repeat(depth); // asset relativi dalla profondità della pagina
   const urlIt = `${SITE}blog/${a.id}/`;
   const urlEn = `${SITE}blog/${a.id}/en/`;
@@ -124,7 +196,7 @@ function pageHTML(a, lang, depth) {
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="${self}" />
     <link rel="alternate" hreflang="it" href="${urlIt}" />
-    <link rel="alternate" hreflang="en" href="${urlEn}" />
+    ${a.en ? `<link rel="alternate" hreflang="en" href="${urlEn}" />` : ""}
     <link rel="alternate" hreflang="x-default" href="${urlIt}" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="Davide Pica" />
@@ -160,21 +232,22 @@ function pageHTML(a, lang, depth) {
       .static-article .ra-meta, .static-article .ra-body { margin-left: 0; }
       .static-langswitch { color: var(--ink-faint); }
     </style>
-    <script type="application/ld+json">${JSON.stringify(jsonld)}</script>
+    <script type="application/ld+json">${JSON.stringify(jsonld)}</script>${extraHead}
   </head>
   <body>
     <main class="static-article">
       <nav class="static-topbar">
         <a href="${rel}">${esc(back)}</a>
-        <span class="static-langswitch"><a href="${other}" hreflang="${lang === "en" ? "it" : "en"}">${lang === "en" ? "Italiano" : "English"}</a></span>
+        ${a.en ? `<span class="static-langswitch"><a href="${other}" hreflang="${lang === "en" ? "it" : "en"}">${lang === "en" ? "Italiano" : "English"}</a></span>` : ""}
       </nav>
       <p class="ra-meta" style="--accent:${esc(a.accent || "var(--brand)")}"><span class="ra-cat">${esc(L("category") || "")}</span> · <span>${esc(fmtDate(a.date, lang))}</span>${minutes ? ` · <span>${esc(minutes)}</span>` : ""}</p>
       <h1 class="ra-title">${esc(L("title"))}</h1>
       <div class="ra-body" style="--accent:${esc(a.accent || "var(--brand)")}">
-${mdToHtml(L("body"), lang === "en" ? "Sources & references" : "Fonti e riferimenti")}
+${bodyHtml}
       </div>
       <p><a href="${rel}?art=${encodeURIComponent(a.id)}${lang === "en" ? "&lang=en" : ""}">${esc(openInSite)}</a></p>
     </main>
+${extraScript}
   </body>
 </html>
 `;
@@ -186,9 +259,13 @@ let count = 0;
 for (const a of articles) {
   const dirIt = join(ROOT, "blog", a.id);
   const dirEn = join(dirIt, "en");
-  mkdirSync(dirEn, { recursive: true });
+  mkdirSync(dirIt, { recursive: true });
   writeFileSync(join(dirIt, "index.html"), pageHTML(a, "it", 2), "utf8");
-  writeFileSync(join(dirEn, "index.html"), pageHTML(a, "en", 3), "utf8");
+  // Pagina EN solo se la traduzione esiste: niente doppioni IT spacciati per EN.
+  if (a.en) {
+    mkdirSync(dirEn, { recursive: true });
+    writeFileSync(join(dirEn, "index.html"), pageHTML(a, "en", 3), "utf8");
+  }
   count += 2;
 }
 console.log(`Generate ${count} pagine per ${articles.length} articoli in blog/`);

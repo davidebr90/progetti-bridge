@@ -665,6 +665,30 @@ body.lb-open { overflow: hidden; }
 .cite-list a { color: var(--brand); text-decoration: none; word-break: break-word; }
 .cite-list a:hover { text-decoration: underline; }
 .cite-host { color: var(--ink-soft); opacity: 0.75; font-size: 0.85em; }
+
+/* ---- CodeCanvas: blocco codice con righe numerate + Copia ---- */
+.code-canvas { margin: 1.6rem 0; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow-sm); }
+.cc-bar { display: flex; justify-content: space-between; align-items: center; padding: 0.45rem 0.9rem; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+.cc-lang { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); }
+.cc-copy { font-size: 0.74rem; padding: 0.2rem 0.7rem; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--ink-soft); cursor: pointer; transition: color .15s, border-color .15s; }
+.cc-copy:hover { color: var(--ink); border-color: var(--ink-faint); }
+.cc-copy:focus-visible { outline: 2px solid var(--accent, var(--brand)); outline-offset: 2px; }
+.cc-pre { margin: 0; padding: 0.9rem 0; overflow-x: auto; font-size: 0.84rem; line-height: 1.6; }
+.cc-code { counter-reset: ccline; display: block; font-family: ui-monospace, "Cascadia Code", Consolas, monospace; color: var(--ink); min-width: max-content; }
+.cc-line { display: block; counter-increment: ccline; position: relative; padding: 0 1rem 0 3.4em; white-space: pre; }
+.cc-line::before { content: counter(ccline); position: absolute; left: 0; width: 2.6em; text-align: right; color: var(--ink-faint); opacity: 0.7; user-select: none; }
+
+/* ---- Formule (KaTeX; senza rete resta il TeX leggibile in monospace) ---- */
+.math-display { margin: 1.4rem 0; overflow-x: auto; text-align: center; font-size: 1.05rem; }
+.math-display:not(:has(.katex)) { font-family: ui-monospace, Consolas, monospace; font-size: 0.86rem; color: var(--ink-soft); text-align: left; white-space: pre-wrap; }
+.math-inline:not(:has(.katex)) { font-family: ui-monospace, Consolas, monospace; font-size: 0.9em; color: var(--ink-soft); }
+
+/* ---- Tabelle Markdown negli articoli ---- */
+.md-table { margin: 1.4rem 0; overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+.md-table table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.md-table th, .md-table td { padding: 0.55rem 0.85rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+.md-table th { background: var(--surface-2); font-weight: 600; color: var(--ink); white-space: nowrap; }
+.md-table tr:last-child td { border-bottom: none; }
 .ra-body p { font-size: clamp(1.06rem,1.5vw,1.2rem); line-height: 1.75; color: var(--ink-soft); margin: 0 0 1.3rem; }
 .ra-body p strong { color: var(--ink); font-weight: 600; }
 .ra-body em { font-style: italic; }

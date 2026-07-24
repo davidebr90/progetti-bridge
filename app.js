@@ -1091,7 +1091,60 @@ function fmtArticleDate(iso) {
   return d.toLocaleDateString(LANG === "en" ? "en-GB" : "it-IT", { day: "numeric", month: "short", year: "numeric" });
 }
 // Mini-renderer Markdown (paragrafi, **grassetto**, *corsivo*, --- separatore).
+/* Blocco codice "CodeCanvas": righe numerate (CSS counter) + bottone Copia
+   (delegazione globale, vedi setupCodeCopy). Il codice è già escapato. */
+function codeCanvasHTML(lang, code) {
+  const lines = code
+    .replace(/\n$/, "")
+    .split("\n")
+    .map((l) => `<span class="cc-line">${esc(l) || " "}</span>`)
+    .join("\n");
+  return `<figure class="code-canvas"><figcaption class="cc-bar"><span class="cc-lang">${esc(lang || "codice")}</span><button type="button" class="cc-copy" aria-label="Copia codice">Copia</button></figcaption><pre class="cc-pre"><code class="cc-code">${lines}</code></pre></figure>`;
+}
+
+/**
+ * Estrae i segmenti "grezzi" del markdown (codice ``` e formule LaTeX) in
+ * placeholder che sopravvivono a escaping e alle regex successive (citazioni,
+ * grassetto...). Le formule restano come TeX in `data-tex` e vengono rese da
+ * KaTeX a runtime (renderMathIn); senza rete resta il TeX leggibile.
+ * Display: $$...$$ oppure \[...\]. Inline: \(...\).
+ */
+function extractRawSegments(md) {
+  const store = [];
+  const put = (html) => {
+    store.push(html);
+    return `@@RAW${store.length - 1}@@`;
+  };
+  let text = String(md || "");
+  text = text.replace(/```([a-zA-Z0-9#+-]*)\n([\s\S]*?)```/g, (_, lang, code) => put(codeCanvasHTML(lang, code)));
+  const display = (_, tex) => {
+    const t = tex.trim();
+    return put(`<div class="math-display math-tex" data-tex="${esc(t)}">${esc(t)}</div>`);
+  };
+  text = text.replace(/\$\$([\s\S]+?)\$\$/g, display);
+  text = text.replace(/\\\[([\s\S]+?)\\\]/g, display);
+  text = text.replace(/\\\((.+?)\\\)/g, (_, tex) => {
+    const t = tex.trim();
+    return put(`<span class="math-inline math-tex" data-tex="${esc(t)}">${esc(t)}</span>`);
+  });
+  return {
+    text,
+    restore: (html) => html.replace(/@@RAW(\d+)@@/g, (_, i) => store[Number(i)] ?? ""),
+  };
+}
+
+/** Tabella Markdown (| col | col |) → <table> scrollabile. Celle via inline(). */
+function mdTableHTML(lines, inline) {
+  const cells = (row) => row.replace(/^\s*\|/, "").replace(/\|\s*$/, "").split("|").map((c) => c.trim());
+  const head = cells(lines[0]);
+  const body = lines.slice(2).map(cells);
+  const th = head.map((c) => `<th>${inline(c)}</th>`).join("");
+  const trs = body.map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join("")}</tr>`).join("");
+  return `<div class="md-table"><table><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table></div>`;
+}
+
 function mdToHtml(md) {
+  const seg = extractRawSegments(md);
   const inline = (s) =>
     esc(s)
       .replace(
@@ -1100,12 +1153,18 @@ function mdToHtml(md) {
       )
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/\*(.+?)\*/g, "<em>$1</em>");
-  return (md || "")
+  const html = seg.text
     .split(/\n{2,}/)
     .map((block) => {
       const b = block.trim();
       if (!b) return "";
       if (b === "---" || b === "***") return "<hr />";
+      // Placeholder di blocco (codice/formula display): non avvolgerlo in <p>.
+      if (/^@@RAW\d+@@$/.test(b)) return b;
+      const lines = b.split("\n");
+      if (lines.length >= 2 && /^\s*\|.+\|\s*$/.test(lines[0]) && /^\s*\|[\s:|-]+\|\s*$/.test(lines[1])) {
+        return mdTableHTML(lines, inline);
+      }
       const h = b.match(/^(#{1,3})\s+([\s\S]+)$/);
       if (h) {
         const tag = h[1].length >= 3 ? "h3" : "h2";
@@ -1114,6 +1173,61 @@ function mdToHtml(md) {
       return `<p>${inline(b).replace(/\n/g, "<br />")}</p>`;
     })
     .join("");
+  return seg.restore(html);
+}
+
+/* ---------- KaTeX (lazy) + Copia codice ---------- */
+// KaTeX viene caricato SOLO quando un articolo contiene formule (via CDN,
+// stessa politica di jQuery/fullPage). Fallisce morbido: senza rete resta il
+// TeX grezzo, comunque leggibile.
+let katexLoading = null;
+function ensureKatex() {
+  if (window.katex) return Promise.resolve();
+  if (katexLoading) return katexLoading;
+  katexLoading = new Promise((resolve) => {
+    const css = document.createElement("link");
+    css.rel = "stylesheet";
+    css.href = "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css";
+    document.head.appendChild(css);
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js";
+    s.onload = () => resolve();
+    s.onerror = () => resolve();
+    document.head.appendChild(s);
+  });
+  return katexLoading;
+}
+function renderMathIn(root) {
+  const nodes = root ? root.querySelectorAll(".math-tex") : [];
+  if (!nodes.length) return;
+  ensureKatex().then(() => {
+    if (!window.katex) return;
+    nodes.forEach((el) => {
+      try {
+        window.katex.render(el.dataset.tex || el.textContent, el, {
+          displayMode: el.classList.contains("math-display"),
+          throwOnError: false,
+        });
+      } catch (_e) { /* resta il TeX grezzo */ }
+    });
+  });
+}
+// Copia dei CodeCanvas: delegazione unica (funziona anche su contenuti re-renderizzati).
+function setupCodeCopy() {
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".cc-copy");
+    if (!btn) return;
+    const code = btn.closest(".code-canvas")?.querySelector(".cc-code");
+    if (!code) return;
+    try {
+      await navigator.clipboard.writeText(code.textContent || "");
+      btn.textContent = "Copiato";
+      setTimeout(() => { btn.textContent = "Copia"; }, 2000);
+    } catch (_e) {
+      btn.textContent = "Errore";
+      setTimeout(() => { btn.textContent = "Copia"; }, 2000);
+    }
+  });
 }
 
 /**
@@ -1317,6 +1431,7 @@ function openArticle(id) {
   const art = document.getElementById("reader-article");
   art.style.setProperty("--accent", a.accent || "var(--brand)");
   art.innerHTML = buildArticleHTML(a);
+  renderMathIn(art); // KaTeX (lazy) sulle formule dell'articolo, se presenti
   reader.hidden = false;
   document.body.classList.add("reader-open");
   requestAnimationFrame(() => reader.classList.add("show"));
@@ -1413,6 +1528,7 @@ function turnToArticle(dir) {
     // corrente finché la pagina non atterra.
     snapshot.style.setProperty("--accent", target.accent || "var(--brand)");
     snapshot.innerHTML = buildArticleHTML(target);
+    renderMathIn(snapshot); // la pagina che "atterra" mostra già le formule rese
     front.append(snapshot);
     reader.append(layer);
     page.classList.add("turn-prev");
@@ -1888,6 +2004,7 @@ async function main() {
   const reader = document.getElementById("reader");
   const readerArt = document.getElementById("reader-article");
   document.getElementById("reader-close").addEventListener("click", closeReader);
+  setupCodeCopy(); // bottone "Copia" dei blocchi codice (delegazione globale)
   // Frecce precedente/successivo nel lettore (effetto voltapagina) + tastiera
   // ←/→ quando il lettore è aperto (e il lightbox chiuso, che usa le stesse frecce).
   const rPrev = document.getElementById("reader-prev");

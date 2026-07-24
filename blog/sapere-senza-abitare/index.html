@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="it" data-theme="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sapere senza abitare · Davide Pica</title>
+    <meta name="description" content="Un modello aiuta a confutare la congettura Jacobiana dopo 87 anni. Cosa separa chi riceve una verità da chi la sa spiegare: dal codice generato ai polinomi, locale non implica globale." />
+    <meta name="author" content="Davide Pica" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://davidebr90.github.io/progetti-bridge/blog/sapere-senza-abitare/" />
+    <link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/blog/sapere-senza-abitare/" />
+    
+    <link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/blog/sapere-senza-abitare/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Davide Pica" />
+    <meta property="og:title" content="Sapere senza abitare · Davide Pica" />
+    <meta property="og:description" content="Un modello aiuta a confutare la congettura Jacobiana dopo 87 anni. Cosa separa chi riceve una verità da chi la sa spiegare: dal codice generato ai polinomi, locale non implica globale." />
+    <meta property="og:url" content="https://davidebr90.github.io/progetti-bridge/blog/sapere-senza-abitare/" />
+    <meta property="og:locale" content="it_IT" />
+    <meta property="article:published_time" content="2026-07-24" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Sapere senza abitare · Davide Pica" />
+    <meta name="twitter:description" content="Un modello aiuta a confutare la congettura Jacobiana dopo 87 anni. Cosa separa chi riceve una verità da chi la sa spiegare: dal codice generato ai polinomi, locale non implica globale." />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../../styles.css" />
+    <script>
+      // Stesso bootstrap tema del sito: preferenza condivisa, niente flash.
+      (function () {
+        try {
+          var p = localStorage.getItem("bridge-theme");
+          if (p === "light" || p === "dark") document.documentElement.setAttribute("data-theme", p);
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      /* Layout minimo della pagina statica: riusa i token e le classi .ra-* del sito. */
+      .static-article { max-width: 72ch; margin: 0 auto; padding: clamp(2rem,6vw,4rem) clamp(1.1rem,5vw,2rem) 5rem; }
+      .static-topbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: clamp(1.6rem,4vw,2.6rem); font-size: .9rem; }
+      .static-topbar a { color: var(--ink-soft); text-decoration: none; }
+      .static-topbar a:hover { color: var(--ink); text-decoration: underline; }
+      .static-article .ra-title { margin-left: 0; max-width: none; }
+      .static-article .ra-meta, .static-article .ra-body { margin-left: 0; }
+      .static-langswitch { color: var(--ink-faint); }
+    </style>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Sapere senza abitare","datePublished":"2026-07-24","inLanguage":"it","articleSection":"AI & epistemologia","description":"Un modello aiuta a confutare la congettura Jacobiana dopo 87 anni. Cosa separa chi riceve una verità da chi la sa spiegare: dal codice generato ai polinomi, locale non implica globale.","author":{"@type":"Person","name":"Davide Pica","url":"https://davidebr90.github.io/progetti-bridge/"},"mainEntityOfPage":"https://davidebr90.github.io/progetti-bridge/blog/sapere-senza-abitare/","url":"https://davidebr90.github.io/progetti-bridge/blog/sapere-senza-abitare/"}</script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  </head>
+  <body>
+    <main class="static-article">
+      <nav class="static-topbar">
+        <a href="../../">← Tutti gli articoli</a>
+        
+      </nav>
+      <p class="ra-meta" style="--accent:#3d7f8c"><span class="ra-cat">AI &amp; epistemologia</span> · <span>24 luglio 2026</span> · <span>12 min di lettura</span></p>
+      <h1 class="ra-title">Sapere senza abitare</h1>
+      <div class="ra-body" style="--accent:#3d7f8c">
+<h2 class="ra-h2">Parte I: filosofia del capire</h2>
+<p>La sera del 19 luglio 2026, mentre mezzo pianeta guardava la finale dei Mondiali, un matematico di nome Levent Alpöge pubblicava un tweet destinato a girare più di qualsiasi gol: un controesempio esplicito alla congettura Jacobiana, un problema aperto dal 1939.<sup class="cite-ref"><a href="#fonte-1" aria-label="fonte 1">[1]</a></sup> Non una dimostrazione di cento pagine: tre polinomi, corti, brutali, verificabili da chiunque abbia un computer. A trovarli, insieme a lui, un modello di linguaggio.</p>
+<p>Quasi un secolo di tentativi falliti, chiuso da un oggetto che si controlla in un pomeriggio.</p>
+<p>Qualche settimana prima, in un video molto meno cosmico, Enkk e Salvatore San Filippo discutevano di codice generato e si facevano una domanda che sembrava da addetti ai lavori:<sup class="cite-ref"><a href="#fonte-2" aria-label="fonte 2">[2]</a></sup> Sotto quella domanda ce n'è una più grezza, che la notizia di luglio ha reso urgente per tutti: ha ancora senso capire, o basta che funzioni?</p>
+<p>C'è un abisso tra due modi di &quot;sapere&quot;. Il primo è quello del <strong>ricevitore</strong>: ascolti, annuisci, la frase ti entra in testa e ti sembra chiara. Esci dalla stanza convinto di aver capito. Il secondo è quello di chi <strong>sa spiegare</strong>: ricostruisce, semplifica senza tradire, regge le obiezioni, porta l'altro dall'altra parte della stanza. Non è una differenza di grado; è una differenza di specie. Tutto questo articolo sta dentro quella differenza.</p>
+<h3 class="ra-h3">L'illusione del &quot;ho capito&quot;</h3>
+<p>Nel software succede ogni giorno. L'AI ti sputa fuori una funzione, la leggi in diagonale, i test passano, merge. Ti senti produttivo: sei stato un ricevitore efficiente di un pezzo di verità operativa. Mesi dopo il pezzo si rompe in produzione in un modo che i test non coprivano, e scopri che non sapevi spiegare <em>perché</em> quella funzione faceva quello che faceva. Sapevi solo che andava.</p>
+<p>La linea di frattura non passa tra chi usa l'AI e chi no. Passa tra chi riceve un risultato e lo accetta perché ha la forma giusta, e chi lo abita abbastanza da poterlo distruggere, difendere o insegnare.</p>
+<p>Nel dialogo di <em>ZIP 02</em> emerge proprio questo: l'AI è un junior formidabile. Scrive, propone, a volte indovina strade che tu non avresti preso. Ma il senior non è chi digita più in fretta: è chi legge con responsabilità. Non per nostalgia del mestiere; perché la responsabilità non si può scaricare su un modello che non firma, non paga e non spiega al cliente perché il sistema ha sbagliato.</p>
+<p>Capire da ricevitore è comodo. Capire al livello di chi sa spiegare è costoso. Il periodo che stiamo attraversando premia il comodo e presenta il conto a chi ha lasciato morire il costoso.</p>
+<h3 class="ra-h3">La macchina non abita ciò che produce</h3>
+<p>Quando senti &quot;l'AI ha confutato una congettura&quot;, il riflesso è la meraviglia oppure il panico. Entrambi restano sterili finché restano emozioni.</p>
+<p>Quello che è successo è più sottile. Un essere umano ha posto la domanda giusta; un modello ha esplorato uno spazio immenso di candidati; la comunità ha verificato in poche ore ciò che per decenni non si era riusciti né a dimostrare né a spezzare. La macchina non ha &quot;capito&quot; la congettura nel senso in cui la capisce un matematico dopo anni di fallimenti: non ha vissuto le false dimostrazioni pubblicate e ritirate, né il peso culturale di un problema finito nella lista di Smale. Ha prodotto un oggetto che, una volta messo sul tavolo, la spezza.</p>
+<p>È la stessa struttura del codice generato: l'output può essere corretto senza che nessuno, nel giro, lo abiti. Per questo il punto duro del video vale anche qui: non confondere la produzione di verità con la comprensione della verità. Puoi ricevere una dimostrazione, puoi farla certificare a un theorem prover, e ancora non saperla spiegare a uno studente sveglio che chiede &quot;ok, ma perché?&quot;.</p>
+<p>Quella domanda è il confine tra sapere da utente e sapere da interlocutore.</p>
+<h3 class="ra-h3">Locale e globale, prima ancora della matematica</h3>
+<p>Un'immagine che vale anche per chi odia i polinomi. Immagina di camminare in una città dove ogni quartiere ha sensi unici ben segnalati: da ogni incrocio sai sempre come tornare indietro di un paio di isolati. Localmente sei a posto. Poi scopri che strade diverse, partite da punti lontani, ti scaricano tutte nello stesso vicolo cieco: guardando solo dove sei arrivato, non puoi più ricostruire da dove sei partito. La città, presa nel suo insieme, non è invertibile.</p>
+<p>La congettura Jacobiana scommetteva che per certe mappe &quot;ordinate&quot; il locale buono garantisse il globale buono. Ha perso.</p>
+<p>Noi, con i modelli, facciamo spesso l'errore simmetrico: guardiamo la coerenza locale di una risposta (bella, articolata, citazioni plausibili, codice che compila) e ne deduciamo una garanzia globale, cioè che il sistema &quot;sappia&quot;, che il progetto &quot;tenga&quot;, che la prova &quot;regga&quot;. Locale non implica globale: non in algebra, non in una pull request, non in una conversazione con un LLM. Non è una battuta da nerd; è igiene mentale per il 2026.</p>
+<h3 class="ra-h3">Chi chiede, chi esplora, chi firma</h3>
+<p>Nel tweet, Alpöge ringrazia l'amico che gli ha suggerito di cercare il controesempio invece della dimostrazione, e il modello che &quot;ha lavorato durante la finale&quot;.<sup class="cite-ref"><a href="#fonte-3" aria-label="fonte 3">[3]</a></sup> I ruoli non coincidono, e vale la pena tenerli separati.</p>
+<p>Chi orienta: la domanda giusta (&quot;e se invece di dimostrarla la spezzassimo?&quot;) è già un atto creativo. Chi esplora: lo spazio dei candidati è troppo grande per la pazienza umana di una serata, e il modello lo scandaglia. Chi risponde del vero: verifica, pubblica, mette la faccia. Lean può certificare un lemma; non può firmare un'etica né un prodotto.</p>
+<p>Nel video il parallelo è limpido: generare codice non ti toglie dal giro; ti ci mette dentro con meno mappe, se smetti di leggere. La vera &quot;evasione&quot; non è la furbizia da prompt. È la tentazione di uscire dalla responsabilità della comprensione restando agganciati al beneficio del risultato. Puoi evadere dal capire; non puoi evadere dalle conseguenze di non aver capito.</p>
+<h3 class="ra-h3">Allora ha ancora senso leggere?</h3>
+<p>Sì, ma il senso è cambiato, e fingere che sia lo stesso di dieci anni fa è nostalgia inutile. Non leggiamo più soltanto per produrre la riga o il lemma: leggiamo per restare capaci di spiegare. Per non diventare clienti di un oracolo. Per poter dire a un collega, o a noi stessi tra sei mesi: ecco perché questo regge, ed ecco dove si spezzerebbe.</p>
+<p>Ricevere è gratis, spiegare costa. Una cultura tecnica che smette di pagare il costo dello spiegare si riempie di sistemi che &quot;funzionano&quot; finché non incontrano il caso che nessuno abitava. La notizia della Jacobiana non dice che le macchine hanno vinto: dice che il prezzo del non capire è salito, perché ora le macchine producono verità verificabili più in fretta di quanto noi siamo disposti a interiorizzarle.</p>
+<p>Da qui in poi si scende nella stanza dei numeri. Non serve per sentire il peso di quanto detto finora; serve se vuoi spiegare cosa è successo, non solo raccontarlo. Ed è esattamente la differenza da cui siamo partiti.</p>
+<hr />
+<h2 class="ra-h2">Parte II: il problema, i numeri, le implicazioni</h2>
+<p>L'intuizione prima delle formule. Prendi una trasformazione dello spazio costruita solo con polinomi. C'è un numero, lo <em>jacobiano</em>, che misura come la trasformazione dilata o schiaccia i volumi in ogni punto. Se quel numero è una costante diversa da zero, la trasformazione non schiaccia mai nulla: in ogni punto, localmente, si può tornare indietro. La congettura Jacobiana scommetteva che questa bontà locale bastasse a garantire l'invertibilità dell'intera mappa, con inversa a sua volta polinomiale. Sembrava quasi ovvio. Non lo era.</p>
+<h3 class="ra-h3">L'enunciato</h3>
+<p>Formulata da <strong>Ott-Heinrich Keller</strong> nel 1939, in forma moderna suona così.<sup class="cite-ref"><a href="#fonte-4" aria-label="fonte 4">[4]</a></sup> Prendi una mappa polinomiale</p>
+<div class="math-display math-tex" data-tex="F = (F_1, \ldots, F_n) : K^n \to K^n">F = (F_1, \ldots, F_n) : K^n \to K^n</div>
+<p>dove <span class="math-inline math-tex" data-tex="K">K</span> è un campo di caratteristica zero (tipicamente <span class="math-inline math-tex" data-tex="\mathbb{C}">\mathbb{C}</span> o <span class="math-inline math-tex" data-tex="\mathbb{R}">\mathbb{R}</span>) e ogni <span class="math-inline math-tex" data-tex="F_i">F_i</span> è un polinomio in <span class="math-inline math-tex" data-tex="n">n</span> variabili. Costruisci la matrice jacobiana delle derivate parziali e il suo determinante <span class="math-inline math-tex" data-tex="JF">JF</span>:</p>
+<div class="math-display math-tex" data-tex="JF = \det\left( \frac{\partial F_i}{\partial x_j} \right)_{i,j = 1,\ldots,n}">JF = \det\left( \frac{\partial F_i}{\partial x_j} \right)_{i,j = 1,\ldots,n}</div>
+<p><em>Il determinante jacobiano: il fattore locale di dilatazione dei volumi.</em></p>
+<p><strong>Congettura:</strong> se <span class="math-inline math-tex" data-tex="JF">JF</span> è una costante non nulla, allora <span class="math-inline math-tex" data-tex="F">F</span> ammette un'inversa <span class="math-inline math-tex" data-tex="G: K^n \to K^n">G: K^n \to K^n</span> le cui componenti sono ancora polinomi.</p>
+<p>Per <span class="math-inline math-tex" data-tex="n = 1">n = 1</span> è un esercizio. Per <span class="math-inline math-tex" data-tex="n = 2">n = 2</span> è ancora aperta (luglio 2026). Per <span class="math-inline math-tex" data-tex="n \geq 3">n \geq 3</span> è falsa, grazie al controesempio qui sotto. Era il problema 16 della lista di Smale per il XXI secolo, con alle spalle decenni di false dimostrazioni pubblicate e poi ritirate: segno che l'intuizione &quot;locale implica globale&quot; era tanto seducente quanto scivolosa.</p>
+<h3 class="ra-h3">Il controesempio</h3>
+<p>Il 19-20 luglio 2026 Levent Alpöge (matematico ad Anthropic, già Harvard) annuncia un controesempio esplicito in tre variabili complesse, ottenuto con Claude Fable 5 dopo che un collega aveva spostato il bersaglio dalla prova al controesempio.<sup class="cite-ref"><a href="#fonte-1" aria-label="fonte 1">[1]</a></sup> La mappa <span class="math-inline math-tex" data-tex="F = (P, Q, R) : \mathbb{C}^3 \to \mathbb{C}^3">F = (P, Q, R) : \mathbb{C}^3 \to \mathbb{C}^3</span>:</p>
+<div class="math-display math-tex" data-tex="\begin{aligned}
+P &amp;= (1+xy)^3\, z + y^2\,(1+xy)\,(4+3xy) \\
+Q &amp;= y + 3x\,(1+xy)^2\, z + 3x\,y^2\,(4+3xy) \\
+R &amp;= 2x - 3x^2 y - x^3 z
+\end{aligned}">\begin{aligned}
+P &amp;= (1+xy)^3\, z + y^2\,(1+xy)\,(4+3xy) \\
+Q &amp;= y + 3x\,(1+xy)^2\, z + 3x\,y^2\,(4+3xy) \\
+R &amp;= 2x - 3x^2 y - x^3 z
+\end{aligned}</div>
+<p><em>I tre polinomi del controesempio: gradi bassi, niente mostri.</em></p>
+<p>Lo jacobiano è la costante <span class="math-inline math-tex" data-tex="-2">-2</span>, mai nullo: la premessa della congettura è soddisfatta. Eppure la mappa non è iniettiva. Tre punti distinti finiscono sulla stessa immagine:</p>
+<div class="math-display math-tex" data-tex="F(0,\,0,\,-\tfrac{1}{4}) \;=\; F(1,\,-\tfrac{3}{2},\,\tfrac{13}{2}) \;=\; F(-1,\,\tfrac{3}{2},\,\tfrac{13}{2}) \;=\; \left(-\tfrac{1}{4},\,0,\,0\right)">F(0,\,0,\,-\tfrac{1}{4}) \;=\; F(1,\,-\tfrac{3}{2},\,\tfrac{13}{2}) \;=\; F(-1,\,\tfrac{3}{2},\,\tfrac{13}{2}) \;=\; \left(-\tfrac{1}{4},\,0,\,0\right)</div>
+<p><em>Ingressi diversi, una sola uscita: nessuna inversa può esistere su tutto lo spazio.</em></p>
+<p>La congettura cade per <span class="math-inline math-tex" data-tex="n = 3">n = 3</span> e, con un'estensione standard, per ogni <span class="math-inline math-tex" data-tex="n &gt; 3">n &gt; 3</span>. Il grado della mappa è dell'ordine di poche unità, non i gradi astronomici che molti si aspettavano: il controesempio non è un mostro inaccessibile, è un oggetto che un computer algebra system e un umano paziente controllano in pochi minuti.</p>
+<h3 class="ra-h3">Verifica: fidati, ma esegui</h3>
+<p>Qui il discorso su ricevere e spiegare diventa letterale: lo snippet sotto è la differenza tra leggere la notizia e possederla. Verificato con SymPy prima della pubblicazione di questo articolo.</p>
+<figure class="code-canvas"><figcaption class="cc-bar"><span class="cc-lang">python</span><button type="button" class="cc-copy" aria-label="Copia codice">Copia</button></figcaption><pre class="cc-pre"><code class="cc-code"><span class="cc-line"># Controesempio alla congettura Jacobiana (Alpöge + Fable 5, luglio 2026)</span>
+<span class="cc-line"># Verifica: jacobiano costante e collisione di tre punti distinti.</span>
+<span class="cc-line"># Eseguire in locale: pip install &quot;sympy&gt;=1.12&quot;</span>
+<span class="cc-line">from sympy import symbols, Matrix, simplify, Rational</span>
+<span class="cc-line"> </span>
+<span class="cc-line">x, y, z = symbols(&quot;x y z&quot;)</span>
+<span class="cc-line">P = (1 + x*y)**3 * z + y**2 * (1 + x*y) * (4 + 3*x*y)</span>
+<span class="cc-line">Q = y + 3*x*(1 + x*y)**2 * z + 3*x*y**2 * (4 + 3*x*y)</span>
+<span class="cc-line">R = 2*x - 3*x**2*y - x**3*z</span>
+<span class="cc-line"> </span>
+<span class="cc-line">F = Matrix([P, Q, R])</span>
+<span class="cc-line">J = F.jacobian(Matrix([x, y, z]))</span>
+<span class="cc-line">print(&quot;det J =&quot;, simplify(J.det()))          # atteso: -2 (costante)</span>
+<span class="cc-line"> </span>
+<span class="cc-line">punti = [</span>
+<span class="cc-line">    (0, 0, Rational(-1, 4)),</span>
+<span class="cc-line">    (1, Rational(-3, 2), Rational(13, 2)),</span>
+<span class="cc-line">    (-1, Rational(3, 2), Rational(13, 2)),</span>
+<span class="cc-line">]</span>
+<span class="cc-line">for p in punti:</span>
+<span class="cc-line">    img = [simplify(c.subs({x: p[0], y: p[1], z: p[2]})) for c in (P, Q, R)]</span>
+<span class="cc-line">    print(p, &quot;-&gt;&quot;, img)                       # atteso, tre volte: [-1/4, 0, 0]</span></code></pre></figure>
+<p>Output atteso: `det J = -2` e tre volte la stessa immagine <span class="math-inline math-tex" data-tex="(-1/4,\, 0,\, 0)">(-1/4,\, 0,\, 0)</span>. Tutto qui: due proprietà meccaniche, controllabili da chiunque, che demoliscono un enunciato universale vecchio di 87 anni.</p>
+<h3 class="ra-h3">Perché trovare era duro e controllare è facile</h3>
+<p>È la struttura tipica di certi problemi di ricerca: lo spazio dei candidati (polinomi multivariati con vincoli sullo jacobiano) è sterminato, mentre il test di validità di un singolo candidato è finito e meccanico. Calcoli <span class="math-inline math-tex" data-tex="JF">JF</span>, valuti <span class="math-inline math-tex" data-tex="F">F</span> su abbastanza punti, verifichi le collisioni.</p>
+<p>È l'habitat naturale dei modelli affiancati a verifica simbolica o formale: il modello propone, SymPy o Lean (e la comunità) dispongono. Dopo l'annuncio, la formalizzazione in Lean e le review pubbliche hanno chiuso il cerchio della credibilità in tempi da social network, non da peer review anni Novanta.<sup class="cite-ref"><a href="#fonte-5" aria-label="fonte 5">[5]</a></sup></p>
+<p>L'implicazione metodologica è secca: dove esiste un oracolo di verifica esterno al modello, l'AI smette di essere autocomplete e diventa un motore di ricerca in spazi che l'intuizione umana non scandaglia a mano. Dove l'oracolo non c'è (molta scienza empirica, quasi tutta l'etica, buona parte del product) lo stesso flusso di lavoro produce soprattutto fiducia ingiustificata.</p>
+<h3 class="ra-h3">Cosa il controesempio non risolve</h3>
+<p>Precisione da chi spiega, non da chi fa hype.</p>
+<p>Non chiude il caso <span class="math-inline math-tex" data-tex="n = 2">n = 2</span>: lì la congettura vive ancora, ed è il premio residuo, più difficile e più &quot;classica&quot;. Non regala una teoria del perché queste mappe esistano: spezza un enunciato universale, non sostituisce una geometria spiegata; dopo la verifica, il lavoro umano è capire perché il controesempio funziona. Non implica che l'AI dimostri i teoremi da sola: senza la domanda umana, senza la scelta del bersaglio e senza la certificazione, avremmo avuto al più un output plausibile. Il soggetto epistemico è ibrido. E non collassa la matematica in &quot;search + check&quot;: molti problemi non hanno controesempi corti, molte verità non sono decisioni finite.</p>
+<h3 class="ra-h3">Implicazioni per chi lavora con l'AI</h3>
+<p>Qui le due metà dell'articolo si saldano.</p>
+<div class="md-table"><table><thead><tr><th>Dominio</th><th>Cosa può fare il modello</th><th>Cosa resta umano se vuoi spiegare</th></tr></thead><tbody><tr><td>Matematica con verifica</td><td>Proporre candidati, esplorare spazi enormi</td><td>La domanda, l'interpretazione, la teoria, la didattica</td></tr><tr><td>Codice con test e tipi</td><td>Generare, rifattorizzare, suggerire strade</td><td>La specifica, gli edge case, la responsabilità del merge</td></tr><tr><td>Testo, decisioni, etica</td><td>Fluenza locale altissima</td><td>Il giudizio d'insieme, le conseguenze, la firma</td></tr></tbody></table></div>
+<p>La lezione tecnica della Jacobiana è un controesempio. La lezione civile è quella del video da cui siamo partiti: puoi smettere di scrivere tutto a mano, non puoi smettere di abitare ciò che metti nel mondo. Sapere da ricevitore ormai scala; sapere al livello di chi spiega resta scarso. Ed è per questo che vale di più, proprio adesso che le macchine confutano i secoli.</p>
+<hr />
+<p><em>Ispirato al dibattito di Enkk e Salvatore San Filippo in</em><sup class="cite-ref"><a href="#fonte-2" aria-label="fonte 2">[2]</a></sup>, <em>e alla confutazione della congettura Jacobiana annunciata nel luglio 2026 da Levent Alpöge con Claude Fable 5. I calcoli del controesempio sono stati riverificati con SymPy prima della pubblicazione.</em></p>
+<hr />
+<section class="cite-list"><h3 class="ra-h3">Fonti e riferimenti</h3><ol><li id="fonte-1"><a href="https://fortune.com/2026/07/21/ai-solves-jacobian-conjecture-levant-alpoge-claude-fable-5/" target="_blank" rel="noopener">Fortune</a> <span class="cite-host">(fortune.com)</span></li><li id="fonte-2"><a href="https://www.youtube.com/watch?v=v2jJwgmWEVw" target="_blank" rel="noopener">ha ancora senso leggere il codice?</a> <span class="cite-host">(youtube.com)</span></li><li id="fonte-3"><a href="https://thevalue.engineering/news/anthropic-ai-refutes-jacobian-conjecture.html" target="_blank" rel="noopener">The Value Engineering</a> <span class="cite-host">(thevalue.engineering)</span></li><li id="fonte-4"><a href="https://es.wikipedia.org/wiki/Conjetura_Jacobiana" target="_blank" rel="noopener">Wikipedia</a> <span class="cite-host">(es.wikipedia.org)</span></li><li id="fonte-5"><a href="https://gigazine.net/gsc_news/en/20260721-claude-fable-5-jacobian-conjecture/" target="_blank" rel="noopener">Gigazine</a> <span class="cite-host">(gigazine.net)</span></li></ol></section>
+      </div>
+      <p><a href="../../?art=sapere-senza-abitare">Apri nel sito completo</a></p>
+    </main>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        if (window.katex) {
+          document.querySelectorAll(".math-tex").forEach(function (el) {
+            try { window.katex.render(el.dataset.tex || el.textContent, el, { displayMode: el.classList.contains("math-display"), throwOnError: false }); } catch (e) {}
+          });
+        }
+        document.addEventListener("click", async function (e) {
+          var btn = e.target.closest(".cc-copy");
+          if (!btn) return;
+          var code = btn.closest(".code-canvas");
+          code = code && code.querySelector(".cc-code");
+          if (!code) return;
+          try { await navigator.clipboard.writeText(code.textContent || ""); btn.textContent = "Copiato"; }
+          catch (err) { btn.textContent = "Errore"; }
+          setTimeout(function () { btn.textContent = "Copia"; }, 2000);
+        });
+      });
+    </script>
+  </body>
+</html>

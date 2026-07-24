@@ -4,12 +4,20 @@
 <!-- Articoli: pagine statiche /blog/<slug>/ generate da scripts/build-blog-pages.mjs -->
   <url>
     <loc>https://davidebr90.github.io/progetti-bridge/</loc>
-    <lastmod>2026-07-22</lastmod>
+    <lastmod>2026-07-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/" />
     <xhtml:link rel="alternate" hreflang="en" href="https://davidebr90.github.io/progetti-bridge/?lang=en" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/" />
+  </url>
+  <url>
+    <loc>https://davidebr90.github.io/progetti-bridge/blog/sapere-senza-abitare/</loc>
+    <lastmod>2026-07-24</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/blog/sapere-senza-abitare/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/blog/sapere-senza-abitare/" />
   </url>
   <url>
     <loc>https://davidebr90.github.io/progetti-bridge/blog/attrito-e-otium/</loc>
