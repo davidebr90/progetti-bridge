@@ -1384,7 +1384,12 @@ function setupBlogCarousel() {
     const cr = card.getBoundingClientRect();
     const fade = fadeWidth();
     if (cr.left >= lr.left + fade && cr.right <= lr.right - fade) return; // già in chiaro
-    let target = card.offsetLeft - (list.clientWidth - card.offsetWidth) / 2;
+    // Spostamento MINIMO: porto la card appena oltre la sfumatura (non al
+    // centro), così si muove il meno possibile e il mouse fermo le resta sopra.
+    const delta = cr.right > lr.right - fade
+      ? cr.right - (lr.right - fade)   // tagliata a destra → scorro avanti
+      : cr.left - (lr.left + fade);    // tagliata a sinistra → scorro indietro (delta negativo)
+    let target = list.scrollLeft + delta;
     const max = list.scrollWidth - list.clientWidth;
     // Se il centro cade fuori dai limiti di scroll, salto ISTANTANEAMENTE di un
     // set intero (contenuto duplicato → il salto non si vede) e lascio allo
