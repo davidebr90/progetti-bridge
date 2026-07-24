@@ -1362,6 +1362,39 @@ function setupBlogCarousel() {
   list.addEventListener("focusout", () => { hover = false; sync(); });
   list.addEventListener("touchstart", () => { hover = true; }, { passive: true });
 
+  // Hover su una card tagliata dalla sfumatura ai bordi: la porto al centro
+  // con uno scroll morbido così si legge per intero. Solo mouse (il touch
+  // scorre da sé) e solo se la card NON è già tutta in zona chiara; grazie ai
+  // cloni del loop posso sempre restare dentro i limiti di scroll spostandomi
+  // di un set intero, che è visivamente invisibile.
+  const fadeWidth = () => Math.min(Math.max(window.innerWidth * 0.05, 28), 64); // = clamp(28px,5vw,64px) della mask
+  list.addEventListener("pointerover", (e) => {
+    if (e.pointerType !== "mouse" || down || dragging) return;
+    const card = e.target.closest(".art-card");
+    if (!card || !list.contains(card)) return;
+    const lr = list.getBoundingClientRect();
+    const cr = card.getBoundingClientRect();
+    const fade = fadeWidth();
+    if (cr.left >= lr.left + fade && cr.right <= lr.right - fade) return; // già in chiaro
+    let target = card.offsetLeft - (list.clientWidth - card.offsetWidth) / 2;
+    const max = list.scrollWidth - list.clientWidth;
+    // Se il centro cade fuori dai limiti di scroll, salto ISTANTANEAMENTE di un
+    // set intero (contenuto duplicato → il salto non si vede) e lascio allo
+    // smooth solo il piccolo delta residuo, che così non viene mai troncato.
+    if (blogSetWidth > 0) {
+      if (target < 0 && list.scrollLeft + blogSetWidth <= max) {
+        list.scrollLeft += blogSetWidth;
+        target += blogSetWidth;
+      } else if (target > max && list.scrollLeft - blogSetWidth >= 0) {
+        list.scrollLeft -= blogSetWidth;
+        target -= blogSetWidth;
+      }
+    }
+    target = Math.max(0, Math.min(max, target));
+    manualUntil = performance.now() + 650;
+    list.scrollTo({ left: target, behavior: "smooth" });
+  });
+
   // Drag col mouse (il touch usa lo scroll nativo). Se trascino, sopprimo il
   // click sulla card così non apre per sbaglio l'articolo.
   let down = false, startX = 0, startScroll = 0, moved = false;
