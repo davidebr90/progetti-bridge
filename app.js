@@ -1368,8 +1368,16 @@ function setupBlogCarousel() {
   // cloni del loop posso sempre restare dentro i limiti di scroll spostandomi
   // di un set intero, che è visivamente invisibile.
   const fadeWidth = () => Math.min(Math.max(window.innerWidth * 0.05, 28), 64); // = clamp(28px,5vw,64px) della mask
+  // Anti-cascata: mentre lo scroll di centraggio anima, le card passano sotto
+  // il cursore FERMO e il browser rilancia pointerover su ciascuna → senza
+  // guardia ogni card al bordo farebbe ripartire un nuovo centraggio, in un
+  // loop infinito velocissimo. Quindi: il centraggio si arma solo con un
+  // movimento reale del mouse (pointermove) e si disarma appena scatta.
+  let centerArmed = false, centerUntil = 0;
+  list.addEventListener("pointermove", (e) => { if (e.pointerType === "mouse") centerArmed = true; });
   list.addEventListener("pointerover", (e) => {
     if (e.pointerType !== "mouse" || down || dragging) return;
+    if (!centerArmed || performance.now() < centerUntil) return;
     const card = e.target.closest(".art-card");
     if (!card || !list.contains(card)) return;
     const lr = list.getBoundingClientRect();
@@ -1391,7 +1399,9 @@ function setupBlogCarousel() {
       }
     }
     target = Math.max(0, Math.min(max, target));
-    manualUntil = performance.now() + 650;
+    centerArmed = false;
+    centerUntil = performance.now() + 700;
+    manualUntil = centerUntil;
     list.scrollTo({ left: target, behavior: "smooth" });
   });
 
