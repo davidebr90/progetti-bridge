@@ -325,7 +325,13 @@ function rescueIfStuck(el) {
     if (!el.isConnected || el.dataset.revealRescued) return;
     const r = el.getBoundingClientRect();
     const inViewport = r.top < innerHeight * 0.92 && r.bottom > innerHeight * 0.08;
-    if (inViewport && parseFloat(getComputedStyle(el).opacity) < 0.15) {
+    if (!inViewport) return;
+    const stuck = (n) => n && parseFloat(getComputedStyle(n).opacity) < 0.15;
+    /* In cinema la sezione resta visibile ma i testi (.project-body > *) hanno
+       timeline scroll-driven proprie: se il browser le implementa male restano
+       trasparenti anche con la sezione "sana" — vanno controllati anche loro. */
+    const child = el.querySelector(".project-body > *");
+    if (stuck(el) || stuck(child)) {
       el.dataset.revealRescued = "1";
       el.classList.add("reveal-rescue");
     }
