@@ -314,6 +314,23 @@ function runCleanup() {
   cleanup = [];
 }
 let revealObserver = null;
+/* Watchdog: su alcuni browser che dichiarano il supporto alle scroll-driven
+   animations ma le implementano male, il timeline resta a zero e il contenuto
+   rimane a opacita' 0 anche quando e' in viewport. Se dopo ~0.8s un elemento
+   visibile e' ancora trasparente, l'animazione viene spenta e l'elemento
+   forzato visibile. Nei browser sani non scatta mai. */
+function rescueIfStuck(el) {
+  if (el.dataset.revealRescued) return;
+  setTimeout(() => {
+    if (!el.isConnected || el.dataset.revealRescued) return;
+    const r = el.getBoundingClientRect();
+    const inViewport = r.top < innerHeight * 0.92 && r.bottom > innerHeight * 0.08;
+    if (inViewport && parseFloat(getComputedStyle(el).opacity) < 0.15) {
+      el.dataset.revealRescued = "1";
+      el.classList.add("reveal-rescue");
+    }
+  }, 800);
+}
 function observeReveal() {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const targets = document.querySelectorAll(".reveal");
@@ -324,7 +341,11 @@ function observeReveal() {
   if (revealObserver) revealObserver.disconnect();
   revealObserver = new IntersectionObserver(
     (entries) => {
-      for (const e of entries) e.target.classList.toggle("in-view", e.isIntersecting && e.intersectionRatio > 0.1);
+      for (const e of entries) {
+        const on = e.isIntersecting && e.intersectionRatio > 0.1;
+        e.target.classList.toggle("in-view", on);
+        if (on) rescueIfStuck(e.target);
+      }
     },
     { threshold: [0, 0.1, 0.35], rootMargin: "-4% 0px -4% 0px" },
   );

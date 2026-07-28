@@ -147,6 +147,9 @@ main { position: relative; }
 /* Reveal fade-in/out premium (IntersectionObserver → .in-view) — FALLBACK */
 .reveal { opacity: 0; transform: translateY(38px) scale(.985); filter: blur(6px); transition: opacity .85s cubic-bezier(.2,.7,.3,1), transform .85s cubic-bezier(.2,.7,.3,1), filter .85s ease; }
 .reveal.in-view { opacity: 1; transform: none; filter: none; }
+/* Soccorso anti-blocco (vedi app.js): forza la visibilita' se il timeline
+   scroll-driven del browser non e' mai progredito. */
+.reveal-rescue, .reveal-rescue .project-body > * { animation: none !important; opacity: 1 !important; transform: none !important; filter: none !important; }
 
 /* Scroll-Driven Animations (CSS): dove il browser le supporta, l'apparizione del
    contenuto è legata a QUANTO si scrolla (progressione morbida), non a un semplice
