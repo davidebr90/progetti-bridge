@@ -1120,11 +1120,80 @@ function fmtArticleDate(iso) {
 // Mini-renderer Markdown (paragrafi, **grassetto**, *corsivo*, --- separatore).
 /* Blocco codice "CodeCanvas": righe numerate (CSS counter) + bottone Copia
    (delegazione globale, vedi setupCodeCopy). Il codice è già escapato. */
+/* ---- Evidenziatore di sintassi leggero (zero dipendenze) ----
+   Token line-by-line con un minimo di stato tra le righe (commenti a blocco).
+   Classi: tk-c commento, tk-s stringa, tk-n numero, tk-k keyword,
+   tk-f funzione, tk-b builtin/costante, tk-v variabile, tk-t tag/proprieta'. */
+const CC_KEYWORDS = "if else for while return function class new const let var import from export try catch finally throw switch case break continue default do typeof instanceof in of async await yield static get set extends super this null true false undefined None True False def elif lambda pass raise with as global not and or is print echo foreach endforeach public private protected namespace use fn match require include void int float string bool array object map struct enum impl mut pub mod crate";
+const CC_SET = new Set(CC_KEYWORDS.split(" "));
+function ccHighlight(lang, code) {
+  const L = String(lang || "").toLowerCase();
+  const isPy = /^py/.test(L);
+  const isSh = /^(sh|bash|zsh|shell)$/.test(L);
+  const isHtml = /^(html|xml|svg)$/.test(L);
+  const isCss = /^css$/.test(L);
+  const pyBlock = /"""|'''/;
+  let inBlock = false; // dentro un commento a blocco
+  const rxWord = /^[A-Za-z_][A-Za-z0-9_]*/;
+  const out = [];
+  for (const rawLine of code.replace(/\n$/, "").split("\n")) {
+    let i = 0, html = "";
+    const putTok = (cls, txt) => { html += cls ? `<span class="${cls}">${esc(txt)}</span>` : esc(txt); };
+    if (isHtml) {
+      // evidenzia i tag: <nome attributi> — attributi come stringa unica
+      html = esc(rawLine).replace(/(&lt;\/?)([a-zA-Z][a-zA-Z0-9-]*)([^&]*?)(\/?&gt;)/g,
+        (m, a, name, attrs, b) => `${a}<span class="tk-t">${name}</span><span class="tk-s">${attrs}</span>${b}`);
+      out.push(html || " ");
+      continue;
+    }
+    while (i < rawLine.length) {
+      const rest = rawLine.slice(i);
+      if (inBlock) {
+        const end = isPy ? rest.search(pyBlock) : rest.indexOf("*/");
+        if (end === -1) { putTok("tk-c", rest); i = rawLine.length; }
+        else { const len = end + (isPy ? 3 : 2); putTok("tk-c", rest.slice(0, len)); i += len; inBlock = false; }
+        continue;
+      }
+      // commenti a fine riga
+      if ((!isPy && !isSh && rest.startsWith("//")) || ((isPy || isSh) && rest.startsWith("#"))) { putTok("tk-c", rest); break; }
+      if (!isPy && rest.startsWith("/*")) { inBlock = true; continue; }
+      if (isPy && pyBlock.test(rest.slice(0, 3))) { inBlock = true; continue; }
+      // stringhe (con prefissi py f/r/b e template literal)
+      const strM = rest.match(/^(?:[frb])?(?:"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)/);
+      if (strM) { putTok("tk-s", strM[0]); i += strM[0].length; continue; }
+      // numeri
+      const numM = rest.match(/^\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/);
+      if (numM) { putTok("tk-n", numM[0]); i += numM[0].length; continue; }
+      // variabili $ (php/bash)
+      if (rest[0] === "$") {
+        const vM = rest.match(/^\$[A-Za-z_][A-Za-z0-9_]*/);
+        if (vM) { putTok("tk-v", vM[0]); i += vM[0].length; continue; }
+      }
+      // proprieta' CSS prima dei due punti
+      if (isCss) {
+        const cM = rest.match(/^[a-z-]+(?=\s*:)/);
+        if (cM) { putTok("tk-t", cM[0]); i += cM[0].length; continue; }
+      }
+      // parole: keyword / nome funzione (seguito da parentesi) / testo normale
+      const wM = rest.match(rxWord);
+      if (wM) {
+        const w = wM[0];
+        const after = rest.slice(w.length);
+        if (CC_SET.has(w)) putTok("tk-k", w);
+        else if (/^\s*\(/.test(after)) putTok("tk-f", w);
+        else putTok("", w);
+        i += w.length; continue;
+      }
+      putTok("", rawLine[i]); i += 1;
+    }
+    out.push(html || " ");
+  }
+  return out;
+}
+
 function codeCanvasHTML(lang, code) {
-  const lines = code
-    .replace(/\n$/, "")
-    .split("\n")
-    .map((l) => `<span class="cc-line">${esc(l) || " "}</span>`)
+  const lines = ccHighlight(lang, code)
+    .map((l) => `<span class="cc-line">${l}</span>`)
     .join("\n");
   return `<figure class="code-canvas"><figcaption class="cc-bar"><span class="cc-lang">${esc(lang || "codice")}</span><button type="button" class="cc-copy" aria-label="Copia codice">Copia</button></figcaption><pre class="cc-pre"><code class="cc-code">${lines}</code></pre></figure>`;
 }

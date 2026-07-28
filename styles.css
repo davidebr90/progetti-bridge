@@ -676,10 +676,38 @@ body.lb-open { overflow: hidden; }
 .cc-copy { font-size: 0.74rem; padding: 0.2rem 0.7rem; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--ink-soft); cursor: pointer; transition: color .15s, border-color .15s; }
 .cc-copy:hover { color: var(--ink); border-color: var(--ink-faint); }
 .cc-copy:focus-visible { outline: 2px solid var(--accent, var(--brand)); outline-offset: 2px; }
-.cc-pre { margin: 0; padding: 0.9rem 0; overflow-x: auto; font-size: 0.84rem; line-height: 1.6; }
+.cc-pre { margin: 0; padding: 0.7rem 0; overflow-x: auto; font-size: 0.82rem; line-height: 1.45; }
 .cc-code { counter-reset: ccline; display: block; font-family: ui-monospace, "Cascadia Code", Consolas, monospace; color: var(--ink); min-width: max-content; }
-.cc-line { display: block; counter-increment: ccline; position: relative; padding: 0 1rem 0 3.4em; white-space: pre; }
+.cc-line { display: block; counter-increment: ccline; position: relative; padding: 0.08rem 1rem 0.08rem 3.4em; white-space: pre; }
 .cc-line::before { content: counter(ccline); position: absolute; left: 0; width: 2.6em; text-align: right; color: var(--ink-faint); opacity: 0.7; user-select: none; }
+/* righe alternate a zebra */
+.cc-line:nth-child(even) { background: var(--cc-zebra); }
+
+/* ---- Colori dei token (evidenziatore leggero, vedi ccHighlight in app.js) ---- */
+:root {
+  --cc-zebra: rgba(30, 45, 60, 0.05);
+  --tk-c: #8a95a1; --tk-s: #177a4b; --tk-n: #b3610b; --tk-k: #7434d6;
+  --tk-f: #1465b3; --tk-v: #c02662; --tk-t: #0e7f8a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --cc-zebra: rgba(255, 255, 255, 0.045);
+    --tk-c: #7e8994; --tk-s: #57c68b; --tk-n: #e0a52e; --tk-k: #b08bf5;
+    --tk-f: #62aef0; --tk-v: #ef7fab; --tk-t: #4fc3ce;
+  }
+}
+:root[data-theme="dark"] {
+  --cc-zebra: rgba(255, 255, 255, 0.045);
+  --tk-c: #7e8994; --tk-s: #57c68b; --tk-n: #e0a52e; --tk-k: #b08bf5;
+  --tk-f: #62aef0; --tk-v: #ef7fab; --tk-t: #4fc3ce;
+}
+.tk-c { color: var(--tk-c); font-style: italic; }
+.tk-s { color: var(--tk-s); }
+.tk-n { color: var(--tk-n); }
+.tk-k { color: var(--tk-k); font-weight: 600; }
+.tk-f { color: var(--tk-f); }
+.tk-v { color: var(--tk-v); }
+.tk-t { color: var(--tk-t); }
 
 /* ---- Formule (KaTeX; senza rete resta il TeX leggibile in monospace) ---- */
 .math-display { margin: 1.4rem 0; overflow-x: auto; text-align: center; font-size: 1.05rem; }
