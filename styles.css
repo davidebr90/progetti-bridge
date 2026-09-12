@@ -568,6 +568,14 @@ html[data-ui="carosello"] { scroll-snap-type: y mandatory; }
 .art-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent, var(--brand)); opacity: .0; transition: opacity .28s; }
 .art-card:hover { transform: translateY(-4px); border-color: var(--border-strong); box-shadow: var(--shadow-lg); }
 .art-card:hover::before { opacity: 1; }
+/* Miniatura a filo dei bordi: annulla il padding della card con margini
+   negativi. Il rapporto è lo stesso dell'immagine di apertura, così la lista e
+   l'articolo mostrano la stessa inquadratura senza un secondo ritaglio. */
+.art-thumb { display: block; margin: -1.4rem -1.4rem .3rem; aspect-ratio: 3 / 2; overflow: hidden; background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.art-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .5s cubic-bezier(.2,.7,.3,1); }
+.art-card:hover .art-thumb img, .art-card:focus-visible .art-thumb img { transform: scale(1.045); }
+/* Sopra la miniatura il tasto Condividi ha bisogno di più fondo per staccare. */
+.art-card.has-thumb .art-share { background: color-mix(in srgb, var(--surface) 88%, transparent); border-color: transparent; }
 .art-meta { display: flex; flex-direction: column; align-items: flex-start; gap: .25rem; font-size: .74rem; }
 .art-cat { color: var(--accent-ink); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
 .art-date { color: var(--ink-faint); font-variant-numeric: tabular-nums; }
@@ -819,8 +827,18 @@ body.menu-open { overflow: hidden; }
 .m-item:hover { color: var(--brand); }
 .m-item:hover::before { width: clamp(24px, 4vw, 46px); margin-right: clamp(12px, 2vw, 20px); }
 /* Genitore aperto: trattino persistente + colore accento. */
-.m-group.is-open > .m-parent { color: var(--brand); }
-.m-group.is-open > .m-parent::before { width: clamp(24px, 4vw, 46px); margin-right: clamp(12px, 2vw, 20px); }
+.m-group.is-open .m-parent { color: var(--brand); }
+.m-group.is-open .m-parent::before { width: clamp(24px, 4vw, 46px); margin-right: clamp(12px, 2vw, 20px); }
+/* Macrovoce con sezione propria: l'etichetta apre l'elenco, la freccia accanto
+   salta direttamente alla sezione. La riga tiene le due cose sulla stessa linea
+   di base senza far crescere l'altezza della voce. */
+.m-parent-row { display: flex; align-items: center; gap: clamp(.5rem, 1.6vw, 1rem); }
+.m-parent-row > .m-parent { width: auto; }
+.m-goto { flex: none; display: grid; place-items: center; width: clamp(34px, 5vw, 44px); height: clamp(34px, 5vw, 44px); padding: 0; border-radius: 50%; cursor: pointer; color: var(--ink-faint); border: 1px solid var(--border); background: transparent; transition: color .22s, border-color .22s, background .22s, transform .22s cubic-bezier(.2,.7,.3,1); }
+.m-goto svg { width: clamp(16px, 2.2vw, 20px); height: clamp(16px, 2.2vw, 20px); }
+.m-goto:hover, .m-goto:focus-visible { color: var(--brand); border-color: var(--brand); transform: translateX(3px); }
+.m-goto:active { transform: translateX(3px) scale(.92); }
+.m-group.is-open .m-goto { color: var(--brand); border-color: color-mix(in srgb, var(--brand) 45%, transparent); }
 
 /* Sottomenu ad accordion: rientrato, tipografia più piccola. */
 .m-sub { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .42s cubic-bezier(.2,.7,.3,1); }

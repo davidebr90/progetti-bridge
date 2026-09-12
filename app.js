@@ -40,7 +40,7 @@ const T = {
     "status.live": "Live", "status.beta": "Beta", "status.wip": "In sviluppo",
     menuOpen: "Apri il menu", menuClose: "Chiudi il menu",
     chooseStyle: "Scegli stile",
-    blogNav: "Blog & Filosofia", minRead: "min di lettura", backBlog: "← Torna al blog", styleOf: "nello stile di",
+    blogNav: "Blog & Filosofia", minRead: "min di lettura", backBlog: "← Torna al blog", styleOf: "nello stile di", goSection: "Vai alla sezione",
     sources: "Fonti e riferimenti",
     portfolio: "Progetti / Portfolio",
     openGallery: "Apri galleria", closeGallery: "Chiudi", prevImg: "Immagine precedente", nextImg: "Immagine successiva",
@@ -57,7 +57,7 @@ const T = {
     "status.live": "Live", "status.beta": "Beta", "status.wip": "In progress",
     menuOpen: "Open the menu", menuClose: "Close the menu",
     chooseStyle: "Choose style",
-    blogNav: "Blog & Philosophy", minRead: "min read", backBlog: "← Back to the blog", styleOf: "in the style of",
+    blogNav: "Blog & Philosophy", minRead: "min read", backBlog: "← Back to the blog", styleOf: "in the style of", goSection: "Go to section",
     sources: "Sources & references",
     portfolio: "Projects / Portfolio",
     openGallery: "Open gallery", closeGallery: "Close", prevImg: "Previous image", nextImg: "Next image",
@@ -1001,6 +1001,9 @@ function renderMenu() {
   if (ARTICLES.length) {
     nodes.push({
       label: t("blogNav"),
+      // `goto`: il genitore ha anche una sezione propria, raggiungibile dalla
+      // freccia accanto all'etichetta (e dall'etichetta stessa a menu aperto).
+      goto: "#blog",
       children: ARTICLES.map((a) => ({ label: loc(a, "title"), meta: fmtArticleDate(a.date), article: a.id })),
     });
   }
@@ -1024,14 +1027,20 @@ function renderMenu() {
           return `<li><button type="button" class="m-sub-item" ${attr}><span class="m-sub-label">${esc(c.label)}</span>${meta}</button></li>`;
         })
         .join("");
-      return `<li class="m-group" ${delay}>
-        <button type="button" class="m-item m-parent" aria-expanded="false">${esc(n.label)}</button>
+      const goto = n.goto
+        ? `<button type="button" class="m-goto" data-sel="${esc(n.goto)}" title="${esc(t("goSection"))}" aria-label="${esc(t("goSection"))}: ${esc(n.label)}">${ICONS.arrowR}</button>`
+        : "";
+      return `<li class="m-group${n.goto ? " has-goto" : ""}" ${delay}>
+        <div class="m-parent-row">
+          <button type="button" class="m-item m-parent" aria-expanded="false"${n.goto ? ` data-goto="${esc(n.goto)}"` : ""}>${esc(n.label)}</button>
+          ${goto}
+        </div>
         <div class="m-sub"><ul class="m-sub-list">${subs}</ul></div>
       </li>`;
     })
     .join("");
   // Foglie: chiudi il menu e scrolla alla sezione.
-  list.querySelectorAll(".m-item[data-sel], .m-sub-item[data-sel]").forEach((b) =>
+  list.querySelectorAll(".m-item[data-sel], .m-sub-item[data-sel], .m-goto[data-sel]").forEach((b) =>
     b.addEventListener("click", () => {
       closeMenu();
       setTimeout(() => scrollToTarget(b.dataset.sel), 260);
@@ -1045,9 +1054,16 @@ function renderMenu() {
     }),
   );
   // Genitori: apri/chiudi il sottomenu (il genitore resta, con trattino).
+  // Se il gruppo ha una sezione propria ed è GIÀ aperto, il secondo clic
+  // sull'etichetta non richiude l'elenco ma porta alla sezione, come la freccia.
   list.querySelectorAll(".m-parent").forEach((b) =>
     b.addEventListener("click", () => {
       const group = b.closest(".m-group");
+      if (b.dataset.goto && group.classList.contains("is-open")) {
+        closeMenu();
+        setTimeout(() => scrollToTarget(b.dataset.goto), 260);
+        return;
+      }
       const open = group.classList.toggle("is-open");
       b.setAttribute("aria-expanded", open ? "true" : "false");
     }),
@@ -1366,7 +1382,13 @@ function mdToHtmlWithCitations(md) {
 }
 function articleCardHTML(a) {
   const title = loc(a, "title") || "";
-  return `<article class="art-card" role="button" tabindex="0" data-id="${esc(a.id)}" aria-label="${esc(title)}" style="--accent:${esc(a.accent || "var(--brand)")}">
+  // Miniatura: decorativa (alt vuoto) perché la card è già etichettata col
+  // titolo, e lazy perché in lista sono quasi tutte fuori schermo.
+  const thumb = a.image
+    ? `<span class="art-thumb"><img src="${a.image.src}-thumb.webp" alt="" width="640" height="427" loading="lazy" decoding="async" /></span>`
+    : "";
+  return `<article class="art-card${a.image ? " has-thumb" : ""}" role="button" tabindex="0" data-id="${esc(a.id)}" aria-label="${esc(title)}" style="--accent:${esc(a.accent || "var(--brand)")}">
+    ${thumb}
     <button type="button" class="art-share js-share" data-share-slug="${esc(a.id)}" data-share-title="${esc(title)}" title="${esc(t("share"))}" aria-label="${esc(t("share"))}: ${esc(title)}">${ICONS.share}</button>
     <span class="art-meta"><span class="art-cat">${esc(loc(a, "category") || "")}</span><span class="art-date">${esc(fmtArticleDate(a.date))}</span></span>
     <span class="art-title">${esc(title)}</span>

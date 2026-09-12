@@ -14,6 +14,7 @@ For every article three files land in assets/blog/:
 
     <id>-1200.webp   1200x800, the article hero
     <id>-800.webp     800x533, the same hero for narrow viewports
+    <id>-thumb.webp   640x427, the card in the blog list
     <id>-og.jpg      1200x630, social preview only
 
 The hero keeps the original 3:2 frame, so nothing is ever cut from what the
@@ -43,6 +44,7 @@ IDS = [
 
 HERO = (1200, 800)
 HERO_SMALL = (800, 533)
+THUMB = (640, 427)
 OG = (1200, 630)
 # Vertical bias of the social crop, per article id: 0.5 is centred, lower keeps
 # more of the top. Set only where a centred crop would cut something that
@@ -89,18 +91,22 @@ def main() -> int:
         im.resize(HERO_SMALL, Image.LANCZOS).save(
             OUT / f"{article_id}-800.webp", "WEBP", quality=70, method=6
         )
+        im.resize(THUMB, Image.LANCZOS).save(
+            OUT / f"{article_id}-thumb.webp", "WEBP", quality=72, method=6
+        )
         cover(im, OG, OG_FOCUS.get(article_id, 0.5)).save(
             OUT / f"{article_id}-og.jpg", "JPEG", quality=75, optimize=True, progressive=True
         )
 
         sizes = [
             (OUT / f"{article_id}-{suffix}").stat().st_size / 1024
-            for suffix in ("1200.webp", "800.webp", "og.jpg")
+            for suffix in ("1200.webp", "800.webp", "thumb.webp", "og.jpg")
         ]
         total += sum(sizes)
         print(
             f"OK    {n:>2}. {article_id:<26} "
-            f"hero {sizes[0]:5.0f} KB · small {sizes[1]:5.0f} KB · og {sizes[2]:5.0f} KB"
+            f"hero {sizes[0]:5.0f} KB · small {sizes[1]:5.0f} KB · "
+            f"thumb {sizes[2]:5.0f} KB · og {sizes[3]:5.0f} KB"
         )
 
     print(f"\nTotale in assets/blog/: {total / 1024:.2f} MB")
