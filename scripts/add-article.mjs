@@ -22,6 +22,9 @@ const TARGET = join(ROOT, "data", "articles.json");
 
 const ENTRY_KEYS = ["id", "title", "category", "date", "minutes", "accent", "excerpt", "body", "en"];
 const EN_KEYS = ["title", "category", "excerpt", "body"];
+/* L'immagine di apertura è facoltativa e viene attaccata a parte da
+   scripts/add-article-images.mjs: qui basta non trattarla come chiave estranea. */
+const OPTIONAL_KEYS = ["image"];
 const EXCERPT_MIN = 120;
 const EXCERPT_MAX = 260;
 
@@ -59,11 +62,11 @@ const replacing = data.articles.length !== others.length;
   const got = Object.keys(entry).sort();
   const want = [...ENTRY_KEYS].sort();
   const missing = want.filter((k) => !got.includes(k));
-  const extra = got.filter((k) => !want.includes(k));
+  const extra = got.filter((k) => !want.includes(k) && !OPTIONAL_KEYS.includes(k));
   const enGot = entry.en && typeof entry.en === "object" ? Object.keys(entry.en).sort() : [];
   const enWant = [...EN_KEYS].sort();
   const enMissing = enWant.filter((k) => !enGot.includes(k));
-  const enExtra = enGot.filter((k) => !enWant.includes(k));
+  const enExtra = enGot.filter((k) => !enWant.includes(k) && !OPTIONAL_KEYS.includes(k));
   const problems = [
     missing.length ? `missing: ${missing.join(", ")}` : "",
     extra.length ? `unexpected: ${extra.join(", ")}` : "",
