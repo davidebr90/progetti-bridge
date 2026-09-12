@@ -164,6 +164,18 @@ function pageHTML(a, lang, depth) {
     </script>`
     : "";
   const rel = "../".repeat(depth); // asset relativi dalla profondità della pagina
+  // Immagine di apertura: il file resta nel suo 3:2 originale per la pagina, il
+  // ritaglio 1200x630 serve solo alle anteprime social (og:image è 1.91:1 e le
+  // piattaforme non trattano altro). Entrambi da scripts/build-article-images.py.
+  const img = a.image;
+  const imgL = (field) => (lang === "en" && a.en?.image?.[field] != null ? a.en.image[field] : img?.[field]);
+  const ogImage = img ? `${SITE}${img.src}-og.jpg` : "";
+  const figureHtml = img
+    ? `<figure class="ra-figure">
+        <img src="${rel}${img.src}-1200.webp" srcset="${rel}${img.src}-800.webp 800w, ${rel}${img.src}-1200.webp 1200w" sizes="(max-width: 80ch) 100vw, 72ch" width="${img.width}" height="${img.height}" alt="${esc(imgL("alt"))}" fetchpriority="high" decoding="async" />
+        <figcaption><b class="ra-figure-style">${esc(imgL("movement"))} · ${lang === "en" ? "in the style of" : "nello stile di"} ${esc(img.artist)}</b>${esc(imgL("caption"))}</figcaption>
+      </figure>`
+    : "";
   const urlIt = `${SITE}blog/${a.id}/`;
   const urlEn = `${SITE}blog/${a.id}/en/`;
   const self = lang === "en" ? urlEn : urlIt;
@@ -181,6 +193,7 @@ function pageHTML(a, lang, depth) {
     inLanguage: lang === "en" ? "en" : "it",
     articleSection: L("category") || undefined,
     description: desc || undefined,
+    image: ogImage || undefined,
     author: { "@type": "Person", name: "Davide Pica", url: SITE },
     mainEntityOfPage: self,
     url: self,
@@ -204,10 +217,18 @@ function pageHTML(a, lang, depth) {
     <meta property="og:description" content="${esc(desc)}" />
     <meta property="og:url" content="${self}" />
     <meta property="og:locale" content="${lang === "en" ? "en_US" : "it_IT"}" />
-    <meta property="article:published_time" content="${a.date}" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="article:published_time" content="${a.date}" />${
+      ogImage
+        ? `
+    <meta property="og:image" content="${ogImage}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="${esc(imgL("alt"))}" />`
+        : ""
+    }
+    <meta name="twitter:card" content="${ogImage ? "summary_large_image" : "summary"}" />
     <meta name="twitter:title" content="${esc(title)}" />
-    <meta name="twitter:description" content="${esc(desc)}" />
+    <meta name="twitter:description" content="${esc(desc)}" />${ogImage ? `\n    <meta name="twitter:image" content="${ogImage}" />` : ""}
     <meta name="color-scheme" content="light dark" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -242,6 +263,7 @@ function pageHTML(a, lang, depth) {
       </nav>
       <p class="ra-meta" style="--accent:${esc(a.accent || "var(--brand)")}"><span class="ra-cat">${esc(L("category") || "")}</span> · <span>${esc(fmtDate(a.date, lang))}</span>${minutes ? ` · <span>${esc(minutes)}</span>` : ""}</p>
       <h1 class="ra-title">${esc(L("title"))}</h1>
+      ${figureHtml}
       <div class="ra-body" style="--accent:${esc(a.accent || "var(--brand)")}">
 ${bodyHtml}
       </div>

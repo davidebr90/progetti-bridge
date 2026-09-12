@@ -655,6 +655,15 @@ body.lb-open { overflow: hidden; }
 .ra-cat { color: var(--accent, var(--brand)); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
 .ra-title { max-width: 20ch; margin: 0 auto clamp(1.6rem,4vw,2.4rem); font-family: var(--font-display); font-weight: 500; font-size: clamp(2.2rem,6vw,4rem); line-height: 1.02; letter-spacing: -.02em; text-wrap: balance; }
 .ra-body { max-width: 68ch; margin: 0 auto; }
+/* Immagine di apertura dell'articolo. Leggermente più larga del testo (72ch
+   contro 68ch) per staccarsi dalla colonna senza diventare un banner; il
+   rapporto è fissato via aspect-ratio e width/height sono nell'HTML, così non
+   c'è salto di layout mentre carica. */
+.ra-figure { max-width: 72ch; margin: 0 auto clamp(1.8rem, 4vw, 2.6rem); }
+.ra-figure img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 14px; background: var(--paper-2, rgba(128,128,128,.08)); box-shadow: 0 10px 30px rgba(0,0,0,.13); }
+.ra-figure figcaption { margin-top: .8rem; font-size: .88rem; line-height: 1.6; color: var(--ink-faint); max-width: 68ch; }
+.ra-figure-style { display: block; color: var(--ink-soft); font-weight: 600; letter-spacing: .01em; margin-bottom: .18rem; }
+@media (max-width: 640px) { .ra-figure img { border-radius: 10px; } .ra-figure figcaption { font-size: .84rem; } }
 /* Citazioni-fonte: rimando numerato piccolo in apice + elenco Fonti in fondo. */
 .cite-ref { font-size: 0.68em; line-height: 0; vertical-align: super; margin-left: 0.12em; }
 .cite-ref a { color: var(--brand); text-decoration: none; font-weight: 600; }

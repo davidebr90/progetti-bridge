@@ -40,7 +40,7 @@ const T = {
     "status.live": "Live", "status.beta": "Beta", "status.wip": "In sviluppo",
     menuOpen: "Apri il menu", menuClose: "Chiudi il menu",
     chooseStyle: "Scegli stile",
-    blogNav: "Blog & Filosofia", minRead: "min di lettura", backBlog: "← Torna al blog",
+    blogNav: "Blog & Filosofia", minRead: "min di lettura", backBlog: "← Torna al blog", styleOf: "nello stile di",
     sources: "Fonti e riferimenti",
     portfolio: "Progetti / Portfolio",
     openGallery: "Apri galleria", closeGallery: "Chiudi", prevImg: "Immagine precedente", nextImg: "Immagine successiva",
@@ -57,7 +57,7 @@ const T = {
     "status.live": "Live", "status.beta": "Beta", "status.wip": "In progress",
     menuOpen: "Open the menu", menuClose: "Close the menu",
     chooseStyle: "Choose style",
-    blogNav: "Blog & Philosophy", minRead: "min read", backBlog: "← Back to the blog",
+    blogNav: "Blog & Philosophy", minRead: "min read", backBlog: "← Back to the blog", styleOf: "in the style of",
     sources: "Sources & references",
     portfolio: "Projects / Portfolio",
     openGallery: "Open gallery", closeGallery: "Close", prevImg: "Previous image", nextImg: "Next image",
@@ -1559,10 +1559,25 @@ let READER_ARTICLE_ID = null;
 // Markup interno di un articolo (usato dal lettore E dallo "snapshot" di pagina
 // dell'effetto voltalibro, che deve poter renderizzare l'articolo di arrivo
 // prima che diventi quello reale).
+// Immagine di apertura dell'articolo: stesso markup della pagina statica
+// generata da scripts/build-blog-pages.mjs, così lettore in-site e pagina SEO
+// mostrano la stessa cosa. Il file resta nel suo 3:2, il ritaglio social vive
+// solo nei meta della pagina statica.
+function articleFigureHTML(a) {
+  const img = a.image;
+  if (!img) return "";
+  const f = (field) => (LANG === "en" && a.en?.image?.[field] != null ? a.en.image[field] : img[field]);
+  return `<figure class="ra-figure">
+      <img src="${img.src}-1200.webp" srcset="${img.src}-800.webp 800w, ${img.src}-1200.webp 1200w" sizes="(max-width: 80ch) 100vw, 72ch" width="${img.width}" height="${img.height}" alt="${esc(f("alt"))}" decoding="async" />
+      <figcaption><b class="ra-figure-style">${esc(f("movement"))} · ${esc(t("styleOf"))} ${esc(img.artist)}</b>${esc(f("caption"))}</figcaption>
+    </figure>`;
+}
+
 function buildArticleHTML(a) {
   return `
     <p class="ra-meta"><span class="ra-cat">${esc(loc(a, "category") || "")}</span> · <span>${esc(fmtArticleDate(a.date))}</span>${a.minutes ? ` · <span>${a.minutes} ${esc(t("minRead"))}</span>` : ""}</p>
     <h1 class="ra-title">${esc(loc(a, "title"))}</h1>
+    ${articleFigureHTML(a)}
     <div class="ra-body">${mdToHtmlWithCitations(loc(a, "body"))}</div>
     <div class="ra-foot"><button type="button" class="ra-back" id="ra-back">${esc(t("backBlog"))}</button></div>`;
 }
