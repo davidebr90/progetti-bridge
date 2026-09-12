@@ -8,6 +8,10 @@ dist/
 *.token
 *.secret
 
+# Staging degli articoli: le entry grezze passano da scripts/add-article.mjs,
+# la sorgente di verità committata è data/articles.json
+incoming/
+
 # OS / editor
 .DS_Store
 Thumbs.db
