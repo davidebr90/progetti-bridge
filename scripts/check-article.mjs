@@ -20,14 +20,14 @@ import { createHash } from "node:crypto";
    article is published; an unknown id only gets the structural checks. */
 const EXPECTED = {
   "chi-e-sulla-scialuppa": {
-    bodyLength: 13355,
-    bodySha256: "b16781e44579c321dddb1086fdda286b29d18462bea80f3741bb7f2e5516fce1",
-    enBodyLength: 12887,
-    enBodySha256: "e660a37b6054e7636fbe0b26e7c1fa490167cb1fd054efe0a0669d058dcc90a5",
+    bodyLength: 12573,
+    bodySha256: "cfa9b6d8151bd46ef61300a2da5aeaef8a1c1f140044fa68a0fd763196363eac",
+    enBodyLength: 12198,
+    enBodySha256: "41ebfdd8340eb900257347d235376a7ae3569e56da5268b84a806a5fc9d45f4d",
     headingsIt: 10,
     headingsEn: 10,
-    linksIt: 4,
-    linksEn: 4,
+    linksIt: 3,
+    linksEn: 3,
     excerptLength: 188,
     enExcerptLength: 184,
   },
