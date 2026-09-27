@@ -269,7 +269,7 @@ function pageHTML(a, lang, depth) {
       <div class="ra-body" style="--accent:${esc(a.accent || "var(--brand)")}">
 ${bodyHtml}
       </div>${L("tags")?.length ? `\n      <div class="ra-tags p-tags" aria-label="${lang === "en" ? "Tags" : "Tag"}">${L("tags").map((tag) => `<span class="tag">${esc(tag)}</span>`).join("")}</div>` : ""}
-      <p><a href="${rel}?art=${encodeURIComponent(a.id)}${lang === "en" ? "&lang=en" : ""}">${esc(openInSite)}</a></p>
+      <p><a href="${rel}?art=${encodeURIComponent(a.id)}&amp;lang=${lang}">${esc(openInSite)}</a></p>
     </main>
 ${extraScript}
   </body>

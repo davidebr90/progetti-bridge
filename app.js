@@ -83,6 +83,8 @@ const LANG_KEY = "bridge-lang";
 
 /* ---------- Lingua ---------- */
 function getLang() {
+  const requested = new URLSearchParams(location.search).get("lang");
+  if (requested === "it" || requested === "en") return requested;
   try {
     const v = localStorage.getItem(LANG_KEY);
     if (v === "it" || v === "en") return v;
@@ -979,16 +981,14 @@ function navigateFromHash() {
 window.addEventListener("hashchange", navigateFromHash);
 // All'avvio: prima il link SEO `?art=<slug>` (apre direttamente l'articolo),
 // altrimenti l'eventuale ancora #slug, una volta che i blocchi sono resi.
-window.addEventListener("load", () =>
-  setTimeout(() => {
-    const art = new URLSearchParams(location.search).get("art");
-    if (art && Array.isArray(ARTICLES) && ARTICLES.some((a) => a.id === art)) {
-      openArticle(art);
-      return;
-    }
-    navigateFromHash();
-  }, 500),
-);
+function navigateFromUrl() {
+  const art = new URLSearchParams(location.search).get("art");
+  if (art && ARTICLES.some((a) => a.id === art)) {
+    openArticle(art);
+    return;
+  }
+  navigateFromHash();
+}
 function renderMenu() {
   // Etichette
   document.getElementById("menu-sections-label").textContent = t("sections");
@@ -1079,6 +1079,9 @@ function renderMenu() {
 function setLang(lang) {
   if (lang !== "it" && lang !== "en") return;
   LANG = lang;
+  const url = new URL(location.href);
+  url.searchParams.set("lang", lang);
+  history.replaceState(null, "", url);
   try {
     localStorage.setItem(LANG_KEY, lang);
   } catch {}
@@ -2281,9 +2284,8 @@ async function main() {
   // Dati reali applicati: mostra il contenuto (evita il FOUC dei placeholder statici).
   document.documentElement.classList.add("app-ready");
 
-  // Deep-link all'avvio: ora che progetti e articoli sono resi, risolvi l'ancora
-  // (sezione, card progetto o articolo) se l'URL ne porta una.
-  navigateFromHash();
+  // Risolvi articolo e ancora solo dopo il caricamento dei dati e il rendering.
+  navigateFromUrl();
 }
 
 main();
