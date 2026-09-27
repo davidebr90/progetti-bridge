@@ -24,7 +24,7 @@ const ENTRY_KEYS = ["id", "title", "category", "date", "minutes", "accent", "exc
 const EN_KEYS = ["title", "category", "excerpt", "body"];
 /* L'immagine di apertura è facoltativa e viene attaccata a parte da
    scripts/add-article-images.mjs: qui basta non trattarla come chiave estranea. */
-const OPTIONAL_KEYS = ["image"];
+const OPTIONAL_KEYS = ["image", "tags"];
 const EXCERPT_MIN = 120;
 const EXCERPT_MAX = 260;
 
@@ -76,6 +76,12 @@ const replacing = data.articles.length !== others.length;
   check("schema", problems.length === 0, problems.join(" | ") || "exact keys, en subkeys ok");
 }
 
+/* --- optional translated tags ------------------------------------------ */
+{
+  const valid = (tags) => Array.isArray(tags) && tags.length > 0 && tags.every((tag) => typeof tag === "string" && tag.trim().length > 0) && new Set(tags).size === tags.length;
+  const present = entry.tags !== undefined || entry.en?.tags !== undefined;
+  check("tags", !present || (valid(entry.tags) && valid(entry.en?.tags) && entry.tags.length === entry.en.tags.length), present ? "nonempty unique tags, matching IT/EN counts required" : "optional, not provided");
+}
 /* --- id ----------------------------------------------------------------- */
 {
   const shape = /^[a-z0-9]+(-[a-z0-9]+)*$/.test(String(entry.id ?? ""));

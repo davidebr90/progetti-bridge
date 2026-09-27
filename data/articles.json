@@ -11,6 +11,50 @@
   },
   "articles": [
     {
+      "id": "prima-dello-zero",
+      "title": "Prima dello zero",
+      "category": "Poesia & identità",
+      "date": "2026-09-27",
+      "minutes": 1,
+      "accent": "#7845c7",
+      "tags": [
+        "Poesia",
+        "Identità",
+        "Linguaggio",
+        "Memoria",
+        "Digitale"
+      ],
+      "excerpt": "Prima del nome, un gesto. Poi l'inchiostro, poi lo zero e l'uno. Una poesia sul passaggio dal segno al digitale e su ciò che, nel passaggio, impara a mancare.",
+      "body": "Prima del nome, un gesto.\nPoi l’inchiostro,\npoi lo zero e l’uno.\nIn quale passaggio\nabbiamo imparato a mancare?",
+      "en": {
+        "title": "Before Zero",
+        "category": "Poetry & identity",
+        "tags": [
+          "Poetry",
+          "Identity",
+          "Language",
+          "Memory",
+          "Digital"
+        ],
+        "excerpt": "Before the name, a gesture. Then ink, then zero and one. A poem about the passage from marks to bits, and what learns to be absent along the way.",
+        "body": "Before the name, a gesture.\nThen ink,\nthen zero and one.\nAt what point\ndid we learn to be absent?",
+        "image": {
+          "movement": "Digital ink sketch",
+          "alt": "Close-up of a man's face: the pale half is drawn in black, while the other dissolves into darkness crossed by white scratches and a violet eye.",
+          "caption": "One half of a face remains in the marks; the other dissolves into black. A violet eye holds them together: a portrait between ink and bits, created with AI from a photograph and successive choices of composition."
+        }
+      },
+      "image": {
+        "src": "assets/blog/prima-dello-zero",
+        "width": 1200,
+        "height": 800,
+        "artist": "",
+        "movement": "Bozzetto a china digitale",
+        "alt": "Primo piano di un volto maschile: la metà chiara è tracciata in nero, l'altra si dissolve in un fondo scuro attraversato da graffi bianchi e da un occhio viola.",
+        "caption": "Un volto resta nel segno, l'altro si dissolve nel nero. L'occhio viola tiene insieme le due metà: un ritratto fra china e bit, creato con l'AI a partire da una fotografia e da successive scelte di composizione."
+      }
+    },
+    {
       "id": "chi-e-sulla-scialuppa",
       "title": "Chi c'è sulla scialuppa",
       "category": "Clima & diniego",

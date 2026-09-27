@@ -1591,7 +1591,7 @@ function articleFigureHTML(a) {
   const f = (field) => (LANG === "en" && a.en?.image?.[field] != null ? a.en.image[field] : img[field]);
   return `<figure class="ra-figure">
       <img src="${img.src}-1200.webp" srcset="${img.src}-800.webp 800w, ${img.src}-1200.webp 1200w" sizes="(max-width: 80ch) 100vw, 72ch" width="${img.width}" height="${img.height}" alt="${esc(f("alt"))}" decoding="async" />
-      <figcaption><b class="ra-figure-style">${esc(f("movement"))} · ${esc(t("styleOf"))} ${esc(img.artist)}</b>${esc(f("caption"))}</figcaption>
+      <figcaption><details class="ra-caption"><summary><span aria-hidden="true">ⓘ</span> ${LANG === "en" ? "Image info" : "Info immagine"}</summary><div class="ra-caption-text"><b class="ra-figure-style">${esc(f("movement"))}${img.artist ? ` · ${esc(t("styleOf"))} ${esc(img.artist)}` : ""}</b>${esc(f("caption"))}</div></details></figcaption>
     </figure>`;
 }
 
@@ -1601,6 +1601,7 @@ function buildArticleHTML(a) {
     <h1 class="ra-title">${esc(loc(a, "title"))}</h1>
     ${articleFigureHTML(a)}
     <div class="ra-body">${mdToHtmlWithCitations(loc(a, "body"))}</div>
+    ${loc(a, "tags")?.length ? `<div class="ra-tags p-tags" aria-label="${LANG === "en" ? "Tags" : "Tag"}">${tagsHTML({ tags: loc(a, "tags") })}</div>` : ""}
     <div class="ra-foot"><button type="button" class="ra-back" id="ra-back">${esc(t("backBlog"))}</button></div>`;
 }
 
@@ -1922,6 +1923,7 @@ function injectJsonLd() {
       headline: loc(a, "title"),
       datePublished: a.date,
       articleSection: loc(a, "category") || undefined,
+      keywords: loc(a, "tags")?.join(", ") || undefined,
       description: loc(a, "excerpt") || undefined,
       inLanguage: LANG === "en" ? "en" : "it",
       author: { "@id": base + "#person" },

@@ -663,6 +663,8 @@ body.lb-open { overflow: hidden; }
 .ra-cat { color: var(--accent, var(--brand)); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
 .ra-title { max-width: 20ch; margin: 0 auto clamp(1.6rem,4vw,2.4rem); font-family: var(--font-display); font-weight: 500; font-size: clamp(2.2rem,6vw,4rem); line-height: 1.02; letter-spacing: -.02em; text-wrap: balance; }
 .ra-body { max-width: 68ch; margin: 0 auto; }
+.ra-tags { max-width: 68ch; margin: 1.8rem auto 0; }
+.static-article .ra-tags { margin-left: 0; }
 /* Immagine di apertura dell'articolo. Leggermente più larga del testo (72ch
    contro 68ch) per staccarsi dalla colonna senza diventare un banner; il
    rapporto è fissato via aspect-ratio e width/height sono nell'HTML, così non
@@ -671,6 +673,12 @@ body.lb-open { overflow: hidden; }
 .ra-figure img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 14px; background: var(--paper-2, rgba(128,128,128,.08)); box-shadow: 0 10px 30px rgba(0,0,0,.13); }
 .ra-figure figcaption { margin-top: .8rem; font-size: .88rem; line-height: 1.6; color: var(--ink-faint); max-width: 68ch; }
 .ra-figure-style { display: block; color: var(--ink-soft); font-weight: 600; letter-spacing: .01em; margin-bottom: .18rem; }
+.ra-caption { position: relative; width: fit-content; }
+.ra-caption summary { display: inline-flex; align-items: center; gap: .4rem; min-height: 36px; padding: .15rem .2rem; color: var(--ink-faint); font-size: .78rem; cursor: pointer; list-style: none; user-select: none; }
+.ra-caption summary::-webkit-details-marker { display: none; }
+.ra-caption summary:hover, .ra-caption[open] summary { color: var(--ink); }
+.ra-caption summary:focus-visible { outline: 2px solid var(--accent, var(--brand)); outline-offset: 3px; border-radius: 4px; }
+.ra-caption-text { position: absolute; z-index: 5; top: calc(100% + .35rem); left: 0; width: min(56ch, calc(100vw - 6rem)); box-sizing: border-box; padding: 1rem 1.1rem; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--ink-soft); box-shadow: var(--shadow-sm); font-size: .84rem; line-height: 1.65; }
 @media (max-width: 640px) { .ra-figure img { border-radius: 10px; } .ra-figure figcaption { font-size: .84rem; } }
 /* Citazioni-fonte: rimando numerato piccolo in apice + elenco Fonti in fondo. */
 .cite-ref { font-size: 0.68em; line-height: 0; vertical-align: super; margin-left: 0.12em; }

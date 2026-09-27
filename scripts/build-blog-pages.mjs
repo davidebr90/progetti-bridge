@@ -173,7 +173,7 @@ function pageHTML(a, lang, depth) {
   const figureHtml = img
     ? `<figure class="ra-figure">
         <img src="${rel}${img.src}-1200.webp" srcset="${rel}${img.src}-800.webp 800w, ${rel}${img.src}-1200.webp 1200w" sizes="(max-width: 80ch) 100vw, 72ch" width="${img.width}" height="${img.height}" alt="${esc(imgL("alt"))}" fetchpriority="high" decoding="async" />
-        <figcaption><b class="ra-figure-style">${esc(imgL("movement"))} · ${lang === "en" ? "in the style of" : "nello stile di"} ${esc(img.artist)}</b>${esc(imgL("caption"))}</figcaption>
+        <figcaption><details class="ra-caption"><summary><span aria-hidden="true">ⓘ</span> ${lang === "en" ? "Image info" : "Info immagine"}</summary><div class="ra-caption-text"><b class="ra-figure-style">${esc(imgL("movement"))}${img.artist ? ` · ${lang === "en" ? "in the style of" : "nello stile di"} ${esc(img.artist)}` : ""}</b>${esc(imgL("caption"))}</div></details></figcaption>
       </figure>`
     : "";
   const urlIt = `${SITE}blog/${a.id}/`;
@@ -192,6 +192,7 @@ function pageHTML(a, lang, depth) {
     datePublished: a.date,
     inLanguage: lang === "en" ? "en" : "it",
     articleSection: L("category") || undefined,
+    keywords: L("tags")?.join(", ") || undefined,
     description: desc || undefined,
     image: ogImage || undefined,
     author: { "@type": "Person", name: "Davide Pica", url: SITE },
@@ -205,7 +206,7 @@ function pageHTML(a, lang, depth) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${esc(title)}</title>
     <meta name="description" content="${esc(desc)}" />
-    <meta name="author" content="Davide Pica" />
+    <meta name="author" content="Davide Pica" />${L("tags")?.length ? `\n    <meta name="keywords" content="${esc(L("tags").join(", "))}" />\n    ${L("tags").map((tag) => `<meta property="article:tag" content="${esc(tag)}" />`).join("\n    ")}` : ""}
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="${self}" />
     <link rel="alternate" hreflang="it" href="${urlIt}" />
@@ -233,7 +234,8 @@ function pageHTML(a, lang, depth) {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="${rel}styles.css" />
+    <link rel="stylesheet" href="${rel}styles.css?v=77" />
+    <script defer src="${rel}article-captions.js"></script>
     <script>
       // Stesso bootstrap tema del sito: preferenza condivisa, niente flash.
       (function () {
@@ -266,7 +268,7 @@ function pageHTML(a, lang, depth) {
       ${figureHtml}
       <div class="ra-body" style="--accent:${esc(a.accent || "var(--brand)")}">
 ${bodyHtml}
-      </div>
+      </div>${L("tags")?.length ? `\n      <div class="ra-tags p-tags" aria-label="${lang === "en" ? "Tags" : "Tag"}">${L("tags").map((tag) => `<span class="tag">${esc(tag)}</span>`).join("")}</div>` : ""}
       <p><a href="${rel}?art=${encodeURIComponent(a.id)}${lang === "en" ? "&lang=en" : ""}">${esc(openInSite)}</a></p>
     </main>
 ${extraScript}
