@@ -4,12 +4,30 @@
 <!-- Articoli: pagine statiche /blog/<slug>/ generate da scripts/build-blog-pages.mjs -->
   <url>
     <loc>https://davidebr90.github.io/progetti-bridge/</loc>
-    <lastmod>2026-09-27</lastmod>
+    <lastmod>2026-10-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/" />
     <xhtml:link rel="alternate" hreflang="en" href="https://davidebr90.github.io/progetti-bridge/?lang=en" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/" />
+  </url>
+  <url>
+    <loc>https://davidebr90.github.io/progetti-bridge/blog/siamo-ancora-noi-nave-di-teseo/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/blog/siamo-ancora-noi-nave-di-teseo/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://davidebr90.github.io/progetti-bridge/blog/siamo-ancora-noi-nave-di-teseo/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/blog/siamo-ancora-noi-nave-di-teseo/" />
+  </url>
+  <url>
+    <loc>https://davidebr90.github.io/progetti-bridge/blog/siamo-ancora-noi-nave-di-teseo/en/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="it" href="https://davidebr90.github.io/progetti-bridge/blog/siamo-ancora-noi-nave-di-teseo/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://davidebr90.github.io/progetti-bridge/blog/siamo-ancora-noi-nave-di-teseo/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://davidebr90.github.io/progetti-bridge/blog/siamo-ancora-noi-nave-di-teseo/" />
   </url>
   <url>
     <loc>https://davidebr90.github.io/progetti-bridge/blog/prima-dello-zero/</loc>
